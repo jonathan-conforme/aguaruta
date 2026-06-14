@@ -6,7 +6,7 @@ use App\Models\Company;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\hash;
+use Illuminate\Support\Facades\Hash;
 
 
 class CompanyService
@@ -16,14 +16,14 @@ class CompanyService
      */
     public function createCompany(array $data): Company
     {
-        // Usamos DB::transaction por si en el futuro queremos 
+        // Usamos DB::transaction por si en el futuro queremos
         // crear también al Usuario Administrador de esta empresa al mismo tiempo
         return DB::transaction(function () use ($data) {
-            
+
             // 1. Preparamos los datos
             $data['is_active'] = true;
-            
-          
+
+
 
             // 2. Creamos la empresa
             $company = Company::create($data);
@@ -32,7 +32,7 @@ class CompanyService
                 'company_id' => $company->id,
                 'name' => 'Admin de ' . $company->name,
                 'email' => $data['email'],
-                'password' => Hash::make($data['ruc_number']), 
+                'password' => Hash::make($data['ruc_number']),
                 'role' => 'admin',
                 'is_active' => true,
             ]);

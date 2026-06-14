@@ -1,0 +1,146 @@
+[
+  {
+    "name": "Azuay",
+    "cantons": [
+      {"name": "Cuenca", "sectors": []}, {"name": "Camilo Ponce Enríquez", "sectors": []}, {"name": "Chordeleg", "sectors": []}, {"name": "El Pan", "sectors": []}, {"name": "Girón", "sectors": []}, {"name": "Guachapala", "sectors": []}, {"name": "Gualaceo", "sectors": []}, {"name": "Nabón", "sectors": []}, {"name": "Oña", "sectors": []}, {"name": "Paute", "sectors": []}, {"name": "Pucará", "sectors": []}, {"name": "San Fernando", "sectors": []}, {"name": "Santa Isabel", "sectors": []}, {"name": "Sevilla de Oro", "sectors": []}, {"name": "Sígsig", "sectors": []}
+    ]
+  },
+  {
+    "name": "Bolívar",
+    "cantons": [
+      {"name": "Guaranda", "sectors": []}, {"name": "Caluma", "sectors": []}, {"name": "Chillanes", "sectors": []}, {"name": "Chimbo", "sectors": []}, {"name": "Echeandía", "sectors": []}, {"name": "Las Naves", "sectors": []}, {"name": "San Miguel", "sectors": []}
+    ]
+  },
+  {
+    "name": "Cañar",
+    "cantons": [
+      {"name": "Azogues", "sectors": []}, {"name": "Biblián", "sectors": []}, {"name": "Cañar", "sectors": []}, {"name": "Déleg", "sectors": []}, {"name": "El Tambo", "sectors": []}, {"name": "La Troncal", "sectors": []}, {"name": "Suscal", "sectors": []}
+    ]
+  },
+  {
+    "name": "Carchi",
+    "cantons": [
+      {"name": "Tulcán", "sectors": []}, {"name": "Bolívar", "sectors": []}, {"name": "Espejo", "sectors": []}, {"name": "Mira", "sectors": []}, {"name": "Montúfar", "sectors": []}, {"name": "San Pedro de Huaca", "sectors": []}
+    ]
+  },
+  {
+    "name": "Chimborazo",
+    "cantons": [
+      {"name": "Riobamba", "sectors": []}, {"name": "Alausí", "sectors": []}, {"name": "Chambo", "sectors": []}, {"name": "Chunchi", "sectors": []}, {"name": "Colta", "sectors": []}, {"name": "Cumandá", "sectors": []}, {"name": "Guamote", "sectors": []}, {"name": "Guano", "sectors": []}, {"name": "Pallatanga", "sectors": []}, {"name": "Penipe", "sectors": []}
+    ]
+  },
+  {
+    "name": "Cotopaxi",
+    "cantons": [
+      {"name": "Latacunga", "sectors": []}, {"name": "La Maná", "sectors": []}, {"name": "Pangua", "sectors": []}, {"name": "Pujilí", "sectors": []}, {"name": "Salcedo", "sectors": []}, {"name": "Saquisilí", "sectors": []}, {"name": "Sigchos", "sectors": []}
+    ]
+  },
+  {
+    "name": "El Oro",
+    "cantons": [
+      {"name": "Machala", "sectors": []}, {"name": "Arenillas", "sectors": []}, {"name": "Atahualpa", "sectors": []}, {"name": "Balsas", "sectors": []}, {"name": "Chilla", "sectors": []}, {"name": "El Guabo", "sectors": []}, {"name": "Huaquillas", "sectors": []}, {"name": "Las Lajas", "sectors": []}, {"name": "Marcabelí", "sectors": []}, {"name": "Pasaje", "sectors": []}, {"name": "Piñas", "sectors": []}, {"name": "Portovelo", "sectors": []}, {"name": "Santa Rosa", "sectors": []}, {"name": "Zaruma", "sectors": []}
+    ]
+  },
+  {
+    "name": "Esmeraldas",
+    "cantons": [
+      {"name": "Esmeraldas", "sectors": []}, {"name": "Atacames", "sectors": []}, {"name": "Eloy Alfaro", "sectors": []}, {"name": "Muisne", "sectors": []}, {"name": "Quinindé", "sectors": []}, {"name": "Rioverde", "sectors": []}, {"name": "San Lorenzo", "sectors": []}
+    ]
+  },
+  {
+    "name": "Galápagos",
+    "cantons": [
+      {"name": "San Cristóbal", "sectors": []}, {"name": "Isabela", "sectors": []}, {"name": "Santa Cruz", "sectors": []}
+    ]
+  },
+  {
+    "name": "Guayas",
+    "cantons": [
+      {"name": "Guayaquil", "sectors": ["Tarqui", "Ximena", "Pascuales", "Febres Cordero"]}, {"name": "Alfredo Baquerizo Moreno (Juján)", "sectors": []}, {"name": "Balao", "sectors": []}, {"name": "Balzar", "sectors": []}, {"name": "Colimes", "sectors": []}, {"name": "Coronel Marcelino Maridueña", "sectors": []}, {"name": "Daule", "sectors": ["La Aurora"]}, {"name": "Durán", "sectors": []}, {"name": "El Empalme", "sectors": []}, {"name": "El Triunfo", "sectors": []}, {"name": "General Antonio Elizalde (Bucay)", "sectors": []}, {"name": "Isidro Ayora", "sectors": []}, {"name": "Lomas de Sargentillo", "sectors": []}, {"name": "Milagro", "sectors": []}, {"name": "Naranjal", "sectors": []}, {"name": "Naranjito", "sectors": []}, {"name": "Nobol", "sectors": []}, {"name": "Palestina", "sectors": []}, {"name": "Pedro Carbo", "sectors": ["Valle de la Virgen", "Sabanilla"]}, {"name": "Playas", "sectors": []}, {"name": "Salitre", "sectors": []}, {"name": "Samborondón", "sectors": ["La Puntilla"]}, {"name": "Santa Lucía", "sectors": []}, {"name": "Simón Bolívar", "sectors": []}, {"name": "Yaguachi", "sectors": []}
+    ]
+  },
+  {
+    "name": "Imbabura",
+    "cantons": [
+      {"name": "Ibarra", "sectors": []}, {"name": "Antonio Ante", "sectors": []}, {"name": "Cotacachi", "sectors": []}, {"name": "Otavalo", "sectors": []}, {"name": "Pimampiro", "sectors": []}, {"name": "San Miguel de Urcuquí", "sectors": []}
+    ]
+  },
+  {
+    "name": "Loja",
+    "cantons": [
+      {"name": "Loja", "sectors": []}, {"name": "Calvas", "sectors": []}, {"name": "Catamayo", "sectors": []}, {"name": "Celica", "sectors": []}, {"name": "Chaguarpamba", "sectors": []}, {"name": "Espíndola", "sectors": []}, {"name": "Gonzanamá", "sectors": []}, {"name": "Macará", "sectors": []}, {"name": "Olmedo", "sectors": []}, {"name": "Paltas", "sectors": []}, {"name": "Pindal", "sectors": []}, {"name": "Puyango", "sectors": []}, {"name": "Quilanga", "sectors": []}, {"name": "Saraguro", "sectors": []}, {"name": "Sozoranga", "sectors": []}, {"name": "Zapotillo", "sectors": []}
+    ]
+  },
+  {
+    "name": "Los Ríos",
+    "cantons": [
+      {"name": "Babahoyo", "sectors": []}, {"name": "Baba", "sectors": []}, {"name": "Buena Fe", "sectors": []}, {"name": "Mocache", "sectors": []}, {"name": "Montalvo", "sectors": []}, {"name": "Palenque", "sectors": []}, {"name": "Puebloviejo", "sectors": []}, {"name": "Quevedo", "sectors": []}, {"name": "Quinsaloma", "sectors": []}, {"name": "Urdaneta", "sectors": []}, {"name": "Valencia", "sectors": []}, {"name": "Ventanas", "sectors": []}, {"name": "Vinces", "sectors": []}
+    ]
+  },
+  {
+    "name": "Manabí",
+    "cantons": [
+      {"name": "Portoviejo", "sectors": []}, {"name": "Bolívar", "sectors": []}, {"name": "Chone", "sectors": []}, {"name": "El Carmen", "sectors": []}, {"name": "Flavio Alfaro", "sectors": []}, {"name": "Jama", "sectors": []}, {"name": "Jaramijó", "sectors": []}, {"name": "Jipijapa", "sectors": []}, {"name": "Junín", "sectors": []}, {"name": "Manta", "sectors": []}, {"name": "Montecristi", "sectors": []}, {"name": "Olmedo", "sectors": []}, {"name": "Paján", "sectors": []}, {"name": "Pedernales", "sectors": []}, {"name": "Pichincha", "sectors": []}, {"name": "Puerto López", "sectors": []}, {"name": "Rocafuerte", "sectors": []}, {"name": "San Vicente", "sectors": []}, {"name": "Santa Ana", "sectors": []}, {"name": "Sucre", "sectors": []}, {"name": "Tosagua", "sectors": []}, {"name": "24 de Mayo", "sectors": []}
+    ]
+  },
+  {
+    "name": "Morona Santiago",
+    "cantons": [
+      {"name": "Morona (Macas)", "sectors": []}, {"name": "Gualaquiza", "sectors": []}, {"name": "Huamboya", "sectors": []}, {"name": "Limón Indanza", "sectors": []}, {"name": "Logroño", "sectors": []}, {"name": "Pablo Sexto", "sectors": []}, {"name": "Palora", "sectors": []}, {"name": "San Juan Bosco", "sectors": []}, {"name": "Santiago de Méndez", "sectors": []}, {"name": "Sucúa", "sectors": []}, {"name": "Taisha", "sectors": []}, {"name": "Tiwintza", "sectors": []}
+    ]
+  },
+  {
+    "name": "Napo",
+    "cantons": [
+      {"name": "Tena", "sectors": []}, {"name": "Archidona", "sectors": []}, {"name": "Carlos Julio Arosemena Tola", "sectors": []}, {"name": "El Chaco", "sectors": []}, {"name": "Quijos", "sectors": []}
+    ]
+  },
+  {
+    "name": "Orellana",
+    "cantons": [
+      {"name": "Francisco de Orellana", "sectors": []}, {"name": "Aguarico", "sectors": []}, {"name": "La Joya de los Sachas", "sectors": []}, {"name": "Loreto", "sectors": []}
+    ]
+  },
+  {
+    "name": "Pastaza",
+    "cantons": [
+      {"name": "Pastaza (Puyo)", "sectors": []}, {"name": "Arajuno", "sectors": []}, {"name": "Mera", "sectors": []}, {"name": "Santa Clara", "sectors": []}
+    ]
+  },
+  {
+    "name": "Pichincha",
+    "cantons": [
+      {"name": "Quito", "sectors": ["Iñaquito", "Calderón", "Cumbayá", "Chillogallo"]}, {"name": "Cayambe", "sectors": []}, {"name": "Mejía", "sectors": []}, {"name": "Pedro Moncayo", "sectors": []}, {"name": "Pedro Vicente Maldonado", "sectors": []}, {"name": "Puerto Quito", "sectors": []}, {"name": "Rumiñahui", "sectors": []}, {"name": "San Miguel de los Bancos", "sectors": []}
+    ]
+  },
+  {
+    "name": "Santa Elena",
+    "cantons": [
+      {"name": "Santa Elena", "sectors": []}, {"name": "La Libertad", "sectors": []}, {"name": "Salinas", "sectors": []}
+    ]
+  },
+  {
+    "name": "Santo Domingo de los Tsáchilas",
+    "cantons": [
+      {"name": "Santo Domingo", "sectors": []}, {"name": "La Concordia", "sectors": []}
+    ]
+  },
+  {
+    "name": "Sucumbíos",
+    "cantons": [
+      {"name": "Lago Agrio", "sectors": []}, {"name": "Cascales", "sectors": []}, {"name": "Cuyabeno", "sectors": []}, {"name": "Gonzalo Pizarro", "sectors": []}, {"name": "Putumayo", "sectors": []}, {"name": "Shushufindi", "sectors": []}, {"name": "Sucumbíos", "sectors": []}
+    ]
+  },
+  {
+    "name": "Tungurahua",
+    "cantons": [
+      {"name": "Ambato", "sectors": []}, {"name": "Baños de Agua Santa", "sectors": []}, {"name": "Cevallos", "sectors": []}, {"name": "Mocha", "sectors": []}, {"name": "Patate", "sectors": []}, {"name": "Pelileo", "sectors": []}, {"name": "Píllaro", "sectors": []}, {"name": "Quero", "sectors": []}, {"name": "Tisaleo", "sectors": []}
+    ]
+  },
+  {
+    "name": "Zamora Chinchipe",
+    "cantons": [
+      {"name": "Zamora", "sectors": []}, {"name": "Centinela del Cóndor", "sectors": []}, {"name": "Chinchipe", "sectors": []}, {"name": "El Pangui", "sectors": []}, {"name": "Nangaritza", "sectors": []}, {"name": "Palanda", "sectors": []}, {"name": "Paquisha", "sectors": []}, {"name": "Yacuambi", "sectors": []}, {"name": "Yantzaza", "sectors": []}
+    ]
+  }
+]

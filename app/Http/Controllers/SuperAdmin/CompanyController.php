@@ -28,7 +28,7 @@ class CompanyController extends Controller
         ->where('is_active', true)
         ->update(['is_active' => false]);
 
-        $companies = Company::with('users')->latest()->paginate(50);
+        $companies = Company::with('users')->latest()->paginate(15);
         return Inertia::render('SuperAdmin/Companies/index', [ 'companies' => $companies]);
     }
 
@@ -45,7 +45,7 @@ class CompanyController extends Controller
      */
     public function store(StoreCompanyRequest $request)
     {
-        
+
        // 1. Obtenemos todos los datos ya validados por tu FormRequest
         $data = $request->validated();
 
@@ -62,7 +62,7 @@ class CompanyController extends Controller
         // 3. Retornamos la respuesta
         return redirect()->route('companies.index')->with('success', 'Empresa registrada correctamente.');
     }
-    
+
 
     /**
      * Display the specified resource.
@@ -84,7 +84,7 @@ class CompanyController extends Controller
      * Update the specified resource in storage.
      */
 public function update(UpdateCompanyRequest $request, Company $company)
-    { 
+    {
         // Si el código llega aquí, significa que ya pasó la validación del Request automáticamente
         $validated = $request->validated();
 

@@ -22,6 +22,7 @@ import {
     Cog6ToothIcon,
     InboxIcon,
     PowerIcon,
+    CreditCardIcon
 } from "@heroicons/react/24/solid";
 
 import {
@@ -211,7 +212,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 {auth.user.role === 'admin' && (
                                     <div className="flex flex-col">
                                         <div className="flex items-center gap-2 px-3 mb-2">
-                                            <TruckIcon className="h-4 w-4 text-indigo-400"/>
+                                            <TruckIcon className="h-4 w-4 text-indigo-400" />
                                             <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">Logística</Typography>
                                         </div>
                                         <div className="flex flex-col font-medium gap-1 ml-2">
@@ -229,14 +230,34 @@ export default function AuthenticatedLayout({ header, children }) {
                                             <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">Reportes</Typography>
                                         </div>
                                         <div className="flex flex-col font-medium gap-1 ml-2">
-                                         
-                                            <Link href="/admin/sales"><ListItem className={itemClasses('admin.sales.*')} onClick={() => setIsSidebarOpen(false)}> <DocumentTextIcon className="h-4 w-4"/> Historial de Ventas</ListItem></Link>
-                                            <Link href={route('admin.shifts.index')}><ListItem className={itemClasses('admin.shifts.*')} onClick={() => setIsSidebarOpen(false)}><ClockIcon className="h-4 w-4"/> Historial de Cierres</ListItem></Link>
-                                      
+
+                                            <Link href="/admin/sales"><ListItem className={itemClasses('admin.sales.*')} onClick={() => setIsSidebarOpen(false)}> <DocumentTextIcon className="h-4 w-4" /> Historial de Ventas</ListItem></Link>
+                                            <Link href={route('admin.shifts.index')}><ListItem className={itemClasses('admin.shifts.*')} onClick={() => setIsSidebarOpen(false)}><ClockIcon className="h-4 w-4" /> Historial de Cierres</ListItem></Link>
+
                                         </div>
                                     </div>
                                 )}
                             </>
+                        )}
+
+                        {/* 🌟 6. SISTEMA / SUSCRIPCIÓN */}
+                        {auth.user.role === 'admin' && (
+                            <div className="flex flex-col mt-4"> {/* mt-4 para darle separación del bloque de arriba */}
+                                <div className="flex items-center gap-2 px-3 mb-2">
+                                    <CreditCardIcon className="h-4 w-4 text-indigo-400" />
+                                    <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">Facturación</Typography>
+                                </div>
+                                <div className="flex flex-col font-medium gap-1 ml-2">
+                                    <Link href={route('subscription.index')}>
+                                        <ListItem
+                                            className={itemClasses('subscription.*')}
+                                            onClick={() => setIsSidebarOpen(false)}
+                                        >
+                                            <CreditCardIcon className="h-4 w-4" /> Mi Suscripción
+                                        </ListItem>
+                                    </Link>
+                                </div>
+                            </div>
                         )}
 
 

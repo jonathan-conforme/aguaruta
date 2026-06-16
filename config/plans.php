@@ -3,6 +3,7 @@
 return [
 
     'basico' => [
+        'price' => 14.99,
         'limits' => [
             'employees' => 2,
             'clients' => 50,
@@ -19,6 +20,7 @@ return [
     ],
 
     'premium' => [
+         'price' => 29.99,
         'limits' => [
             'employees' => 5,
             'clients' => 200,
@@ -35,6 +37,7 @@ return [
     ],
 
     'empresarial' => [
+         'price' => 74.99,
         'limits' => [
             'employees' => 99999,
             'clients' => 99999,

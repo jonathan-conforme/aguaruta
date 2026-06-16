@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\tripController;
 use App\Http\Controllers\Empleados\ExpenseController;
+use App\Http\Controllers\Admin\SubscriptionController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -54,13 +55,13 @@ Route::middleware('auth')->group(function () {
 // 🏢 RUTAS EXCLUSIVAS DEL CLIENTE (Super Admin)
 // ==========================================
 Route::middleware(['auth', 'verified', 'role:super_admin'])->group(function () {
-    
+
    Route::resource('companies', CompanyController::class);
    Route::resource('employee-categories', EmployeeCategoryController::class);
    Route::patch('companies/{company}/toggle', [CompanyController::class, 'toggleStatus'])
     ->name('companies.toggle');
-    
-    
+
+
 });
 Route::get('/suscripcion-vencida', function () {
     return Inertia::render('SuperAdmin/Subscription/Expired');
@@ -78,17 +79,19 @@ Route::middleware(['auth', 'verified', 'role:admin', 'check.company'])->group(fu
     Route::resource('products', ProductsController::class);
     Route::resource('customers', CustomerController::class);
     Route::resource('inventory-movements', InventoryMovementController::class);
-   
+
     Route::resource('suppliers', SupplierController::class);
     Route::resource('purchases', PurchaseController::class);
     Route::resource('trips', TripController::class);
     Route::resource('routes', DeliveryRouteController::class);
     Route::patch('/routes/{route}/toggle', [DeliveryRouteController::class, 'toggle'])->name('routes.toggle');
-    Route::resource('shifts', AdminShiftsController::class); 
-    Route::get('/admin/sales', [EmpleadoSaleController::class, 'index'])->name('admin.sales.index');  
+    Route::resource('shifts', AdminShiftsController::class);
+    Route::get('/admin/sales', [EmpleadoSaleController::class, 'index'])->name('admin.sales.index');
       Route::get('/shifts', [AdminShiftsController::class, 'index'])
             ->name('admin.shifts.index');
-}); 
+            Route::get('/mi-plan', [\App\Http\Controllers\Admin\SubscriptionController::class, 'index'])
+        ->name('subscription.index');
+});
 
 
 // ==========================================
@@ -99,7 +102,7 @@ Route::middleware(['auth', 'verified', 'role:empleado', 'check.company'])
     ->prefix('empleado') // Opcional: puedes cambiar el prefijo a empleado también
     ->name('repartidor.') // Si cambias este nombre, recuerda cambiarlo en tu botón de React
     ->group(function () {
-    
+
     // 1. Gestión de su ruta/viaje del día (Usando DeliveryController)
     Route::get('/trips', [DeliveryController::class, 'index'])->name('trips.index');
     Route::post('/trips/{trip}/start', [DeliveryController::class, 'start'])->name('trips.start');
@@ -107,17 +110,17 @@ Route::middleware(['auth', 'verified', 'role:empleado', 'check.company'])
 
     // 2. El Punto de Venta (POS) (Usando SaleController de Empleados)
     Route::get('/trips/{trip}/sales/create', [EmpleadoSaleController::class, 'create'])->name('sales.create');
-    Route::post('/sales', [EmpleadoSaleController::class, 'store'])->name('sales.store');  
-    
+    Route::post('/sales', [EmpleadoSaleController::class, 'store'])->name('sales.store');
+
     // 3. RUTAS DE APERTURA DE CAJA (SHIFTS)
     Route::get('/shifts/create', [ShiftsController::class, 'create'])->name('shifts.create');
     Route::post('/shifts', [ShiftsController::class, 'store'])->name('shifts.store');
     Route::get('/sales', [EmpleadoSaleController::class, 'index'])->name('sales.index');
 
     // 4. RUTAS DE CIERRE DE CAJA
-    Route::get('/shifts/close', [ShiftsController::class, 'showClosure'])->name('shifts.close'); 
+    Route::get('/shifts/close', [ShiftsController::class, 'showClosure'])->name('shifts.close');
     Route::post('/shifts/close', [ShiftsController::class, 'storeClosure'])->name('shifts.storeClosure');
-    
+
     // 5. Historial de turnos del repartidor
     Route::get('/shifts', [ShiftsController::class, 'index'])->name('shifts.index');
 

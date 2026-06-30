@@ -23,8 +23,8 @@
 
         <div style="text-align: center; margin: 30px 0;">
 
-            //cambiar por el domino
-            <a href="http://127.0.0.1:8000/login" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+           
+            <a href="https://aguaruta.congresoticunesum.com/login" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
                 Ingresar a AquaRuta
             </a>
         </div>

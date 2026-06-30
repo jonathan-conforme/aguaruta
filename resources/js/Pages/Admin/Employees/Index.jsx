@@ -17,26 +17,38 @@ import {
     Option,
     Switch
 } from "@material-tailwind/react";
-
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
 export default function Index({ auth, employees, categories, flash }) {
-    // 1. Estado para controlar el Modal
     const [open, setOpen] = useState(false);
-    const handleOpen = () => setOpen(!open);
+    const handleOpen = () => {
+        setOpen(!open);
+        if (!open) reset(); // Resetea el formulario al abrir/cerrar
+    };
+
     const toggleStatus = (id) => {
         router.patch(route('employees.toggle-status', id), {}, {
             preserveScroll: true,
         });
     };
+
+    const resetPasswordToCedula = (id, name) => {
+        if (window.confirm(`¿Estás seguro de que deseas restablecer la contraseña de ${name}? Volverá a ser su número de cédula.`)) {
+            router.post(route('employees.reset-password', id), {}, {
+                preserveScroll: true,
+            });
+        }
+    };
+
     const [errorModalOpen, setErrorModalOpen] = useState(false);
 
-    // Este efecto se activa CADA VEZ que flash.error cambia
     useEffect(() => {
         if (flash?.error) {
             setErrorModalOpen(true);
         }
     }, [flash?.error]);
-    // 2. Formulario de Inertia con todos los campos necesarios
+
+    // 🌟 Añadido 'create_user_account' al formulario
     const { data, setData, post, processing, errors, reset } = useForm({
         identification: '',
         first_name: '',
@@ -44,6 +56,7 @@ export default function Index({ auth, employees, categories, flash }) {
         employee_category_id: '',
         email: '',
         phone: '',
+        create_user_account: false,
     });
 
     const submit = (e) => {
@@ -51,12 +64,12 @@ export default function Index({ auth, employees, categories, flash }) {
         post(route('employees.store'), {
             onSuccess: () => {
                 reset();
-                handleOpen(); // Cierra el modal al guardar con éxito
+                setOpen(false);
             },
         });
     };
 
-    const TABLE_HEAD = ["Cédula", "Nombre Completo", "Categoría", "Contacto", "Estado"];
+    const TABLE_HEAD = ["Cédula", "Nombre Completo", "Categoría", "Contacto", "Estado", "Acciones"];
 
     return (
         <AuthenticatedLayout
@@ -67,6 +80,14 @@ export default function Index({ auth, employees, categories, flash }) {
 
             <div className="py-12 bg-gray-50/50 min-h-screen">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                    {/* Alerta de Error de Límites de Plan */}
+                    {flash?.error && (
+                        <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded shadow-sm flex justify-between items-center">
+                            <span className="text-sm font-medium">{flash.error}</span>
+                            <button onClick={() => router.page.props.flash.error = null} className="text-red-500 font-bold">✕</button>
+                        </div>
+                    )}
 
                     <Card className="h-full w-full border border-blue-gray-50 shadow-sm">
                         <CardHeader floated={false} shadow={false} className="rounded-none p-4">
@@ -106,70 +127,103 @@ export default function Index({ auth, employees, categories, flash }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {employees.length > 0 ? (
-                                        employees.map(({ id, identification, first_name, last_name, category, email, phone, is_active }, index) => {
-                                            const isLast = index === employees.length - 1;
-                                            const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+                                   {employees.map(({ id, identification, first_name, last_name, category, email, phone, is_active, user }, index) => {
+    const isLast = index === employees.length - 1;
+    const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
 
-                                            return (
-                                                <tr key={id} className="hover:bg-blue-gray-50/50 transition-colors">
-                                                    <td className={classes}>
-                                                        <Typography variant="small" color="blue-gray" className="font-mono text-sm">
-                                                            {identification || 'Sin cédula/RUC'}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={classes}>
-                                                        <Typography variant="small" color="blue-gray" className="font-bold">
-                                                            {first_name} {last_name}
-                                                        </Typography>
-                                                    </td>
-                                                    <td className={classes}>
-                                                        <Chip
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            value={category?.name || 'Sin categoría'}
-                                                            color="blue-gray"
-                                                        />
-                                                    </td>
-                                                    <td className={classes}>
-                                                        <div className="flex flex-col">
-                                                            <Typography variant="small" color="blue-gray" className="font-normal text-xs">
-                                                                {email || 'Sin correo'}
-                                                            </Typography>
-                                                            <Typography variant="small" color="gray" className="font-normal text-xs">
-                                                                {phone || 'Sin teléfono'}
-                                                            </Typography>
-                                                        </div>
-                                                    </td>
-                                                    <td className={classes}>
-                                                        <div className="flex items-center gap-3">
-                                                            {/* Interruptor tipo Toggle */}
-                                                            <Switch
-                                                                id={`toggle-${id}`}
-                                                                ripple={false}
-                                                                color="green"
-                                                                checked={Boolean(is_active)} // Fuerza que sea un booleano puro
-                                                                onChange={() => toggleStatus(id)} // Llama a la función que dispara Inertia
-                                                                className="checked:bg-green-500"
-                                                                containerProps={{
-                                                                    className: "p-0 cursor-pointer",
-                                                                }}
-                                                            />
+    return (
+        <tr key={id} className="hover:bg-blue-gray-50/50 transition-colors">
+            <td className={classes}>
+                <Typography variant="small" color="blue-gray" className="font-mono text-sm">
+                    {identification || 'Sin cédula/RUC'}
+                </Typography>
+            </td>
 
-                                                            {/* Chip para dar un feedback visual de texto */}
-                                                            <Chip
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                value={is_active ? "Activo" : "Inactivo"}
-                                                                color={is_active ? "green" : "red"}
-                                                                className="rounded-full"
-                                                            />
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })
-                                    ) : (
+            {/* COLUMNA NOMBRE: Aquí añadimos el indicador de acceso */}
+            <td className={classes}>
+                <div className="flex flex-col gap-1">
+                    <Typography variant="small" color="blue-gray" className="font-bold">
+                        {first_name} {last_name}
+                    </Typography>
+                    {user ? (
+                        <div className="flex items-center">
+                            <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1.5 animate-pulse"></span>
+                            <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
+                                Acceso App de Campo
+                            </span>
+                        </div>
+                    ) : (
+                        <span className="text-[10px] font-medium text-gray-400 italic">
+                            Solo Ficha Interna
+                        </span>
+                    )}
+                </div>
+            </td>
+
+            <td className={classes}>
+                <Chip
+                    variant="ghost"
+                    size="sm"
+                    value={category?.name || 'Sin categoría'}
+                    color="blue-gray"
+                />
+            </td>
+            <td className={classes}>
+                <div className="flex flex-col">
+                    <Typography variant="small" color="blue-gray" className="font-normal text-xs">
+                        {email || 'Sin correo'}
+                    </Typography>
+                    <Typography variant="small" color="gray" className="font-normal text-xs">
+                        {phone || 'Sin teléfono'}
+                    </Typography>
+                </div>
+            </td>
+            <td className={classes}>
+                <div className="flex items-center gap-3">
+                    <Switch
+                        id={`toggle-${id}`}
+                        ripple={false}
+                        color="green"
+                        checked={Boolean(is_active)}
+                        onChange={() => toggleStatus(id)}
+                        className="checked:bg-green-500"
+                        containerProps={{
+                            className: "p-0 cursor-pointer",
+                        }}
+                    />
+                    <Chip
+                        variant="ghost"
+                        size="sm"
+                        value={is_active ? "Activo" : "Inactivo"}
+                        color={is_active ? "green" : "red"}
+                        className="rounded-full"
+                    />
+                </div>
+            </td>
+
+            {/* COLUMNA ACCIONES: Corregida para validar el objeto 'user' */}
+            <td className={classes}>
+                <div className="flex items-center gap-2">
+                    {user ? (
+                        <Button
+                            size="sm"
+                            color="amber"
+                            variant="text"
+                            className="flex items-center gap-1 normal-case px-2 py-1"
+                            onClick={() => resetPasswordToCedula(id, `${first_name} ${last_name}`)}
+                            title="Restablecer clave a su Cédula"
+                        >
+                            <ArrowPathIcon className="h-4 w-4" />
+                            <span className="hidden sm:inline text-xs font-semibold">Reset Clave</span>
+                        </Button>
+                    ) : (
+                        <span className="text-xs text-gray-400 italic px-2">Sin acciones</span>
+                    )}
+                </div>
+            </td>
+        </tr>
+    );
+
                                         <tr>
                                             <td colSpan={5} className="p-4 text-center">
                                                 <Typography color="gray" className="font-normal text-sm">
@@ -177,17 +231,18 @@ export default function Index({ auth, employees, categories, flash }) {
                                                 </Typography>
                                             </td>
                                         </tr>
-                                    )}
+                                    })}
                                 </tbody>
                             </table>
                         </CardBody>
                     </Card>
 
+
                     {/* MODAL DE CREACIÓN DE EMPLEADO */}
                     <Dialog open={open} handler={handleOpen} size="md">
                         <form onSubmit={submit}>
                             <DialogHeader className="text-blue-gray-800">Registrar Nuevo Empleado</DialogHeader>
-                            <DialogBody divider className="py-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <DialogBody divider className="py-6 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto">
 
                                 {/* Cédula/RUC */}
                                 <div className="md:col-span-2">
@@ -251,16 +306,17 @@ export default function Index({ auth, employees, categories, flash }) {
                                     )}
                                 </div>
 
-                                {/* Correo */}
+                                {/* Correo Electrónico (Ficha / MVP 2 Roles de Pago) */}
                                 <div>
                                     <Input
-                                        label="Correo electrónico (Opcional)"
+                                        label="Correo Electrónico (Opcional)"
                                         type="email"
                                         value={data.email}
                                         onChange={(e) => setData('email', e.target.value)}
                                         error={!!errors.email}
                                         color="indigo"
                                     />
+                                    <span className="text-gray-550 text-[10px] mt-0.5 block leading-tight">Útil para envío de roles de pago.</span>
                                     {errors.email && (
                                         <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>
                                     )}
@@ -280,6 +336,39 @@ export default function Index({ auth, employees, categories, flash }) {
                                     )}
                                 </div>
 
+                                <hr className="md:col-span-2 my-2 border-blue-gray-50" />
+
+                                {/* INTERRUPTOR PARA CREAR LA CUENTA DE ACCESO */}
+                                <div className="md:col-span-2 flex items-center justify-between bg-indigo-50/40 p-4 rounded-lg border border-indigo-100">
+                                    <div>
+                                        <Typography variant="small" color="blue-gray" className="font-bold">
+                                            ¿Dar acceso a la App de campo?
+                                        </Typography>
+                                        <Typography variant="small" color="gray" className="font-normal text-xs mt-0.5">
+                                            Permite al empleado iniciar sesión en la calle usando su identificación.
+                                        </Typography>
+                                    </div>
+                                    <Switch
+                                        id="create_user_account"
+                                        color="indigo"
+                                        checked={data.create_user_account}
+                                        onChange={(e) => setData('create_user_account', e.target.checked)}
+                                    />
+                                </div>
+
+                                {/* CUADRO INFORMATIVO DE ACCESO REPARTIDOR */}
+                                {data.create_user_account && (
+                                    <div className="md:col-span-2 bg-blue-gray-50/60 p-3 rounded-lg border border-blue-gray-100 space-y-1 animate-fade-in">
+                                        <Typography variant="small" className="font-bold text-indigo-900 text-xs flex items-center gap-1.5">
+                                            Credenciales asignadas para la App de campo:
+                                        </Typography>
+                                        <div className="text-xs text-gray-700 pl-4 space-y-0.5">
+                                            <p>• <strong>Usuario de ingreso:</strong> Cédula/RUC (<span className="font-mono text-indigo-600 font-medium">{data.identification || 'Ej: 0953832805'}</span>)</p>
+                                            <p>• <strong>Contraseña inicial:</strong> La misma Cédula/RUC</p>
+                                        </div>
+                                    </div>
+                                )}
+
                             </DialogBody>
                             <DialogFooter className="space-x-2">
                                 <Button variant="text" color="red" onClick={handleOpen}>
@@ -291,44 +380,7 @@ export default function Index({ auth, employees, categories, flash }) {
                             </DialogFooter>
                         </form>
                     </Dialog>
-{/* 🚨 MODAL DE ADVERTENCIA PARA LÍMITE DE PLAN 🚨 */}
-<Dialog open={errorModalOpen} handler={() => setErrorModalOpen(false)} size="xs" className="text-center">
-    <DialogBody className="p-6">
-        {/* Icono de Alerta Redondo */}
-        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 mb-6">
-            <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-        </div>
 
-        <h3 className="text-xl font-bold text-gray-900 mb-2">
-            ¡Límite alcanzado!
-        </h3>
-        
-        <p className="text-sm text-gray-600">
-            {flash?.error}
-        </p>
-    </DialogBody>
-    <DialogFooter className="justify-center pt-0 pb-6 gap-2">
-        <Button 
-            variant="text" 
-            color="gray" 
-            onClick={() => setErrorModalOpen(false)}
-        >
-            Cerrar
-        </Button>
-        <Button 
-            color="indigo" 
-            onClick={() => {
-                setErrorModalOpen(false);
-                // Opcional: Aquí podrías redirigirlo a la pantalla de renovar 
-                // router.visit('/ruta-de-precios');
-            }}
-        >
-            Mejorar Plan
-        </Button>
-    </DialogFooter>
-</Dialog>
                 </div>
             </div>
         </AuthenticatedLayout>

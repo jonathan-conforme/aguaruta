@@ -20,6 +20,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('is_active')->default(true);
+            $table->boolean('password_changed')->default(false);
+            $table->boolean('accepted_terms_and_privacy')->default(false);
+            $table->timestamp('legal_accepted_at')->nullable();
+            $table->string('legal_accepted_ip', 45)->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

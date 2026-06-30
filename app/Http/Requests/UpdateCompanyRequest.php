@@ -24,26 +24,26 @@ class UpdateCompanyRequest extends FormRequest
       $companyId = $this->route('company')->id;
         return [
             'name' => 'required|string|max:255',
-            
+
             // Usamos Rule::unique() en lugar de texto concatenado
             'ruc_number' => [
-                'required', 
-                'string', 
-                'max:20', 
+                'required',
+                'string',
+                'max:20',
                \Illuminate\Validation\Rule::unique('companies', 'ruc_number')->ignore($companyId)
             ],
-            
+
             'email' => [
-                'required', 
-                'email', 
-                'max:255', 
+                'required',
+                'email',
+                'max:255',
                 \Illuminate\Validation\Rule::unique('companies', 'email')->ignore($companyId)
             ],
-            
+
             'phone' => 'nullable|string|max:50',
             'whatsapp_number' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
-            'plan' => 'required|in:basico,premium,empresarial',
+            'plan' => 'required|in:basico,premium,empresarial,vip',
             'subscription_ends_at' => 'nullable|date',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ];

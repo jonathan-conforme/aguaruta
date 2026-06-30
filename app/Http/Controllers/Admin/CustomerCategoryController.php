@@ -18,11 +18,11 @@ class CustomerCategoryController extends Controller
         $this->categoryService = $categoryService;
     }
 
-    // 
+    //
     public function index()
     {
         $categories = $this->categoryService->getAllCategories();
-        
+
         // Devolvemos la vista de React y le pasamos la variable categories
         return Inertia::render('Admin/CustomerCategories/Index', [
             'categories' => $categories
@@ -44,6 +44,7 @@ class CustomerCategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'is_active' => 'sometimes|boolean',
         ]);
 
         $updatedCategory = $this->categoryService->updateCategory($customerCategory, $validated);

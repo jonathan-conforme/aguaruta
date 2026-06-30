@@ -7,8 +7,9 @@ import { CheckIcon, XMarkIcon, CalendarDaysIcon } from "@heroicons/react/24/soli
 // 🇪🇨 DICCIONARIO DE TRADUCCIONES PARA LÍMITES Y MÓDULOS
 const labelTranslations = {
     // Límites
+    'app_users': 'Personal con acceso a la App',
     'employees': 'Empleados permitidos',
-    'clients': 'Clientes máximos',
+    'clients': 'Clientes permitidos',
     'routes_per_day': 'Rutas por día',
     'products': 'Productos en catálogo',
 

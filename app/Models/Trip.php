@@ -11,6 +11,7 @@ class Trip extends Model
 
    protected $fillable = [
         'company_id',
+        'trip_number',
         'driver_id',
         'seller_id',
         'helper_1_id',
@@ -50,8 +51,8 @@ class Trip extends Model
   // Relación MUCHOS A MUCHOS con Productos (A través de la tabla pivot)
     public function products()
     {
-        return $this->belongsToMany(Products::class, 'trip_details', 'trip_id', 'product_id')
-                    ->using(TripDetail::class) 
+        return $this->belongsToMany(Product::class, 'trip_details', 'trip_id', 'product_id')
+                    ->using(TripDetail::class)
                     ->withPivot('quantity', 'initial_quantity', 'returned_quantity', 'recovered_bottles', 'company_id') // 🔥 2. Agregamos company_id para que lo traiga en las consultas
                     ->withTimestamps();
     }

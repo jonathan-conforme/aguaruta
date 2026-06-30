@@ -15,10 +15,14 @@ import {
     Textarea,
 } from "@material-tailwind/react";
 import { PlusIcon, PencilIcon, TrashIcon, BuildingOffice2Icon } from "@heroicons/react/24/solid";
+import DeleteConfirmModal from '@/Components/DeleteConfirmModal';
 
 export default function Index({ auth, suppliers }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingSupplier, setEditingSupplier] = useState(null);
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [supplierToDelete, setSupplierToDelete] = useState(null);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         name: '',
@@ -66,10 +70,23 @@ export default function Index({ auth, suppliers }) {
         }
     };
 
-    const handleDelete = (id) => {
-        if (confirm('¿Estás seguro de que deseas eliminar este proveedor?')) {
-            destroy(route('suppliers.destroy', id));
-        }
+    // 2.LÓGICA DE ELIMINACIÓN MODULAR
+    const openDeleteModal = (supplier) => {
+        setSupplierToDelete(supplier);
+        setIsDeleteModalOpen(true);
+    };
+
+    const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setSupplierToDelete(null);
+    };
+
+    const confirmDelete = () => {
+        if (!supplierToDelete) return;
+
+        destroy(route('suppliers.destroy', supplierToDelete.id), {
+            onSuccess: () => closeDeleteModal(),
+        });
     };
 
     const TABLE_HEAD = ["Proveedor", "Contacto", "Teléfono/Email", "RUC/ID", "Acciones"];
@@ -91,7 +108,7 @@ export default function Index({ auth, suppliers }) {
                             <PlusIcon strokeWidth={2} className="h-4 w-4" /> Nuevo Proveedor
                         </Button>
                     </div>
-                    
+
                     <CardBody className="overflow-x-auto px-0 pt-0 pb-2">
                         <table className="w-full min-w-max table-auto text-left">
                             <thead>
@@ -128,7 +145,7 @@ export default function Index({ auth, suppliers }) {
                                                     <IconButton variant="text" color="blue" onClick={() => openModal(supplier)}>
                                                         <PencilIcon className="h-4 w-4" />
                                                     </IconButton>
-                                                    <IconButton variant="text" color="red" onClick={() => handleDelete(supplier.id)}>
+                                                    <IconButton variant="text" color="red" onClick={() => openDeleteModal(supplier)}>
                                                         <TrashIcon className="h-4 w-4" />
                                                     </IconButton>
                                                 </div>
@@ -156,7 +173,7 @@ export default function Index({ auth, suppliers }) {
                         {editingSupplier ? 'Editar Proveedor' : 'Nuevo Proveedor'}
                     </DialogHeader>
                     <DialogBody className="grid gap-4 overflow-y-auto max-h-[70vh]">
-                        
+
                         <div>
                             <Input label="Nombre de la Empresa / Proveedor *" value={data.name} onChange={(e) => setData('name', e.target.value)} error={!!errors.name} color="indigo" />
                             {errors.name && <Typography variant="small" color="red" className="mt-1 text-xs">{errors.name}</Typography>}
@@ -197,6 +214,13 @@ export default function Index({ auth, suppliers }) {
                     </DialogFooter>
                 </form>
             </Dialog>
+            <DeleteConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={closeDeleteModal}
+                onConfirm={confirmDelete}
+                itemName={`al proveedor ${supplierToDelete?.name}`}
+                processing={processing}
+            />
         </AuthenticatedLayout>
     );
 }

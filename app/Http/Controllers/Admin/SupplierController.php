@@ -11,7 +11,7 @@ use Inertia\Inertia;
 
 class SupplierController extends Controller
 {
-    
+
     public function __construct(private SupplierService $supplierService) {}
 
     /**
@@ -20,7 +20,7 @@ class SupplierController extends Controller
     public function index()
     {
        $suppliers = $this->supplierService->getAllPaginated();
-        
+
         return Inertia::render('Admin/Suppliers/Index', [
             'suppliers' => $suppliers
         ]);
@@ -86,7 +86,7 @@ class SupplierController extends Controller
         $this->supplierService->update($supplier, $validated);
 
         return redirect()->back()->with('success', 'Proveedor actualizado exitosamente.');
-    
+
     }
 
     /**

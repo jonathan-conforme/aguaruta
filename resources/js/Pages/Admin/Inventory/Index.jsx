@@ -3,7 +3,7 @@ import { Head, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
     Typography, Button, Input, Chip,
-    Dialog, DialogHeader, DialogBody, DialogFooter, IconButton, 
+    Dialog, DialogHeader, DialogBody, DialogFooter, IconButton,
 } from "@material-tailwind/react";
 import {
     ArrowLeftIcon,

@@ -26,11 +26,16 @@ import {
     IdentificationIcon,
     MapPinIcon
 } from "@heroicons/react/24/solid";
+import DeleteConfirmModal from '@/Components/DeleteConfirmModal';
 
 export default function Index({ customers, categories, routes }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState(null);
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [customersToDelete, setCustomersToDelete] = useState(null);
+
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         name: '',
@@ -83,13 +88,26 @@ export default function Index({ customers, categories, routes }) {
         }
     };
 
-    const handleDelete = (id) => {
-        if (confirm('¿Eliminar cliente?')) {
-            destroy(route('customers.destroy', id));
-        }
+    // 2.LÓGICA DE ELIMINACIÓN MODULAR
+    const openDeleteModal = (customers) => {
+        setCustomersToDelete(customers);
+        setIsDeleteModalOpen(true);
     };
 
-    const TABLE_HEAD = ["Cliente", "Identificación", "Teléfono", "Envases prestados", "Ruta",  "Acciones"];
+    const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setCustomersToDelete(null);
+    };
+
+    const confirmDelete = () => {
+        if (!customersToDelete) return;
+
+        destroy(route('customers.destroy', customersToDelete.id), {
+            onSuccess: () => closeDeleteModal(),
+        });
+    };
+
+    const TABLE_HEAD = ["Cliente", "Identificación", "Teléfono", "Envases prestados", "Ruta", "Acciones"];
 
     return (
         <AuthenticatedLayout
@@ -137,45 +155,45 @@ export default function Index({ customers, categories, routes }) {
                             </thead>
 
                             <tbody>
-                                {customers.map((c, index) => {
+                                {customers.map((customer, index) => {
                                     const isLast = index === customers.length - 1;
                                     const classes = isLast ? "p-4" : "p-4 border-b";
 
                                     return (
-                                        <tr key={c.id} className="hover:bg-gray-50">
+                                        <tr key={customer.id} className="hover:bg-gray-50">
 
                                             <td className={classes}>
                                                 <Typography className="font-semibold">
-                                                    {c.name}
+                                                    {customer.name}
                                                 </Typography>
                                                 <Typography variant="small" color="blue">
-                                                    {c.category?.name}
+                                                    {customer.category?.name}
                                                 </Typography>
                                             </td>
 
                                             <td className={classes}>
-                                                {c.identification || '-'}
+                                                {customer.identification || '-'}
                                             </td>
 
                                             <td className={classes}>
-                                                {c.phone || '-'}
+                                                {customer.phone || '-'}
                                             </td>
 
 
-                                             <td className={classes}>
-                                                {c.bottle_debt || 'Ninguno'}
+                                            <td className={classes}>
+                                                {customer.bottle_debt || 'Ninguno'}
                                             </td>
                                             <td className={classes}>
-                                                {c.delivery_route?.route_name || '-'}
+                                                {customer.delivery_route?.route_name || '-'}
                                             </td>
 
                                             <td className={classes}>
                                                 <div className="flex gap-2">
-                                                    <IconButton color="blue" variant="text" onClick={() => openModal(c)}>
+                                                    <IconButton color="blue" variant="text" onClick={() => openModal(customer)}>
                                                         <PencilIcon className="h-4 w-4" />
                                                     </IconButton>
 
-                                                    <IconButton color="red" variant="text" onClick={() => handleDelete(c.id)}>
+                                                    <IconButton variant="text" color="red" onClick={() => openDeleteModal(customer)}>
                                                         <TrashIcon className="h-4 w-4" />
                                                     </IconButton>
                                                 </div>
@@ -274,6 +292,14 @@ export default function Index({ customers, categories, routes }) {
 
                 </form>
             </Dialog>
+
+            <DeleteConfirmModal
+                isOpen={isDeleteModalOpen}
+                onClose={closeDeleteModal}
+                onConfirm={confirmDelete}
+                itemName={`al cliente ${customersToDelete?.name}`}
+                processing={processing}
+            />
         </AuthenticatedLayout>
     );
 }

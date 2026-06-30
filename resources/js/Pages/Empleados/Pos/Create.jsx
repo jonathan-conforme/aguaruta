@@ -30,6 +30,7 @@ export default function CreateSale({ trip, customers }) {
             loaded_quantity: p.pivot?.quantity || 0,
         }))
     });
+
     const getPresentationLabel = (units) => {
         if (units <= 1) return 'Unidad';
         return `Paca x${units}`;
@@ -80,27 +81,17 @@ export default function CreateSale({ trip, customers }) {
         post(route('repartidor.sales.store'), {
             preserveScroll: true,
             onSuccess: (page) => {
-
                 if (page.props.flash?.error) return;
-
                 if (page.props.errors && Object.keys(page.props.errors).length > 0) return;
-
                 setShowModal(true);
             }
         });
     };
 
     const handleReset = () => {
-
-        // descontar lo vendido del stock cargado
         const updatedProducts = data.products.map(p => ({
             ...p,
-
-            // nuevo stock cargado
-            loaded_quantity:
-                Number(p.loaded_quantity) - Number(p.quantity),
-
-            // reiniciar venta actual
+            loaded_quantity: Number(p.loaded_quantity) - Number(p.quantity),
             quantity: 0
         }));
 
@@ -129,7 +120,7 @@ export default function CreateSale({ trip, customers }) {
                         variant="text"
                         color="blue-gray"
                         className="flex items-center gap-2"
-                        onClick={() => router.visit(route('repartidor.trips.index'))} // Asegúrate de que esta ruta sea la correcta en tu web.php
+                        onClick={() => router.visit(route('repartidor.trips.index'))}
                     >
                         <ArrowLeftIcon className="h-4 w-4" />
                         Volver a Rutas
@@ -151,6 +142,7 @@ export default function CreateSale({ trip, customers }) {
 
                         <div className="space-y-3">
                             <button
+                                type="button"
                                 onClick={handleReset}
                                 className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-indigo-700 transition-colors"
                             >
@@ -162,21 +154,11 @@ export default function CreateSale({ trip, customers }) {
             )}
 
             <div className="max-w-2xl mx-auto p-4">
-
-                <div className="flex items-center justify-between w-full">
+                <div className="flex items-center justify-between w-full mb-4">
                     <Typography variant="h5" className="flex items-center gap-2 text-gray-800">
                         <TruckIcon className="h-6 w-6 text-indigo-500" />
                         Nueva Venta - Ruta #{trip.shift_id}
                     </Typography>
-                    <Button
-                        variant="text"
-                        color="blue-gray"
-                        className="flex items-center gap-2"
-                        onClick={() => router.visit(route('repartidor.trips.index'))} // Asegúrate de que esta ruta sea la correcta en tu web.php
-                    >
-                        <ArrowLeftIcon className="h-4 w-4" />
-                        Volver a Rutas
-                    </Button>
                 </div>
 
                 {errors.shift && (
@@ -195,7 +177,7 @@ export default function CreateSale({ trip, customers }) {
 
                 <form onSubmit={handleSubmit} className="space-y-6 relative">
 
-
+                    {/* 1. BUSCAR CLIENTE */}
                     <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100" ref={dropdownRef}>
                         <label className="block text-sm font-bold text-gray-700 mb-2">1. Buscar Cliente</label>
                         <div className="relative">
@@ -238,39 +220,28 @@ export default function CreateSale({ trip, customers }) {
                                                 key={customer.id}
                                                 className="px-4 py-3 hover:bg-indigo-50 cursor-pointer border-b border-gray-50 last:border-0"
                                                 onClick={() => {
-
-
                                                     setData('customer_id', customer.id);
                                                     setSearchCustomer(`${customer.name} - ${customer.identification}`);
                                                     setIsDropdownOpen(false);
 
-                                                    // 🔥 APLICAR PRECIOS SEGÚN CATEGORÍA
+                                                    // ACTUALIZAR PRECIOS SEGÚN CATEGORÍA
                                                     const updatedProducts = data.products.map(prod => {
-
                                                         const tripProduct = trip.products.find(p => p.id === prod.product_id);
-
                                                         let newPrice = tripProduct.price;
 
                                                         if (tripProduct.customer_categories && customer.customer_category_id) {
                                                             const categoryPrice = tripProduct.customer_categories.find(
                                                                 c => c.id === customer.customer_category_id
                                                             );
-
                                                             if (categoryPrice) {
                                                                 newPrice = categoryPrice.pivot.price;
                                                             }
                                                         }
 
-                                                        return {
-                                                            ...prod,
-                                                            price: newPrice
-                                                        };
+                                                        return { ...prod, price: newPrice };
                                                     });
 
-                                                    const newTotal = updatedProducts.reduce(
-                                                        (sum, item) => sum + (item.quantity * item.price),
-                                                        0
-                                                    );
+                                                    const newTotal = updatedProducts.reduce((sum, item) => sum + (item.quantity * item.price), 0);
 
                                                     setData(prev => ({
                                                         ...prev,
@@ -286,143 +257,128 @@ export default function CreateSale({ trip, customers }) {
                                             </li>
                                         ))
                                     ) : (
-                                        <li className="px-4 py-3 text-gray-500 text-sm">
-                                            No se encontraron clientes.
-                                        </li>
+                                        <li className="px-4 py-3 text-gray-500 text-sm">No se encontraron clientes.</li>
                                     )}
                                 </ul>
                             )}
                         </div>
-                        {data.customer_id && (() => {
-                            const selectedCustomer = customers.find(
-                                c => c.id === data.customer_id
-                            );
 
+                        {data.customer_id && (() => {
+                            const selectedCustomer = customers.find(c => c.id === data.customer_id);
                             return selectedCustomer?.bottle_debt > 0 && (
                                 <div className="mt-3 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl shadow-sm">
-                                    <p className="font-bold">
-                                        ⚠️ El cliente debe {selectedCustomer.bottle_debt} botellón(es)
-                                    </p>
+                                    <p className="font-bold">⚠️ El cliente debe {selectedCustomer.bottle_debt} botellón(es)</p>
                                 </div>
                             );
                         })()}
+                    </div> {/* <-- CORREGIDO: Aquí se cierra correctamente la sección de clientes */}
 
-                        {/* 2. PRODUCTOS */}
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                            <label className="block text-sm font-bold text-gray-700 mb-3 border-b border-gray-100 pb-2">2. Productos a entregar</label>
-                            <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
-                                {data.products.map((item, index) => (
-                                    <div key={item.product_id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
-                                        <div>
-                                            <p className="font-semibold text-gray-800 leading-tight">
-                                                {item.name}
-                                            </p>
-
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="bg-indigo-50 text-indigo-600 text-xs font-bold px-2 py-1 rounded-full">
-                                                    {getPresentationLabel(item.units_per_package)}
-                                                </span>
-                                            </div>
-                                            <p className="text-xs text-green-600 font-semibold">
-                                                ✅ Disponible:
-                                                {parseInt(item.loaded_quantity) - parseInt(item.quantity || 0)}
-                                            </p>
-
-                                            <p className="text-sm text-indigo-600 font-medium mt-1">
-                                                ${item.price}
-                                            </p>
+                    {/* 2. PRODUCTOS */}
+                    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                        <label className="block text-sm font-bold text-gray-700 mb-3 border-b border-gray-100 pb-2">2. Productos a entregar</label>
+                        <div className="space-y-2 max-h-[40vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {data.products.map((item, index) => (
+                                <div key={item.product_id} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <div>
+                                        <p className="font-semibold text-gray-800 leading-tight">{item.name}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="bg-indigo-50 text-indigo-600 text-xs font-bold px-2 py-1 rounded-full">
+                                                {getPresentationLabel(item.units_per_package)}
+                                            </span>
                                         </div>
-
-                                        <div className="flex items-center space-x-1 bg-white p-1 rounded-full border border-gray-200 shadow-sm">
-                                            <button
-                                                type="button"
-                                                onClick={() => handleQuantityChange(index, -1)}
-                                                className="bg-red-50 hover:bg-red-100 text-red-600 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl select-none active:scale-95 transition-transform"
-                                            >-</button>
-
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                value={item.quantity === 0 ? '' : item.quantity}
-                                                placeholder="0"
-                                                onChange={(e) => handleDirectInput(index, e.target.value)}
-                                                className="w-14 text-center text-xl font-black border-none focus:ring-0 p-0 text-gray-800 bg-transparent"
-                                            />
-
-                                            <button
-                                                type="button"
-                                                onClick={() => handleQuantityChange(index, 1)}
-                                                className="bg-green-50 hover:bg-green-100 text-green-600 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl select-none active:scale-95 transition-transform"
-                                            >+</button>
-                                        </div>
+                                        <p className="text-xs text-green-600 font-semibold">
+                                            ✅ Disponible: {parseInt(item.loaded_quantity) - parseInt(item.quantity || 0)}
+                                        </p>
+                                        <p className="text-sm text-indigo-600 font-medium mt-1">${item.price}</p>
                                     </div>
-                                ))}
-                            </div>
-                            {errors.products && <span className="text-red-500 text-sm mt-2 block">{errors.products}</span>}
-                        </div>
 
-                        {/* 3. ENVASES Y MÉTODO DE PAGO */}
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                            <label className="block text-sm font-bold text-gray-700 mb-4 border-b border-gray-100 pb-2">3. Detalles de facturación</label>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="flex items-center space-x-1 bg-white p-1 rounded-full border border-gray-200 shadow-sm">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleQuantityChange(index, -1)}
+                                            className="bg-red-50 hover:bg-red-100 text-red-600 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl select-none active:scale-95 transition-transform"
+                                        >-</button>
 
-                                <div>
-                                    <label className="block text-xs font-bold text-red-500 uppercase mb-2">Envases Devueltos</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        className="block w-full rounded-lg border-gray-200 bg-gray-100 text-xl font-bold text-center shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3"
-                                        value={data.returned_bottles === 0 ? '' : data.returned_bottles}
-                                        placeholder="0"
-                                        onChange={e => setData('returned_bottles', parseInt(e.target.value) || 0)}
-                                    />
-                                </div>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            value={item.quantity === 0 ? '' : item.quantity}
+                                            placeholder="0"
+                                            onChange={(e) => handleDirectInput(index, e.target.value)}
+                                            className="w-14 text-center text-xl font-black border-none focus:ring-0 p-0 text-gray-800 bg-transparent"
+                                        />
 
-                                <div>
-                                    <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Método de Pago</label>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {[
-                                            { id: 'cash', label: 'Efect.', color: 'bg-green-50 text-green-700 border-green-500' },
-                                            { id: 'transfer', label: 'Transf.', color: 'bg-blue-50 text-blue-700 border-blue-500' },
-                                            { id: 'credit', label: 'Crédit.', color: 'bg-yellow-50 text-yellow-700 border-yellow-500' }
-                                        ].map((method) => (
-                                            <button
-                                                key={method.id}
-                                                type="button"
-                                                onClick={() => setData('payment_method', method.id)}
-                                                className={`py-3 px-1 border-2 rounded-xl text-sm font-bold transition-all ${data.payment_method === method.id
-                                                    ? method.color + ' shadow-sm'
-                                                    : 'bg-white border-gray-100 text-gray-400 hover:bg-gray-50'
-                                                    }`}
-                                            >
-                                                {method.label}
-                                            </button>
-                                        ))}
+                                        <button
+                                            type="button"
+                                            onClick={() => handleQuantityChange(index, 1)}
+                                            className="bg-green-50 hover:bg-green-100 text-green-600 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl select-none active:scale-95 transition-transform"
+                                        >+</button>
                                     </div>
                                 </div>
-
-                            </div>
+                            ))}
                         </div>
+                        {errors.products && <span className="text-red-500 text-sm mt-2 block">{errors.products}</span>}
+                    </div>
 
-                        {/* 4. TOTAL Y BOTÓN DE ENVÍO */}
-                        <div className="sticky bottom-4 z-10 bg-gray-900 p-5 rounded-2xl shadow-2xl mt-8">
-                            <div className="flex justify-between items-end mb-4">
-                                <span className="text-gray-300 font-medium">Total a Cobrar:</span>
-                                <span className="text-4xl font-black text-white">${data.total.toFixed(2)}</span>
+                    {/* 3. ENVASES Y MÉTODO DE PAGO */}
+                    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                        <label className="block text-sm font-bold text-gray-700 mb-4 border-b border-gray-100 pb-2">3. Detalles de facturación</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-xs font-bold text-red-500 uppercase mb-2">Envases Devueltos</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    className="block w-full rounded-lg border-gray-200 bg-gray-100 text-xl font-bold text-center shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3"
+                                    value={data.returned_bottles === 0 ? '' : data.returned_bottles}
+                                    placeholder="0"
+                                    onChange={e => setData('returned_bottles', parseInt(e.target.value) || 0)}
+                                />
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={processing || !data.customer_id || (data.total === 0 && data.returned_bottles === 0)}
-                                className="w-full bg-indigo-500 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-400 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition-all text-xl"
-                            >
-                                {processing ? 'Procesando...' : 'Registrar Cobro'}
-                            </button>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Método de Pago</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { id: 'cash', label: 'Efect.', color: 'bg-green-50 text-green-700 border-green-500' },
+                                        { id: 'transfer', label: 'Transf.', color: 'bg-blue-50 text-blue-700 border-blue-500' },
+                                        { id: 'credit', label: 'Crédit.', color: 'bg-yellow-50 text-yellow-700 border-yellow-500' }
+                                    ].map((method) => (
+                                        <button
+                                            key={method.id}
+                                            type="button"
+                                            onClick={() => setData('payment_method', method.id)}
+                                            className={`py-3 px-1 border-2 rounded-xl text-sm font-bold transition-all ${data.payment_method === method.id
+                                                ? method.color + ' shadow-sm'
+                                                : 'bg-white border-gray-100 text-gray-400 hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            {method.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    {/* 4. TOTAL Y BOTÓN DE ENVÍO */}
+                    <div className="sticky bottom-4 z-10 bg-gray-900 p-5 rounded-2xl shadow-2xl mt-8">
+                        <div className="flex justify-between items-end mb-4">
+                            <span className="text-gray-300 font-medium">Total a Cobrar:</span>
+                            <span className="text-4xl font-black text-white">${data.total.toFixed(2)}</span>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={processing || !data.customer_id || (data.total === 0 && data.returned_bottles === 0)}
+                            className="w-full bg-indigo-500 text-white font-bold py-4 px-4 rounded-xl hover:bg-indigo-400 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed transition-all text-xl"
+                        >
+                            {processing ? 'Procesando...' : 'Registrar Cobro'}
+                        </button>
+                    </div>
+
                 </form>
             </div>
-
         </AuthenticatedLayout>
     );
 }

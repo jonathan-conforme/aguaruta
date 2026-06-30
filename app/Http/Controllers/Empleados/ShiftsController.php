@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Empleados;
 use App\Services\ShiftClosureService;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Shift; 
-use App\Services\ShiftService; 
+use App\Models\Shift;
+use App\Services\ShiftService;
 use Inertia\Inertia;
 
 class ShiftsController extends Controller
@@ -30,6 +30,7 @@ class ShiftsController extends Controller
 
             return Inertia::render('Admin/Shifts/Index', [
                 'shifts' => $this->shiftService->getEmployeeShifts(),
+                
             ]);
         }
 
@@ -96,7 +97,7 @@ class ShiftsController extends Controller
             ->where('status', 'open')
             ->first();
 
-        // 2. Si no hay turno activo, lo regresamos a donde tenga sentido 
+        // 2. Si no hay turno activo, lo regresamos a donde tenga sentido
         // (por ejemplo, a su panel principal) con un mensaje de error o advertencia.
         if (!$activeShift) {
             // NOTA: Cambia 'dashboard' por el nombre de la ruta principal de tu repartidor

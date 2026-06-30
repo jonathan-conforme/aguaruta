@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { router } from '@inertiajs/react';
-import { 
-    Button, 
-    Dialog, 
-    DialogHeader, 
-    DialogBody, 
+import {
+    Button,
+    Dialog,
+    DialogHeader,
+    DialogBody,
     DialogFooter,
     Card,
     Typography
@@ -22,7 +22,7 @@ export default function Expired() {
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
             <div className="bg-white p-8 md:p-10 rounded-2xl shadow-xl border border-gray-100 text-center max-w-lg w-full">
-                
+
                 {/* Icono de Alerta */}
                 <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 mb-6">
                     <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -40,8 +40,8 @@ export default function Expired() {
 
                 {/* Botones de Acción Principal */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                    <Button 
-                        color="indigo" 
+                    <Button
+                        color="indigo"
                         size="lg"
                         className="flex-1"
                         onClick={handleOpenPrecios}
@@ -49,9 +49,9 @@ export default function Expired() {
                         Ver Planes de Precios
                     </Button>
 
-                    <Button 
-                        variant="outlined" 
-                        color="green" 
+                    <Button
+                        variant="outlined"
+                        color="green"
                         size="lg"
                         className="flex-1 flex items-center justify-center gap-2"
                         onClick={() => window.open(`https://wa.me/${WHATSAPP_SOPORTE}?text=${mensajeWpp}`, '_blank')}
@@ -62,8 +62,8 @@ export default function Expired() {
                 </div>
 
                 {/* Enlace secundario */}
-                <button 
-                    onClick={() => router.visit('/login')} 
+                <button
+                    onClick={() => router.visit('/login')}
                     className="text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors underline"
                 >
                     Volver al Inicio / Salir
@@ -76,7 +76,7 @@ export default function Expired() {
                     Nuestros Planes
                 </DialogHeader>
                 <DialogBody divider className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
+
                     {/* Plan Básico */}
                     <Card className="p-6 border border-gray-200 shadow-none">
                         <Typography variant="h5" color="blue-gray" className="mb-2">

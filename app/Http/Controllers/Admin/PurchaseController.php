@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\PurchaseService;
 use Illuminate\Http\Request;
 use App\Models\Supplier;
-use App\Models\Products;
+use App\Models\Product;
 use App\Models\Purchase;
 use Inertia\Inertia;
 
@@ -19,7 +19,7 @@ class PurchaseController extends Controller
     public function index()
     {
         $purchases = $this->purchaseService->getAllPaginated();
-        
+
         return Inertia::render('Admin/Purchases/Index', [
             'purchases' => $purchases
         ]);
@@ -33,7 +33,7 @@ class PurchaseController extends Controller
       $suppliers = Supplier::orderBy('name')
       ->get(['id', 'name', 'ruc_or_id']);
 
-        $products = Products::where('is_active', true)
+        $products = Product::where('is_active', true)
         ->orderBy('name')
         ->get([
             'id',
@@ -42,7 +42,7 @@ class PurchaseController extends Controller
             'units_per_package',
             'current_stock',
             'empty_stock'
-        ]); 
+        ]);
 
         return Inertia::render('Admin/Purchases/Create', [
             'suppliers' => $suppliers,
@@ -74,7 +74,7 @@ class PurchaseController extends Controller
         return redirect()->route('purchases.index')->with('success', 'Compra registrada exitosamente.');
     }
 
-    
+
 
     /**
      * Display the specified resource.

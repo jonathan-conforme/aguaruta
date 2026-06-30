@@ -4,23 +4,23 @@ import { Head, router } from '@inertiajs/react';
 import { Card, Typography, Button, Chip, IconButton, Tooltip } from "@material-tailwind/react";
 import Create from './Create';
 import Edit from './Edit';
-import { useEffect } from 'react';
 import { PencilIcon, PlusIcon, ArrowRightIcon, ArrowLeftIcon, ClockIcon, ExclamationTriangleIcon } from "@heroicons/react/24/solid";
 
-export default function Index({ auth, companies }) {
-    
-    const toggle = (id) => {
-            router.patch(route('companies.toggle', id), {}, {
-                preserveScroll: true,
-                onSuccess: () => {
-            router.reload(); // recarga
-        }
-            });
-        };
-    const TABLE_HEAD = ["Id", "Empresa", "RUC", "Email", "Telefono", "Plan", "Fecha de expiración", "Estado", "Role", "Acciones"];
-    const [isCreateOpen, setIsCreateOpen] = useState(false);
+export default function Index({ auth, companies, availablePlans = [] }) {
 
-    // Estado para edición
+    const toggle = (id) => {
+        router.patch(route('companies.toggle', id), {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                router.reload();
+            }
+        });
+    };
+
+    const TABLE_HEAD = ["Id", "Empresa", "RUC", "Email", "Telefono", "Plan", "Fecha de expiración", "Estado", "Role", "Acciones"];
+
+    // Estados para los modales principales
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [selectedCompany, setSelectedCompany] = useState(null);
 
@@ -35,21 +35,21 @@ export default function Index({ auth, companies }) {
             router.get(url, {}, { preserveScroll: true });
         }
     };
-    //FECHAS DE EXPIRACIÓN
+
+    // FECHAS DE EXPIRACIÓN (UX Original)
     const renderExpirationUX = (dateString) => {
         if (!dateString) {
             return (
                 <span className="text-gray-400 text-sm italic whitespace-nowrap">Ilimitado</span>
             );
         }
-        
 
         const expDate = new Date(dateString);
         const today = new Date();
         const diffTime = expDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 3600 * 24));
 
-        const formattedDate = expDate.toLocaleDateString();
+        const formattedDate = expDate.toLocaleDateString('es-EC');
 
         // 🚨 Ya expiró (Días negativos)
         if (diffDays < 0) {
@@ -96,11 +96,10 @@ export default function Index({ auth, companies }) {
         >
             <Head title="Empresas" />
 
-            {/* Ajuste de padding para pantallas muy pequeñas */}
             <div className="py-8 sm:py-12 bg-gray-50/50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                    {/* ENCABEZADO RESPONSIVE: Pasa de columna en móviles a fila en pantallas grandes */}
+                    {/* ENCABEZADO RESPONSIVE */}
                     <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div>
                             <Typography variant="h4" color="blue-gray" className="font-bold">
@@ -122,13 +121,19 @@ export default function Index({ auth, companies }) {
                         </Button>
                     </div>
 
+                    {/* MODALES EXTERNOS */}
                     <Create open={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
-                    <Edit open={isEditOpen} onClose={() => setIsEditOpen(false)} company={selectedCompany} />
+
+                    {/* 🌟 AQUÍ LE PASAMOS availablePlans AL COMPONENTE EDIT */}
+                    <Edit
+                        open={isEditOpen}
+                        onClose={() => setIsEditOpen(false)}
+                        company={selectedCompany}
+                        availablePlans={availablePlans}
+                    />
 
                     {/* TABLA DENTRO DE CARD */}
                     <Card className="h-full w-full shadow-md border border-blue-gray-50 bg-white overflow-hidden">
-
-                        {/* 🛑 EL SECRETO DEL RESPONSIVE ESTÁ AQUÍ: overflow-x-auto */}
                         <div className="overflow-x-auto">
                             <table className="w-full min-w-max table-auto text-left">
                                 <thead>
@@ -181,14 +186,15 @@ export default function Index({ auth, companies }) {
                                                 <td className={classes}>
                                                     <div className="w-max">
                                                         <Chip
-                                                            size="sm"
-                                                            variant="ghost"
-                                                            value={plan || "Sin plan"}
+                                                            size="md"
+                                                            variant="gradient"
+                                                            value={plan === 'basico' ? 'Básico' : plan || "Sin plan"}
                                                             color={
-                                                                plan === "basico" ? "cyan" :
-                                                                    plan === "premium" ? "purple" :
-                                                                        plan === "empresarial" ? "indigo" :
-                                                                            "gray"
+                                                                plan === "basico" ? "pink" :
+                                                                plan === "premium" ? "cyan" :
+                                                                plan == "vip" ? "purple" :
+                                                                plan === "empresarial" ? "indigo" : "gray"
+
                                                             }
                                                             className="capitalize font-semibold"
                                                         />
@@ -197,16 +203,14 @@ export default function Index({ auth, companies }) {
 
                                                 <td className={classes}>
                                                     <Typography variant="small" color="blue-gray" className="font-normal whitespace-nowrap">
-                                                        {subscription_ends_at ? new Date(subscription_ends_at).toLocaleDateString() : "N/A"}
+                                                        {subscription_ends_at ? new Date(subscription_ends_at).toLocaleDateString('es-EC') : "Ilimitado"}
                                                     </Typography>
                                                 </td>
-                                                {/* COLUMNA DE FECHA DE EXPIRACIÓN CON UX */}
-                                                <td className={classes}>
-                                                    {renderExpirationUX(subscription_ends_at) || "Falta"}
-                                                </td>
+
+
                                                 {/* CHIPS DE ESTADO */}
                                                 <td className={classes}>
-                                                    <div className="w-max">
+                                                    <div className="flex flex-col items-start gap-1">
                                                         <Chip
                                                             size="sm"
                                                             variant="gradient"
@@ -216,9 +220,9 @@ export default function Index({ auth, companies }) {
                                                         />
                                                         <button
                                                             onClick={() => toggle(company.id)}
-                                                            className="text-sm text-blue-600 hover:underline"
+                                                            className="text-xs text-blue-600 hover:underline font-medium"
                                                         >
-                                                            {company.is_active ? 'Desactivar' : 'Activar'}
+                                                            {is_active ? 'Desactivar' : 'Activar'}
                                                         </button>
                                                     </div>
                                                 </td>
@@ -229,18 +233,20 @@ export default function Index({ auth, companies }) {
                                                     </Typography>
                                                 </td>
 
-                                                {/* ACCIONES */}
+                                                {/* ACCIONES - Solo dejamos el botón de Editar */}
                                                 <td className={classes}>
-                                                    <Tooltip content="Editar Empresa">
-                                                        <IconButton
-                                                            variant="text"
-                                                            color="indigo"
-                                                            onClick={() => handleEditClick(company)}
-                                                            className="hover:bg-indigo-50"
-                                                        >
-                                                            <PencilIcon className="h-4 w-4 text-indigo-600" />
-                                                        </IconButton>
-                                                    </Tooltip>
+                                                    <div className="flex items-center gap-1">
+                                                        <Tooltip content="Editar Empresa y Plan">
+                                                            <IconButton
+                                                                variant="text"
+                                                                color="indigo"
+                                                                onClick={() => handleEditClick(company)}
+                                                                className="hover:bg-indigo-50"
+                                                            >
+                                                                <PencilIcon className="h-4 w-4 text-indigo-600" />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         );
@@ -255,7 +261,7 @@ export default function Index({ auth, companies }) {
                             </div>
                         )}
 
-                        {/* 🌟 BARRA DE PAGINACIÓN */}
+                        {/* BARRA DE PAGINACIÓN */}
                         <div className="flex flex-col sm:flex-row items-center justify-between border-t border-blue-gray-50 p-4 gap-4">
                             <Typography variant="small" color="gray" className="font-normal text-center sm:text-left">
                                 Página <strong className="text-blue-gray-900">{companies.current_page}</strong> de{" "}
@@ -287,7 +293,6 @@ export default function Index({ auth, companies }) {
                             </div>
                         </div>
                     </Card>
-
                 </div>
             </div>
         </AuthenticatedLayout>

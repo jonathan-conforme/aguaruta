@@ -12,28 +12,29 @@ class CustomerCategory extends Model
     protected $fillable = [
         'company_id',
         'name',
-        
+        'is_active'
+
     ];
-   // Añade esta relación
+   // relación
   public function products()
     {
         return $this->belongsToMany(
-            Products::class, 
-            'customer_category_product', 
-            'customer_category_id', 
-            'product_id'
+            Product::class,
+            'customer_category_product',
+            'customer_category_id',
+
         )
-        ->withPivot('price', 'company_id') 
+        ->withPivot('price', 'company_id')
         ->withTimestamps();
-        
+
     }
 
     public function customerCategories()
     {
         // belongsToMany(Modelo, tabla_pivot, llave_foranea_de_este_modelo, llave_foranea_del_otro_modelo)
         return $this->belongsToMany(
-            CustomerCategory::class, 
-            'customer_category_product', 
+            CustomerCategory::class,
+            'customer_category_product',
             'product_id', // Le decimos a la fuerza que no use la 's'
             'customer_category_id'
         )
@@ -41,5 +42,5 @@ class CustomerCategory extends Model
         ->withTimestamps();
     }
 
-  
+
 }

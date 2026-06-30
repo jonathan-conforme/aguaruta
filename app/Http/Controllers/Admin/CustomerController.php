@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\CustomerService;
 use App\Models\CustomerCategory;
 use App\Rules\ValidarRucEcuador;
+use App\Services\PlanService;
 use Illuminate\Validation\Rule;
 use App\Models\DeliveryRoute;
 use Illuminate\Http\Request;
@@ -14,12 +15,10 @@ use Inertia\Inertia;
 
 class CustomerController extends Controller
 {
-    protected $customerService;
-
-    public function __construct(CustomerService $customerService)
-    {
-        $this->customerService = $customerService;
-    }
+    public function __construct(
+        protected CustomerService $customerService,
+        private PlanService $planService
+    ) {}
 
     public function index()
     {
@@ -33,10 +32,18 @@ class CustomerController extends Controller
    public function store(Request $request)
     {
         $companyId = auth()->user()->company_id;
+        $company = auth()->user()->company;
+
+        if ($this->planService->hasReachedLimit($company, 'clients', Customer::count())) {
+            $limite = $this->planService->getLimit($company, 'clients');
+            $mensajeError = $this->planService->getLimitErrorMessage($company->plan, 'clients', $limite);
+
+            return back()->with('error', $mensajeError);
+        }
 
         $validated = $request->validate([
             'customer_category_id' => [
-                'required', 
+                'required',
                 Rule::exists('customer_categories', 'id')->where('company_id', $companyId) // <-- Seguridad Multi-Tenant
             ],
             'name' => 'required|string|max:255',
@@ -67,7 +74,7 @@ class CustomerController extends Controller
 
         $validated = $request->validate([
             'customer_category_id' => [
-                'required', 
+                'required',
                 Rule::exists('customer_categories', 'id')->where('company_id', $companyId)
             ],
             'name' => 'required|string|max:255',

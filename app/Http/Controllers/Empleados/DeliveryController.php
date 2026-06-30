@@ -61,7 +61,7 @@ class DeliveryController extends Controller
         // 3. ACTUALIZAMOS EL VIAJE Y LE ASIGNAMOS EL SHIFT_ID
         if ($trip->status === 'pending') {
             $trip->update([
-                'status' => 'active', 
+                'status' => 'active',
                 'shift_id' => $activeShift->id // ¡Aquí ocurre la magia que conecta el viaje con la caja!
             ]);
         }
@@ -90,5 +90,5 @@ class DeliveryController extends Controller
 
         return back()->with('success', '¡Viaje cerrado correctamente!');
     }
-    
+
 }

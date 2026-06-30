@@ -8,7 +8,7 @@ use App\Models\DeliveryRoute;
 use App\Services\TripService;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Products;
+use App\Models\Product;
 use App\Models\Trip;
 use Inertia\Inertia;
 
@@ -30,7 +30,7 @@ class TripController extends Controller
 {
     $trip = $this->tripService->getAllTrips();
    $users = User::where('company_id', auth()->user()->company_id)->get();
-    $products = Products::where('is_active', true)->get();
+    $products = Product::where('is_active', true)->get();
     $routes = DeliveryRoute::where('is_active', true)->get();
 
     return Inertia::render('Admin/Trips/Index', [
@@ -117,5 +117,5 @@ class TripController extends Controller
     {
         //
     }
-   
+
 }

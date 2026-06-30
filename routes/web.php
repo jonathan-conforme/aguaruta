@@ -17,10 +17,16 @@ use App\Http\Controllers\Admin\ProductsController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\PurchaseController;
-use App\Http\Controllers\Admin\tripController;
+use App\Http\Controllers\Admin\TripController;
 use App\Http\Controllers\Empleados\ExpenseController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\SuperAdmin\DashboardController;
+use App\Http\Controllers\Auth\PasswordChangeController;
 use Inertia\Inertia;
+
+
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -28,16 +34,26 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
+
     ]);
 });
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/change-password', [PasswordChangeController::class, 'show'])->name('password.change');
+    Route::post('/change-password', [PasswordChangeController::class, 'update'])->name('password.change.update');
+});
+
+Route::middleware(['auth', 'check.password.changed'])->group(function () {
 
 Route::get('/dashboard', function () {
     $role = auth()->user()->role;
 
     // Dependiendo del rol, Inertia renderiza un archivo React totalmente diferente
     if ($role === 'super_admin') {
-        return Inertia::render('SuperAdmin/Dashboard'); // Vista global de tu negocio
-    } elseif ($role === 'admin') {
+     //   return Inertia::render('SuperAdmin/Dashboard'); // Vista global de tu negocio
+        return app(\App\Http\Controllers\SuperAdmin\DashboardController::class)->index();
+
+        } elseif ($role === 'admin') {
         return Inertia::render('Admin/Dashboard'); // Vista de la purificadora
     } else {
         return Inertia::render('Empleados/Dashboard'); // Vista móvil del chofer
@@ -62,6 +78,7 @@ Route::middleware(['auth', 'verified', 'role:super_admin'])->group(function () {
     ->name('companies.toggle');
 
 
+
 });
 Route::get('/suscripcion-vencida', function () {
     return Inertia::render('SuperAdmin/Subscription/Expired');
@@ -79,7 +96,6 @@ Route::middleware(['auth', 'verified', 'role:admin', 'check.company'])->group(fu
     Route::resource('products', ProductsController::class);
     Route::resource('customers', CustomerController::class);
     Route::resource('inventory-movements', InventoryMovementController::class);
-
     Route::resource('suppliers', SupplierController::class);
     Route::resource('purchases', PurchaseController::class);
     Route::resource('trips', TripController::class);
@@ -91,6 +107,13 @@ Route::middleware(['auth', 'verified', 'role:admin', 'check.company'])->group(fu
             ->name('admin.shifts.index');
             Route::get('/mi-plan', [\App\Http\Controllers\Admin\SubscriptionController::class, 'index'])
         ->name('subscription.index');
+        Route::get('/admin/reports/sales/download', [ReportController::class, 'downloadSalesReport'])
+        ->name('admin.reports.sales.download');
+        Route::post('/employees/{employee}/reset-password', [EmployeeController::class, 'resetPassword'])
+    ->name('employees.reset-password');
+
+
+
 });
 
 
@@ -131,4 +154,8 @@ Route::middleware(['auth', 'verified', 'role:empleado', 'check.company'])
         ->name('expenses.store');
 });
 
+});
+// Rutas Públicas Informativas
+Route::inertia('/terminos', 'Legal/Terms')->name('legal.terms');
+Route::inertia('/privacidad', 'Legal/Privacy')->name('legal.privacy');
 require __DIR__.'/auth.php';

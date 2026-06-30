@@ -22,7 +22,7 @@ class Employee extends Model
    protected $fillable = [
     'company_id',
     'employee_category_id',
-    'identification', 
+    'identification',
     'first_name',
     'last_name',
     'email',
@@ -43,5 +43,11 @@ class Employee extends Model
     // relación con la categoría, usando el campo employee_category_id
     return $this->belongsTo(EmployeeCategory::class, 'employee_category_id');
 }
-  
+
+public function user()
+{
+    // Vincula el empleado con el usuario usando la cédula como puente
+    return $this->hasOne(User::class, 'email', 'identification');
+}
+
 }

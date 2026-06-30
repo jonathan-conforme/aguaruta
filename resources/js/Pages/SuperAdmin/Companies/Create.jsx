@@ -26,11 +26,12 @@ export default function Create({ open, onClose }) {
         plan: 'basico',
         subscription_ends_at: '',
         logo: null, // Listo para recibir el archivo
+
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         post(route('companies.store'), {
             onSuccess: () => {
                 reset();
@@ -50,7 +51,7 @@ export default function Create({ open, onClose }) {
 
             <form onSubmit={handleSubmit}>
                 <DialogBody divider className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
+
                     <div className="col-span-1 md:col-span-2">
                         <Typography variant="h6" color="blue-gray" className="mb-2">
                             Datos de la Empresa
@@ -58,59 +59,65 @@ export default function Create({ open, onClose }) {
                     </div>
 
                     <div>
-                        <Input 
-                            label="Nombre de la Empresa" 
-                            value={data.name} 
-                            onChange={(e) => setData('name', e.target.value)} 
+                        <Input
+                            label="Nombre de la Empresa"
+                            value={data.name}
+                            onChange={(e) => setData('name', e.target.value)}
                             error={!!errors.name}
+                            color="indigo"
                         />
                         {errors.name && <Typography variant="small" color="red">{errors.name}</Typography>}
                     </div>
 
                     <div>
-                        <Input 
-                            label="Número de RUC" 
-                            value={data.ruc_number} 
-                            onChange={(e) => setData('ruc_number', e.target.value)} 
+                        <Input
+                            label="Número de RUC"
+                            value={data.ruc_number}
+                            onChange={(e) => setData('ruc_number', e.target.value)}
                             error={!!errors.ruc_number}
+                            color="indigo"
                         />
                         {errors.ruc_number && <Typography variant="small" color="red">{errors.ruc_number}</Typography>}
                     </div>
 
                     <div>
-                        <Input 
-                            label="Email de Contacto (Login del Admin)" 
+                        <Input
+                            label="Email de Contacto (Login del Admin)"
                             type="email"
-                            value={data.email} 
-                            onChange={(e) => setData('email', e.target.value)} 
+                            value={data.email}
+                            onChange={(e) => setData('email', e.target.value)}
                             error={!!errors.email}
+                            color="indigo"
                         />
                         {errors.email && <Typography variant="small" color="red">{errors.email}</Typography>}
                     </div>
 
                     <div>
-                        <Input 
-                            label="Teléfono Fijo" 
-                            value={data.phone} 
-                            onChange={(e) => setData('phone', e.target.value)} 
+                        <Input
+                            label="Teléfono Fijo"
+                            value={data.phone}
+                            onChange={(e) => setData('phone', e.target.value)}
                             error={!!errors.phone}
+                            color="indigo"
                         />
                         {errors.phone && <Typography variant="small" color="red">{errors.phone}</Typography>}
                     </div>
 
                     <div>
-                        <Input 
-                            label="WhatsApp" 
-                            value={data.whatsapp_number} 
-                            onChange={(e) => setData('whatsapp_number', e.target.value)} 
+                        <Input
+                            label="WhatsApp"
+                            value={data.whatsapp_number}
+                            onChange={(e) => setData('whatsapp_number', e.target.value)}
+                            color="indigo"
                         />
                     </div>
 
                     <div>
-                        <Input 
-                            label="Dirección" 
-                            value={data.address} 
-                            onChange={(e) => setData('address', e.target.value)} 
+                        <Input
+                            label="Dirección"
+                            value={data.address}
+                            onChange={(e) => setData('address', e.target.value)}
+                            color="indigo"
                         />
                     </div>
 
@@ -119,10 +126,10 @@ export default function Create({ open, onClose }) {
                         <Typography variant="small" color="blue-gray" className="mb-1 font-medium">
                             Logo de la Empresa (PNG, JPG)
                         </Typography>
-                        <input 
-                            type="file" 
+                        <input
+                            type="file"
                             accept="image/*"
-                            onChange={(e) => setData('logo', e.target.files[0])} 
+                            onChange={(e) => setData('logo', e.target.files[0])}
                             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 border border-gray-300 rounded-md"
                         />
                         {errors.logo && <Typography variant="small" color="red">{errors.logo}</Typography>}
@@ -135,28 +142,35 @@ export default function Create({ open, onClose }) {
                     </div>
 
                     <div>
-                        <Select 
-                            label="Plan Contratado" 
-                            value={data.plan} 
+                        <Select
+                            label="Plan Contratado"
+                            value={data.plan}
                             onChange={(val) => setData('plan', val)}
+                            color="indigo"
                         >
                             <Option value="basico">Básico</Option>
                             <Option value="premium">Premium</Option>
                             <Option value="empresarial">Empresarial</Option>
+                            <Option value="vip">Vip</Option>
+
                         </Select>
+
                         {errors.plan && <Typography variant="small" color="red">{errors.plan}</Typography>}
                     </div>
 
                     <div>
-                        <Input 
+                        <Input
                             type="date"
-                            label="Fecha de Vencimiento" 
-                            value={data.subscription_ends_at} 
-                            onChange={(e) => setData('subscription_ends_at', e.target.value)} 
+                            label="Fecha de Vencimiento"
+                            value={data.subscription_ends_at}
+                            onChange={(e) => setData('subscription_ends_at', e.target.value)}
                             error={!!errors.subscription_ends_at}
+                            color="indigo"
                         />
                         {errors.subscription_ends_at && <Typography variant="small" color="red">{errors.subscription_ends_at}</Typography>}
                     </div>
+
+                  
 
                 </DialogBody>
 

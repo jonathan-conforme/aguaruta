@@ -44,7 +44,7 @@ export default function Create({ users, products, routes, onClose, initialData }
 
     const submit = (e) => {
         e.preventDefault();
-        
+
         // Bloqueo extra por si acaso
         if (isReadOnly) return;
 
@@ -247,7 +247,7 @@ export default function Create({ users, products, routes, onClose, initialData }
                 <Button variant="text" color={isReadOnly ? "blue-gray" : "red"} onClick={onClose} disabled={processing}>
                     {isReadOnly ? 'Cerrar' : 'Cancelar'}
                 </Button>
-                
+
                 {!isReadOnly && (
                     <Button color="indigo" type="submit" disabled={processing || data.products.length === 0}>
                         {processing ? 'Guardando...' : (initialData ? 'Actualizar Despacho' : 'Guardar Despacho')}

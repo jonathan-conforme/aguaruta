@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\DB;
 use App\Models\InventoryMovement;
 use App\Models\Purchase;
-use App\Models\Products;
+use App\Models\Product;
 
 class PurchaseService
 {
@@ -38,22 +38,22 @@ class PurchaseService
                 ]);
            // 3. Actualizar el stock del producto
                 // Utilizamos el método increment() para evitar problemas de concurrencia
-                $product = Products::find($item['product_id']);
-                
+                $product = Product::find($item['product_id']);
+
                 if ($product) {
                     // Esto suma la cantidad comprada al stock actual en la base de datos
-                    $product->increment('empty_stock', $item['quantity']); 
+                    $product->increment('empty_stock', $item['quantity']);
                     $invoiceText = $purchase->invoice_number ? " (Factura: {$purchase->invoice_number})" : "";
-                    
+
                 InventoryMovement::create([
-                        // Si tu modelo InventoryMovement usa el trait BelongsToCompany, 
+                        // Si tu modelo InventoryMovement usa el trait BelongsToCompany,
                         // el company_id se llenará solo. Si no, agrégalo aquí.
                         'product_id' => $product->id,
                         'type' => 'in',
                         'quantity' => $item['quantity'],
                         'description' => "Ingreso automático por compra a proveedor" . $invoiceText,
                     ]);
-                
+
                     }
             }
             return $purchase;

@@ -3,13 +3,13 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Rules\ValidarRucEcuador; 
+use App\Rules\ValidarRucEcuador;
 
 class StoreCompanyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; 
+        return true;
     }
 
     public function rules(): array
@@ -23,15 +23,16 @@ class StoreCompanyRequest extends FormRequest
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'subscription_ends_at' => 'nullable|date',
-            'plan' => 'required|in:basico,premium,empresarial',
-            
+            'plan' => 'required|in:basico,premium,empresarial,vip',
+          
+
         ];
     }
 
     public function messages(): array
     {
         return [
-            
+
             'ruc_number.digits_between' => 'La Cédula o RUC debe tener entre 10 y 13 dígitos.',
             'ruc_number.unique' => 'CI/RUC ya está registrado en el sistema.',
             'ruc_number.*' => 'La cédula o RUC no es válido.',

@@ -6,7 +6,7 @@ import {
 } from "@material-tailwind/react";
 import { PlusIcon, PencilIcon, TrashIcon, CubeIcon, ArrowsRightLeftIcon, LockClosedIcon, ArrowLeftIcon, ArrowRightIcon } from "@heroicons/react/24/solid";
 
-export default function Index({ products, categories }) {
+export default function Index({ product, categories }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
 
@@ -84,7 +84,7 @@ const handlePageChange = (url) => {
 };
 
     const TABLE_HEAD = ["Producto", "Presentación", "Precio", "Stock Llenos", "Stock Vacíos", "Retornable", "Estado", "Acciones"];
-    const productList = products?.data || products || [];
+    const productList = product?.data || product || [];
     const categoryList = categories || [];
 
     return (
@@ -172,9 +172,9 @@ const handlePageChange = (url) => {
                                     );
                                 })}
                             </tbody>
-                           
+
                         </table>
-                      
+
                     </CardBody>
                 </Card>
             </div>

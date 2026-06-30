@@ -11,6 +11,27 @@ use Illuminate\Support\Facades\DB;
 
 class SaleService
 {
+
+/**
+     * Obtiene los viajes del usuario con contadores de métricas para el POS Móvil
+     */
+    public function getTripsWithMetrics($user, string $date)
+    {
+        return \App\Models\Trip::with(['route', 'products'])
+            ->withCount('sales') // Genera sales_count
+            ->withSum('sales', 'total') // Genera sales_sum_total
+            ->withCount(['sales as clientes_visitados' => function ($query) {
+                $query->select(\DB::raw('count(distinct(customer_id))'));
+            }])
+            ->where('company_id', $user->company_id)
+            ->whereDate('date', $date)
+            ->where(function($query) use ($user) {
+                $query->where('seller_id', $user->id)
+                      ->orWhere('driver_id', $user->id);
+            })
+            ->get();
+    }
+
     /**
      * Procesa una venta generada desde el POS Móvil
      */

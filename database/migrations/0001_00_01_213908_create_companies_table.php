@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->boolean('is_active')->default(true);
             $table->string('logo')->nullable();
-            $table->enum('plan', ['basico', 'premium', 'empresarial'])->default('basico');
+            $table->enum('plan', ['basico', 'premium', 'empresarial', 'vip'])->default('basico');
             $table->date('subscription_ends_at')->nullable();
             $table->timestamps();
         });

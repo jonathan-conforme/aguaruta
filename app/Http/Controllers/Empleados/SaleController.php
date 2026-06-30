@@ -15,7 +15,7 @@ use Inertia\Inertia;
 
 class SaleController extends Controller
 {
-   
+
     protected $saleService;
 
     public function __construct(SaleService $saleService)
@@ -25,32 +25,31 @@ class SaleController extends Controller
     /**
      * Display a listing of the resource.
      */
+    /**
+     * Display a listing of the resource.
+     */
     public function index(Request $request)
     {
-        $user = auth()->user(); 
+        $user = auth()->user();
         $filterDate = $request->input('date', Carbon::today()->toDateString());
 
-        // 1. Consulta base: 
-        // CAMBIO CLAVE AQUÍ -> Cargamos 'shift.user' en lugar de 'user'
+        // 1. Consulta base de ventas
         $salesQuery = Sale::with(['customer', 'trip', 'shift.user', 'details.product'])
             ->where('company_id', $user->company_id);
 
-        // 2. Lógica de Roles usando tu ENUM
-        if ($user->role === 'empleado') { 
-            // CAMBIO CLAVE AQUÍ -> Filtramos a través del Turno (shift)
+        if ($user->role === 'empleado') {
             $salesQuery->whereHas('shift', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             });
         }
 
-        // 3. Aplicamos el filtro de fecha
         if ($filterDate) {
             $salesQuery->whereDate('created_at', $filterDate);
         }
 
         $sales = $salesQuery->orderBy('created_at', 'desc')->get();
 
-        // 4. Calculamos las métricas
+        // 2. Métricas generales de la lista
         $totalEarned = $sales->sum('total');
         $salesByMethod = [
             'cash' => $sales->where('payment_method', 'cash')->sum('total'),
@@ -58,10 +57,18 @@ class SaleController extends Controller
             'credit' => $sales->where('payment_method', 'credit')->sum('total'),
         ];
 
-        // 5. Definimos la URL base para React
+        /*
+         |--------------------------------------------------------------------------
+         | 🔥 AQUÍ ESTÁ LA MAGIA: Llamamos al servicio para llenar el modal
+         |--------------------------------------------------------------------------
+         */
+        $trips = $this->saleService->getTripsWithMetrics($user, $filterDate);
+
         $baseUrl = $user->role === 'empleado' ? '/empleado/sales' : '/admin/sales';
 
+        // Retornamos todo a React
         return Inertia::render('Empleados/Pos/Index', [
+            'trips' => $trips, // <-- ¡AHORA SÍ VA CON CONTADORES REALES!
             'sales' => $sales,
             'totalEarned' => $totalEarned,
             'salesByMethod' => $salesByMethod,
@@ -70,7 +77,6 @@ class SaleController extends Controller
         ]);
     }
 
-    
 
     /**
      * Show the form for creating a new resource.
@@ -142,10 +148,10 @@ class SaleController extends Controller
                 ->route('repartidor.sales.create', ['trip' => $validated['trip_id']]);
 
         } catch (\Exception $e) { // Cambié \Throwable por \Exception por seguridad
-            
+
             // Logueamos el error para verlo en consola sin romper la pantalla
             \Log::error('Error registrando venta: ' . $e->getMessage());
-            
+
             // Retornamos a la vista con el error para Inertia
             return back()->with('error', 'Ocurrió un error al registrar la venta: ' . $e->getMessage());
         }

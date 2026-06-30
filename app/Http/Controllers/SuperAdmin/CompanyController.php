@@ -11,6 +11,7 @@ use App\Services\CompanyService;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\UpdateCompanyRequest;
 
+
 class CompanyController extends Controller
 {
     protected CompanyService $companyService;
@@ -22,16 +23,31 @@ class CompanyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-          Company::where('subscription_ends_at', '<', now())
+   public function index()
+{
+    // Desactivar automáticamente empresas vencidas (Tu lógica actual)
+    Company::where('subscription_ends_at', '<', now())
         ->where('is_active', true)
         ->update(['is_active' => false]);
 
-        $companies = Company::with('users')->latest()->paginate(15);
-        return Inertia::render('SuperAdmin/Companies/index', [ 'companies' => $companies]);
-    }
+    // Cargamos las empresas con sus usuarios
+    $companies = Company::with('users')->latest()->paginate(15);
 
+    // Obtenemos los planes disponibles desde config/plans.php
+    // Esto devolverá: [['id' => 'basico', 'price' => 14.99], ...]
+    $availablePlans = collect(config('plans'))->map(function ($details, $key) {
+        return [
+            'id' => $key,
+            'price' => $details['price'],
+            'name' => $key === 'basico' ? 'Básico' : ucfirst($key)
+        ];
+    })->values();
+
+    return Inertia::render('SuperAdmin/Companies/index', [
+        'companies' => $companies,
+        'availablePlans' => $availablePlans
+    ]);
+}
     /**
      * Show the form for creating a new resource.
      */
@@ -53,9 +69,10 @@ class CompanyController extends Controller
         // Verificamos si en la petición viene un archivo llamado 'logo'
         if ($request->hasFile('logo')) {
             // Guardamos el archivo físicamente en 'storage/app/public/logos'
-            // Y reemplazamos el archivo temporal por la ruta real (ej: logos/imagen.png)
             $data['logo'] = $request->file('logo')->store('logos', 'public');
         }
+
+        $data['legal_accepted_ip'] = $request->ip();
 
         // 3. Enviamos los datos al servicio UNA SOLA VEZ
         $this->companyService->createCompany($data);

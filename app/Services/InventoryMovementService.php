@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\InventoryMovement;
-use App\Models\Products;
+use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -41,9 +41,10 @@ class InventoryMovementService
 
         // Usamos una transacción para que, si algo falla, no se guarde a medias
         return DB::transaction(function () use ($data) {
-            
+
         // 1. Actualizar el stock del producto
-            $product = Products::findOrFail($data['product_id']);
+          // 1. Bloquea la fila en la Base de Datos y encuentra el producto por su ID
+$product = Product::lockForUpdate()->findOrFail($data['product_id']);
 
             // Convertimos a unidades reales
         $realQuantity = $data['quantity'] * $product->units_per_package;
@@ -73,7 +74,7 @@ class InventoryMovementService
                 // Si es envasado: Restamos de los vacíos y sumamos a los llenos (current_stock)
                 $product->empty_stock -= $realQuantity;
                 $product->current_stock += $realQuantity;
-            } 
+            }
 
             $product->save();
 

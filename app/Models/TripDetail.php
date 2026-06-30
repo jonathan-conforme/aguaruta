@@ -9,7 +9,7 @@ use App\Models\Traits\BelongsToCompany;
 class TripDetail extends Pivot
 {
     use BelongsToCompany;
-   
+
     protected $table = 'trip_details';
 
     protected $fillable = [
@@ -29,6 +29,6 @@ class TripDetail extends Pivot
     }
     public function product()
     {
-        return $this->belongsTo(Products::class, 'product_id');
+        return $this->belongsTo(Product::class);
     }
 }

@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\CuentaCreadaMail;
+
 
 
 class CompanyService
@@ -22,22 +25,23 @@ class CompanyService
 
             // 1. Preparamos los datos
             $data['is_active'] = true;
-
-
-
             // 2. Creamos la empresa
             $company = Company::create($data);
 
-            User::create ([
+            $user = User::create ([
                 'company_id' => $company->id,
                 'name' => 'Admin de ' . $company->name,
                 'email' => $data['email'],
                 'password' => Hash::make($data['ruc_number']),
                 'role' => 'admin',
                 'is_active' => true,
+                'password_changed' => false,
+                
             ]);
 
-            Log::info("Nueva empresa registrada: {$company->name} (RUC: {$company->ruc_number})");
+            Mail::to($user->email)->send(new CuentaCreadaMail($user));
+
+           Log::info("Nueva empresa registrada: {$company->name} (RUC: {$company->ruc_number}) y Admin legal creado.");
 
             return $company;
         });

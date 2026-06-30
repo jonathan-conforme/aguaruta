@@ -3,14 +3,17 @@ import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { Button, Input } from "@material-tailwind/react"; // 👈 Aprovechamos Material Tailwind
+import { Button, Input } from "@material-tailwind/react";
+// 🔥 IMPORTAMOS EL ICONO DE MATERIAL UI:
+import WarningIcon from '@mui/icons-material/Warning';
 
-export default function Login({ status, canResetPassword }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
+export default function Login({ status, canResetPassword, error_message }) {
+    const { data, setData, post, processing, errors, reset, flash } = useForm({
         email: '',
         password: '',
         remember: false,
     });
+    const mensajeDeError = error_message || flash?.error;
 
     useEffect(() => {
         return () => {
@@ -35,9 +38,17 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 {/* Mensaje de estado (como el de cuenta inactiva) */}
-                {status && (
+                {status && status !== 'duplicate' && (
                     <div className="mb-6 p-4 text-sm font-medium text-green-700 bg-green-50 rounded-lg border border-green-200">
                         {status}
+                    </div>
+                )}
+
+                {/* 🔥 ALERTA CON ICONO DE MATERIAL UI */}
+                {mensajeDeError && (
+                    <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6 text-sm font-medium shadow-sm animate-pulse">
+                        <WarningIcon className="text-red-500 h-5 w-5 flex-shrink-0" />
+                        <span>{mensajeDeError}</span>
                     </div>
                 )}
 

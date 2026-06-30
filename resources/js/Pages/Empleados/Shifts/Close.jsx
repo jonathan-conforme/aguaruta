@@ -84,19 +84,22 @@ export default function Close({ closureData }) {
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase mb-2">Productos Vendidos</p>
-                            <ul className="space-y-1.5">
-                                {closureData.inventory_summary.products_sold.map((product) => (
-                                    <li key={product.product_id} className="flex justify-between text-sm bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                                        <span className="font-medium text-gray-700">{product.name}</span>
-                                        <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">x{product.quantity}</span>
-                                    </li>
-                                ))}
-                                {closureData.inventory_summary.products_sold.length === 0 && (
-                                    <li className="text-sm text-gray-400 bg-gray-50 p-3 rounded-lg text-center">No hay ventas registradas.</li>
-                                )}
-                            </ul>
-                        </div>
+    <p className="text-xs font-bold text-gray-500 uppercase mb-2">Productos Vendidos</p>
+    <ul className="space-y-1.5">
+        {/* 🔥 CAMBIO AQUÍ: Añadimos ?. y || [] para evitar que explote si viene vacío */}
+        {(closureData?.inventory_summary?.products_sold || []).map((product) => (
+            <li key={product.product_id} className="flex justify-between text-sm bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                <span className="font-medium text-gray-700">{product.name}</span>
+                <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">x{product.quantity}</span>
+            </li>
+        ))}
+
+        {/* 🔥 CAMBIO AQUÍ: También protegemos la validación del .length */}
+        {(!closureData?.inventory_summary?.products_sold || closureData.inventory_summary.products_sold.length === 0) && (
+            <li className="text-sm text-gray-400 bg-gray-50 p-3 rounded-lg text-center">No hay ventas registradas.</li>
+        )}
+    </ul>
+</div>
                         <div className="flex flex-col justify-center items-center bg-indigo-50 rounded-xl p-4 border border-indigo-100">
                             <span className="text-indigo-800 font-bold text-sm uppercase mb-2 text-center">Envases Recuperados</span>
                             <span className="text-5xl font-black text-indigo-600 drop-shadow-sm">

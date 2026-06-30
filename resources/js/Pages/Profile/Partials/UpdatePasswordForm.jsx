@@ -1,24 +1,25 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Transition } from '@headlessui/react';
 import { useForm } from '@inertiajs/react';
-import { useRef } from 'react';
+import { useState } from 'react';
+import {
+    Box,
+    TextField,
+    Button,
+    Typography,
+    Fade,
+    InputAdornment,
+    IconButton
+} from '@mui/material';
+import LockIcon from '@mui/icons-material/Lock';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import KeyIcon from '@mui/icons-material/Key';
 
 export default function UpdatePasswordForm({ className = '' }) {
-    const passwordInput = useRef();
-    const currentPasswordInput = useRef();
+    // Estados para alternar ver/ocultar contraseñas
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
 
-    const {
-        data,
-        setData,
-        errors,
-        put,
-        reset,
-        processing,
-        recentlySuccessful,
-    } = useForm({
+    const { data, setData, errors, put, reset, processing, recentlySuccessful } = useForm({
         current_password: '',
         password: '',
         password_confirmation: '',
@@ -33,110 +34,134 @@ export default function UpdatePasswordForm({ className = '' }) {
             onError: (errors) => {
                 if (errors.password) {
                     reset('password', 'password_confirmation');
-                    passwordInput.current.focus();
                 }
-
                 if (errors.current_password) {
                     reset('current_password');
-                    currentPasswordInput.current.focus();
                 }
             },
         });
     };
 
     return (
-        <section className={className}>
+        <Box component="section" className={className} sx={{ mt: 2 }}>
             <header>
-                <h2 className="text-lg font-medium text-gray-900">
-                    Update Password
-                </h2>
-
-                <p className="mt-1 text-sm text-gray-600">
-                    Ensure your account is using a long, random password to stay
-                    secure.
-                </p>
+                <Typography variant="h6" component="h2" color="text.primary" gutterBottom>
+                    Actualizar Contraseña
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                    Asegúrate de que tu cuenta utilice una contraseña larga y aleatoria para mantenerse segura.
+                </Typography>
             </header>
 
-            <form onSubmit={updatePassword} className="mt-6 space-y-6">
-                <div>
-                    <InputLabel
-                        htmlFor="current_password"
-                        value="Current Password"
-                    />
+            <Box component="form" onSubmit={updatePassword} sx={{ mt: 4, display: 'flex', flexDirection: 'column', gap: 3 }}>
 
-                    <TextInput
-                        id="current_password"
-                        ref={currentPasswordInput}
-                        value={data.current_password}
-                        onChange={(e) =>
-                            setData('current_password', e.target.value)
-                        }
-                        type="password"
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                    />
+                {/* Contraseña Actual */}
+                <TextField
+                    id="current_password"
+                    label="Contraseña Actual"
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    variant="outlined"
+                    fullWidth
+                    value={data.current_password}
+                    onChange={(e) => setData('current_password', e.target.value)}
+                    error={!!errors.current_password}
+                    helperText={errors.current_password}
+                    autoComplete="current-password"
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <LockIcon color="action" />
+                                </InputAdornment>
+                            ),
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                        edge="end"
+                                    >
+                                        {showCurrentPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
+                />
 
-                    <InputError
-                        message={errors.current_password}
-                        className="mt-2"
-                    />
-                </div>
+                {/* Nueva Contraseña */}
+                <TextField
+                    id="password"
+                    label="Nueva Contraseña"
+                    type={showNewPassword ? 'text' : 'password'}
+                    variant="outlined"
+                    fullWidth
+                    value={data.password}
+                    onChange={(e) => setData('password', e.target.value)}
+                    error={!!errors.password}
+                    helperText={errors.password}
+                    autoComplete="new-password"
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <KeyIcon color="action" />
+                                </InputAdornment>
+                            ),
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={() => setShowNewPassword(!showNewPassword)}
+                                        edge="end"
+                                    >
+                                        {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
+                />
 
-                <div>
-                    <InputLabel htmlFor="password" value="New Password" />
+                {/* Confirmar Contraseña */}
+                <TextField
+                    id="password_confirmation"
+                    label="Confirmar Contraseña"
+                    type={showNewPassword ? 'text' : 'password'}
+                    variant="outlined"
+                    fullWidth
+                    value={data.password_confirmation}
+                    onChange={(e) => setData('password_confirmation', e.target.value)}
+                    error={!!errors.password_confirmation}
+                    helperText={errors.password_confirmation}
+                    autoComplete="new-password"
+                    slotProps={{
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <KeyIcon color="action" />
+                                </InputAdornment>
+                            ),
+                        },
+                    }}
+                />
 
-                    <TextInput
-                        id="password"
-                        ref={passwordInput}
-                        value={data.password}
-                        onChange={(e) => setData('password', e.target.value)}
-                        type="password"
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div>
-                    <InputLabel
-                        htmlFor="password_confirmation"
-                        value="Confirm Password"
-                    />
-
-                    <TextInput
-                        id="password_confirmation"
-                        value={data.password_confirmation}
-                        onChange={(e) =>
-                            setData('password_confirmation', e.target.value)
-                        }
-                        type="password"
-                        className="mt-1 block w-full"
-                        autoComplete="new-password"
-                    />
-
-                    <InputError
-                        message={errors.password_confirmation}
-                        className="mt-2"
-                    />
-                </div>
-
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
-
-                    <Transition
-                        show={recentlySuccessful}
-                        enter="transition ease-in-out"
-                        enterFrom="opacity-0"
-                        leave="transition ease-in-out"
-                        leaveTo="opacity-0"
+                {/* Botón de guardado */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        disabled={processing}
                     >
-                        <p className="text-sm text-gray-600">
-                            Saved.
-                        </p>
-                    </Transition>
-                </div>
-            </form>
-        </section>
+                        Cambiar Contraseña
+                    </Button>
+
+                    <Fade in={recentlySuccessful} timeout={300}>
+                        <Typography variant="body2" color="success.main" sx={{ fontWeight: 'medium' }}>
+                            ¡Contraseña cambiada!
+                        </Typography>
+                    </Fade>
+                </Box>
+            </Box>
+        </Box>
     );
 }

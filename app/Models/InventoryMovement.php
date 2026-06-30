@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\BelongsToCompany;
-use App\Models\Products;
+use App\Models\Product;
 
 class InventoryMovement extends Model
 {
-   
+
     use BelongsToCompany;
 
     /**
@@ -18,17 +18,15 @@ class InventoryMovement extends Model
         'company_id',
         'trip_id',
         'product_id',
-        'type',        
+        'type',
         'quantity',
         'description',
     ];
 
-    /**
-     * Relación: Un movimiento de inventario pertenece a un Producto.
-     * Mantenemos Products::class porque así nombramos a tu modelo de productos.
-     */
+   //relacione con la tabla product
+
     public function product()
     {
-        return $this->belongsTo(Products::class, 'product_id');
+        return $this->belongsTo(Product::class);
     }
 }

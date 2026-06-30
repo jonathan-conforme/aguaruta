@@ -19,40 +19,31 @@ import {
     StopIcon
 } from "@heroicons/react/24/solid";
 
-
-const completeTrip = () => {
-
-    if (!selectedTrip) return;
-
-    router.post(
-        route('repartidor.trips.complete', selectedTrip.id),
-        {},
-        {
-            onSuccess: () => {
-                setShowCompleteModal(false);
-                setSelectedTrip(null);
-            }
-        }
-    );
-};
-
-
 export default function PosIndex({ auth, trips = [] }) {
     const [showCompleteModal, setShowCompleteModal] = useState(false);
     const [selectedTrip, setSelectedTrip] = useState(null);
 
     const { post, processing } = useForm();
 
+    // 1. MOVIDA AQUÍ ADENTRO PARA QUE TENGA ACCESO A LOS ESTADOS
+    const completeTrip = () => {
+        if (!selectedTrip) return;
+
+        router.post(
+            route('repartidor.trips.complete', selectedTrip.id),
+            {},
+            {
+                onSuccess: () => {
+                    setShowCompleteModal(false);
+                    setSelectedTrip(null);
+                }
+            }
+        );
+    };
+
     const handleActivateRoute = (tripId) => {
         post(route('repartidor.trips.start', tripId));
     };
-
-    // FUNCIÓN PARA FINALIZAR EL VIAJE
-    //const handleCompleteRoute = (tripId) => {
-    //  if (confirm('¿Estás seguro de finalizar este viaje? Ya no podrás registrar más ventas en esta ruta.')) {
-    //    router.post(route('repartidor.trips.complete', tripId));
-    //}
-    //};
 
     return (
         <AuthenticatedLayout
@@ -93,7 +84,6 @@ export default function PosIndex({ auth, trips = [] }) {
                                         </Typography>
                                     </div>
 
-                                    {/* CHIP DINÁMICO */}
                                     <Chip
                                         value={
                                             trip.status === 'pending' ? 'Pendiente' :
@@ -126,7 +116,6 @@ export default function PosIndex({ auth, trips = [] }) {
                             </CardBody>
 
                             <CardFooter className="pt-0">
-                                {/* PENDIENTE */}
                                 {trip.status === 'pending' && (
                                     <Button
                                         size="lg"
@@ -141,7 +130,6 @@ export default function PosIndex({ auth, trips = [] }) {
                                     </Button>
                                 )}
 
-                                {/* ACTIVO */}
                                 {trip.status === 'active' && (
                                     <div className="flex flex-col gap-3">
                                         <Button
@@ -163,13 +151,11 @@ export default function PosIndex({ auth, trips = [] }) {
                                                 setShowCompleteModal(true);
                                             }}
                                         >
-                                            
                                             Finalizar este Viaje
                                         </Button>
                                     </div>
                                 )}
 
-                                {/* COMPLETADO */}
                                 {trip.status === 'completed' && (
                                     <div className="flex items-center justify-center gap-2 text-gray-500 py-2 bg-gray-100 rounded-lg">
                                         <CheckCircleIcon className="h-5 w-5 text-gray-400" />
@@ -183,21 +169,18 @@ export default function PosIndex({ auth, trips = [] }) {
                 )}
 
             </div>
+
             <Modal
                 show={showCompleteModal}
                 onClose={() => setShowCompleteModal(false)}
                 maxWidth="md"
             >
                 <div className="p-6">
-
                     <div className="items-center text-center gap-3 mb-4">
-                  
-
                         <div>
                             <h2 className="text-lg font-bold text-gray-900">
                                 Finalizar Ruta
                             </h2>
-
                             <p className="text-sm text-gray-500">
                                 Esta acción cerrará el viaje actual.
                             </p>
@@ -205,68 +188,44 @@ export default function PosIndex({ auth, trips = [] }) {
                     </div>
 
                     <div className="bg-gray-50 rounded-lg p-4 border mb-4">
-
                         <p className="font-semibold">
                             {selectedTrip?.route?.route_name}
                         </p>
-
                         <p className="text-sm text-gray-500">
                             Viaje #{selectedTrip?.id}
                         </p>
-
                     </div>
+
                     <div className="grid grid-cols-3 gap-3 mb-4">
+                        <div className="bg-indigo-50 rounded-lg p-3 text-center">
+                            <p className="text-xs text-gray-500">Pedidos</p>
+                            <p className="text-xl font-bold text-indigo-600">
+                                {selectedTrip?.sales_count || 0}
+                            </p>
+                        </div>
 
-    <div className="bg-indigo-50 rounded-lg p-3 text-center">
-        <p className="text-xs text-gray-500">
-            Pedidos
-        </p>
+                        <div className="bg-green-50 rounded-lg p-3 text-center">
+                            <p className="text-xs text-gray-500">Ventas</p>
+                            <p className="text-xl font-bold text-green-600">
+                                ${Number(selectedTrip?.sales_sum_total || 0).toFixed(2)}
+                            </p>
+                        </div>
 
-        <p className="text-xl font-bold text-indigo-600">
-            {selectedTrip?.sales_count || 0}
-        </p>
-    </div>
-
-    <div className="bg-green-50 rounded-lg p-3 text-center">
-        <p className="text-xs text-gray-500">
-            Ventas
-        </p>
-
-        <p className="text-xl font-bold text-green-600">
-            ${Number(selectedTrip?.sales_sum_total || 0).toFixed(2)}
-        </p>
-    </div>
-
-    <div className="bg-amber-50 rounded-lg p-3 text-center">
-        <p className="text-xs text-gray-500">
-            Clientes
-        </p>
-
-        <p className="text-xl font-bold text-amber-600">
-            {selectedTrip?.clientes_visitados || 0}
-        </p>
-    </div>
-
-</div>
+                        <div className="bg-amber-50 rounded-lg p-3 text-center">
+                            <p className="text-xs text-gray-500">Clientes</p>
+                            <p className="text-xl font-bold text-amber-600">
+                                {selectedTrip?.clientes_visitados || 0}
+                            </p>
+                        </div>
+                    </div>
 
                     <div className="space-y-2 text-sm text-gray-700">
-
-                        <div>
-                            ✓ No podrás registrar más ventas.
-                        </div>
-
-                        <div>
-                            ✓ El viaje quedará marcado como completado.
-                        </div>
-
-                        <div>
-                            ✓ Podrás continuar con el cierre de caja.
-                        </div>
-
+                        <div>✓ No podrás registrar más ventas.</div>
+                        <div>✓ El viaje quedará marcado como completado.</div>
+                        <div>✓ Podrás continuar con el cierre de caja.</div>
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3">
-
                         <Button
                             variant="outlined"
                             onClick={() => setShowCompleteModal(false)}
@@ -280,9 +239,7 @@ export default function PosIndex({ auth, trips = [] }) {
                         >
                             Finalizar Viaje
                         </Button>
-
                     </div>
-
                 </div>
             </Modal>
         </AuthenticatedLayout>

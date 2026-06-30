@@ -13,16 +13,21 @@ use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
+
+
     /**
      * Display the login view.
      */
-    public function create(): Response
-    {
-        return Inertia::render('Auth/Login', [
-            'canResetPassword' => Route::has('password.request'),
-            'status' => session('status'),
-        ]);
-    }
+public function create(Request $request): Response
+{
+    return Inertia::render('Auth/Login', [
+        'canResetPassword' => Route::has('password.request'),
+        'status' => session('status'),
+        'error_message' => $request->query('status') === 'duplicate'
+            ? 'Tu cuenta ha sido abierta en otro dispositivo. Se cerró esta sesión.'
+            : null,
+    ]);
+}
 
     /**
      * Handle an incoming authentication request.
@@ -31,7 +36,9 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        $user = Auth::user();
+
+        Auth::logoutOtherDevices($request->input('password'));
 
         return redirect()->intended(route('dashboard', absolute: false));
     }

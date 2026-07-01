@@ -394,7 +394,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <div>
                                             <Typography variant="small" className="text-gray-500 font-bold mb-3 ml-1">Operaciones:</Typography>
                                             <div className="grid grid-cols-2 gap-4">
-                                                <GridCard href={route('routes.index')} onClick={() => setIsMobileMenuOpen(false)} icon={MapIcon} label="Rutas" iconColor="text-teal-600" iconBg="bg-teal-50" />
+                                                <GridCard href={route('delivery-routes.index')} onClick={() => setIsMobileMenuOpen(false)} icon={MapIcon} label="Rutas" iconColor="text-teal-600" iconBg="bg-teal-50" />
                                                 <GridCard href={route('trips.index')} onClick={() => setIsMobileMenuOpen(false)} icon={MapPinIcon} label="Crear Viajes" iconColor="text-emerald-600" iconBg="bg-emerald-50" />
 
 

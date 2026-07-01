@@ -5,8 +5,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig({
-   
-    base: process.env.NODE_ENV === 'production' ? '/aguaruta/public/' : '/',
+    
+    base: './',
     plugins: [
         laravel({
             input: 'resources/js/app.jsx',
@@ -17,7 +17,6 @@ export default defineConfig({
             registerType: 'autoUpdate',
             injectRegister: 'auto',
             strategies: 'generateSW',
-
             manifest: {
                 name: 'AquaRuta Logística',
                 short_name: 'AquaRuta',

@@ -195,7 +195,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">Logística</Typography>
                             </div>
                             <div className="flex flex-col font-medium gap-1 ml-2">
-                                <Link href={route('routes.index')}><ListItem className={itemClasses('routes.*')}><MapIcon className="h-4 w-4" /> Rutas</ListItem></Link>
+                                <Link href={route('delivery-routes.index')}><ListItem className={itemClasses('delivery-routes.*')}><MapIcon className="h-4 w-4" /> Rutas</ListItem></Link>
                                 <Link href={route('trips.index')}><ListItem className={itemClasses('trips.*')}><MapPinIcon className="h-4 w-4" />Crear Viajes</ListItem></Link>
                             </div>
                         </div>

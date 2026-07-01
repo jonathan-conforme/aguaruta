@@ -102,11 +102,11 @@ export default function Index({ auth, routes, provinces }) {
         e.preventDefault();
 
         if (editingRoute) {
-            put(route('routes.update', editingRoute.id), {
+            put(route('delivery-routes.update', editingRoute.id), {
                 onSuccess: () => handleOpenModal(),
             });
         } else {
-            post(route('routes.store'), {
+            post(route('delivery-routes.store'), {
                 onSuccess: () => handleOpenModal(),
             });
         }
@@ -130,7 +130,7 @@ export default function Index({ auth, routes, provinces }) {
                 {/* TABLA */}
 
                 <Card className="p-6 shadow-sm border border-gray-200">
-                    
+
                 <div className="rounded-none p-6 border-b border-gray-200 flex items-center justify-between">
                     <div>
                         <Typography variant="h5" color="blue-white">Historial de Rutas</Typography>

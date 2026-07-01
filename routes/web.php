@@ -99,8 +99,8 @@ Route::middleware(['auth', 'verified', 'role:admin', 'check.company'])->group(fu
     Route::resource('suppliers', SupplierController::class);
     Route::resource('purchases', PurchaseController::class);
     Route::resource('trips', TripController::class);
-    Route::resource('routes', DeliveryRouteController::class);
-    Route::patch('/routes/{route}/toggle', [DeliveryRouteController::class, 'toggle'])->name('routes.toggle');
+    Route::resource('delivery-routes', DeliveryRouteController::class);
+    Route::patch('/delivery-routes/{route}/toggle', [DeliveryRouteController::class, 'toggle'])->name('delivery-routes.toggle');
     Route::resource('shifts', AdminShiftsController::class);
     Route::get('/admin/sales', [EmpleadoSaleController::class, 'index'])->name('admin.sales.index');
       Route::get('/shifts', [AdminShiftsController::class, 'index'])

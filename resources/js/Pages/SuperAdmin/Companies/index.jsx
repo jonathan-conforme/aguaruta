@@ -4,7 +4,8 @@ import { Head, router } from '@inertiajs/react';
 import { Card, Typography, Button, Chip, IconButton, Tooltip } from "@material-tailwind/react";
 import Create from './Create';
 import Edit from './Edit';
-import { PencilIcon, PlusIcon, ArrowRightIcon, ArrowLeftIcon, ClockIcon, ExclamationTriangleIcon } from "@heroicons/react/24/solid";
+import DeleteConfirmModal from '@/Components/DeleteConfirmModal';
+import { PencilIcon, PlusIcon, ArrowRightIcon, ArrowLeftIcon, ClockIcon, ExclamationTriangleIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 export default function Index({ auth, companies, availablePlans = [] }) {
 
@@ -23,10 +24,40 @@ export default function Index({ auth, companies, availablePlans = [] }) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [selectedCompany, setSelectedCompany] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [companyToDelete, setCompanyToDelete] = useState(null);
+    const [processing, setProcessing] = useState(false);
 
     const handleEditClick = (company) => {
         setSelectedCompany(company);
         setIsEditOpen(true);
+    };
+    const closeDeleteModal = () => {
+        setIsDeleteModalOpen(false);
+        setCompanyToDelete(null);
+    };
+
+    const handleDeleteClick = (company) => {
+        setCompanyToDelete(company);
+        setIsDeleteModalOpen(true);
+    };
+    const confirmDelete = () => {
+        if (!companyToDelete) return;
+
+        setProcessing(true);
+
+        router.delete(route('companies.destroy', companyToDelete.id), {
+            preserveScroll: true,
+
+            onSuccess: () => {
+                closeDeleteModal();
+                router.reload();
+            },
+
+            onFinish: () => {
+                setProcessing(false);
+            },
+        });
     };
 
     // PAGINACIÓN (Inertia)
@@ -191,9 +222,9 @@ export default function Index({ auth, companies, availablePlans = [] }) {
                                                             value={plan === 'basico' ? 'Básico' : plan || "Sin plan"}
                                                             color={
                                                                 plan === "basico" ? "pink" :
-                                                                plan === "premium" ? "cyan" :
-                                                                plan == "vip" ? "purple" :
-                                                                plan === "empresarial" ? "indigo" : "gray"
+                                                                    plan === "premium" ? "cyan" :
+                                                                        plan == "vip" ? "purple" :
+                                                                            plan === "empresarial" ? "indigo" : "gray"
 
                                                             }
                                                             className="capitalize font-semibold"
@@ -233,7 +264,7 @@ export default function Index({ auth, companies, availablePlans = [] }) {
                                                     </Typography>
                                                 </td>
 
-                                                {/* ACCIONES - Solo dejamos el botón de Editar */}
+                                                {/* ACCIONES */}
                                                 <td className={classes}>
                                                     <div className="flex items-center gap-1">
                                                         <Tooltip content="Editar Empresa y Plan">
@@ -246,12 +277,33 @@ export default function Index({ auth, companies, availablePlans = [] }) {
                                                                 <PencilIcon className="h-4 w-4 text-indigo-600" />
                                                             </IconButton>
                                                         </Tooltip>
+                                              
+                                                        <Tooltip content="Eliminar Empresa">
+                                                            <IconButton
+                                                                variant="text"
+                                                                color="red"
+                                                                onClick={() => handleDeleteClick(company)}
+                                                                className="hover:bg-red-50"
+                                                            >
+                                                                <TrashIcon className="h-4 w-4 text-red-600" />
+                                                            </IconButton>
+                                                        </Tooltip>
                                                     </div>
+
+
                                                 </td>
                                             </tr>
                                         );
                                     })}
                                 </tbody>
+                                <DeleteConfirmModal
+                                    isOpen={isDeleteModalOpen}
+                                    onClose={closeDeleteModal}
+                                    onConfirm={confirmDelete}
+                                    itemName={`la empresa ${companyToDelete?.name}`}
+                                    processing={processing}
+                                />
+
                             </table>
                         </div>
 

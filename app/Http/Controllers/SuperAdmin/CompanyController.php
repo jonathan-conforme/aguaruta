@@ -124,10 +124,15 @@ public function update(UpdateCompanyRequest $request, Company $company)
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Company $company)
+   public function destroy(Company $company)
     {
-        //
+        // Lógica para eliminar la empresa
+        $company->delete();
+
+        return redirect()->route('companies.index')->with('success', 'Empresa eliminada correctamente.');
     }
+
+    
    public function toggleStatus(Company $company)
 {
     $company->update([

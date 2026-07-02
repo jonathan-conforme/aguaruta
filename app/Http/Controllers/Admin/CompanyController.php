@@ -17,4 +17,6 @@ class CompanyController extends Controller
             'employeeLimit' => $planService->getLimit($company, 'employees'),
         ]);
     }
+
+    
 }

@@ -5,7 +5,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig({
-    
+
     base: './',
     plugins: [
         laravel({
@@ -18,6 +18,7 @@ export default defineConfig({
             injectRegister: 'auto',
             strategies: 'generateSW',
             manifest: {
+                id: '/',
                 name: 'AquaRuta Logística',
                 short_name: 'AquaRuta',
                 description: 'Sistema de Gestión y Rutas para Purificadoras de Agua',
@@ -25,19 +26,43 @@ export default defineConfig({
                 background_color: '#f9fafb',
                 display: 'standalone',
                 orientation: 'portrait',
+                start_url: '/',
+                scope: '/',
                 icons: [
+                    {
+                        src: 'icons/icon-144x144.png',
+                        sizes: '144x144',
+                        type: 'image/png',
+                        purpose: 'any'
+                    },
                     {
                         src: 'icons/icon-192x192.png',
                         sizes: '192x192',
-                        type: 'image/png'
+                        type: 'image/png',
+                        purpose: 'any'
                     },
                     {
                         src: 'icons/icon-512x512.png',
                         sizes: '512x512',
-                        type: 'image/png'
+                        type: 'image/png',
+                        purpose: 'any'
+                    },
+                    {
+                        src: 'icons/icon-192x192.png',
+                        sizes: '192x192',
+                        type: 'image/png',
+                        purpose: 'maskable'
+                    },
+                    {
+                        src: 'icons/icon-512x512.png',
+                        sizes: '512x512',
+                        type: 'image/png',
+                        purpose: 'maskable'
                     }
                 ]
+
             }
         })
     ],
+
 });

@@ -2,7 +2,7 @@ import React from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import { Head, useForm, Link } from '@inertiajs/react';
-
+import ApplicationLogo from '@/Components/ApplicationLogo';
 // Componentes de Material Tailwind
 import { Button, Input } from "@material-tailwind/react";
 
@@ -27,6 +27,7 @@ export default function ForgotPassword({ status }) {
             <div className="w-full max-w-md mx-auto">
                 {/* Cabecera del Formulario */}
                 <div className="text-center mb-8">
+                    <ApplicationLogo className="mb-4" />
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">AquaRuta</h2>
                     <p className="text-sm text-gray-600">¿Olvidaste tu contraseña?</p>
                     <p className="text-xs text-gray-500 mt-2 px-4">
@@ -37,9 +38,12 @@ export default function ForgotPassword({ status }) {
                 {/* Alerta de Éxito (Cuando Laravel envía el correo) */}
                 {status && (
                     <div className="mb-6 p-4 text-sm font-medium text-green-700 bg-green-50 rounded-lg border border-green-200 shadow-sm">
-                        {status}
+                        {status === 'passwords.sent' || status === 'We have emailed your password reset link.'
+                            ? '¡Te hemos enviado por correo el enlace para restablecer tu contraseña!'
+                            : status}
                     </div>
                 )}
+
 
                 <form onSubmit={submit} className="space-y-6">
                     {/* Campo de Correo Electrónico */}
@@ -56,7 +60,16 @@ export default function ForgotPassword({ status }) {
                                 <EmailOutlined className="text-gray-400 h-5 w-5" />
                             }
                         />
-                        <InputError message={errors.email} className="mt-2" />
+                        <InputError
+                            message={
+                                errors.email === 'passwords.user' || errors.email === "We can't find a user with that email address."
+                                    ? 'No encontramos ningún usuario registrado con ese correo electrónico.'
+                                    : errors.email === 'passwords.throttled' || errors.email === 'Please wait before retrying.'
+                                        ? 'Por favor, espera unos minutos antes de intentar de nuevo.'
+                                        : errors.email
+                            }
+                            className="mt-2"
+                        />
                     </div>
 
                     {/* Botón de Enviar Enlace */}

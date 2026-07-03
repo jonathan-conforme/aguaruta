@@ -259,5 +259,11 @@
     "Yes": "Yes",
     "You are receiving this email because we received a password reset request for your account.": "You are receiving this email because we received a password reset request for your account.",
     "You're logged in!": "You're logged in!",
-    "Your email address is unverified.": "Your email address is unverified."
+    "Your email address is unverified.": "Your email address is unverified.",
+    "We have emailed your password reset link.": "¡Te hemos enviado por correo el enlace para restablecer tu contraseña!",
+    "Your password has been reset.": "¡Tu contraseña ha sido restablecida con éxito!",
+    "This password reset token is invalid.": "Este token de recuperación no es válido o ya expiró.",
+    "Please wait before retrying.": "Por favor, espera antes de intentar de nuevo.",
+    "We can't find a user with that email address.": "No encontramos ningún usuario con ese correo electrónico."
+
 }

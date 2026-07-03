@@ -7,7 +7,13 @@
 <body style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px; color: #333;">
     <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 8px; border: 1px solid #e2e8f0;">
 
-        <h2 style="color: #4f46e5; margin-bottom: 20px;">¡Tu cuenta de AquaRuta está lista!</h2>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="{{ $message->embed(public_path('icons/icons-512x512.png')) }}"
+                 alt="Logo AquaRuta"
+                 style="width: 100px; height: 100px; border-radius: 50%; object-fit: contain; border: 3px solid #e0e7ff; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        </div>
+
+        <h2 style="color: #4f46e5; margin-bottom: 20px; text-align: center;">¡Tu cuenta de AquaRuta está lista!</h2>
 
         <p>Hola, <strong>{{ $user->name }}</strong>.</p>
         <p>Te damos la bienvenida a AquaRuta. Se ha registrado tu empresa con éxito en nuestra plataforma. A continuación, tus credenciales de acceso temporal:</p>
@@ -22,8 +28,6 @@
         </p>
 
         <div style="text-align: center; margin: 30px 0;">
-
-           
             <a href="https://aguaruta.congresoticunesum.com/login" style="background-color: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
                 Ingresar a AquaRuta
             </a>

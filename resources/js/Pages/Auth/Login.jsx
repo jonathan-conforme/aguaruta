@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import Checkbox from '@/Components/Checkbox';
 import InputError from '@/Components/InputError';
 import GuestLayout from '@/Layouts/GuestLayout';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Button, Input } from "@material-tailwind/react";
-// 🔥 IMPORTAMOS EL ICONO DE MATERIAL UI:
 import WarningIcon from '@mui/icons-material/Warning';
 
 export default function Login({ status, canResetPassword, error_message }) {
@@ -30,9 +30,12 @@ export default function Login({ status, canResetPassword, error_message }) {
         <GuestLayout>
             <Head title="Iniciar Sesión" />
 
-            <div className="w-full max-w-md mx-auto">
-                {/* Header del Login */}
-                <div className="text-center mb-8">
+            {/* py-6 asegura un margen agradable en celulares para que respire la tarjeta */}
+            <div className="w-full max-w-md mx-auto py-6 md:py-0">
+
+                {/* Header del Login con tu nuevo Logo Circular */}
+                <div className="text-center mb-8 flex flex-col items-center">
+                    <ApplicationLogo className="mb-4" />
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">AguaRuta</h2>
                     <p className="text-sm text-gray-600">Ingresa tus credenciales para acceder al panel.</p>
                 </div>
@@ -44,7 +47,7 @@ export default function Login({ status, canResetPassword, error_message }) {
                     </div>
                 )}
 
-                {/* 🔥 ALERTA CON ICONO DE MATERIAL UI */}
+                {/* ALERTA CON ICONO DE MATERIAL UI */}
                 {mensajeDeError && (
                     <div className="flex items-center gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg mb-6 text-sm font-medium shadow-sm animate-pulse">
                         <WarningIcon className="text-red-500 h-5 w-5 flex-shrink-0" />
@@ -116,7 +119,7 @@ export default function Login({ status, canResetPassword, error_message }) {
                         {processing ? (
                             <>
                                 <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                Cargando...
+                                "Cargando..."
                             </>
                         ) : (
                             "Iniciar Sesión"

@@ -3,7 +3,7 @@ import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import { Head, useForm } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-
+import ApplicationLogo from '@/Components/ApplicationLogo';
 import { Button, Input, Typography } from "@material-tailwind/react";
 
 
@@ -55,6 +55,7 @@ export default function UpdatePasswordRequired() {
             <div className="w-full max-w-md mx-auto">
                 {/* Cabecera */}
                 <div className="text-center mb-8">
+                    <ApplicationLogo className="mb-4" />
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">AquaRuta</h2>
                     <p className="text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3 inline-block">
                         Actualización obligatoria de seguridad

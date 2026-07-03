@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
+use App\Notifications\ResetPasswordNotification;
 
 
 class User extends Authenticatable
@@ -64,31 +65,10 @@ class User extends Authenticatable
     }
 
    public function sendPasswordResetNotification($token): void
-{
-    // Le pasamos el $token directamente al constructor de la clase padre
-    $this->notify(new class($token) extends ResetPassword {
+    {
 
-        public function toMail($notifiable): MailMessage
-        {
-            // Accedemos al token usando $this->token directamente
-            $url = url(route('password.reset', [
-                'token' => $this->token,
-                'email' => $notifiable->getEmailForPasswordReset(),
-            ], false));
-
-            $expire = config('auth.passwords.users.expire');
-
-            return (new MailMessage)
-                ->subject('Restablecer Contraseña - AquaRuta')
-                ->greeting('¡Hola!')
-                ->line('Recibiste este correo porque solicitaste restablecer la contraseña de tu cuenta en AquaRuta.')
-                ->action('Restablecer Contraseña', $url)
-                ->line('Este enlace de recuperación expirará en ' . $expire . ' minutos.')
-                ->line('Si tú no realizaste esta solicitud, puedes ignorar este correo de forma segura.')
-                ->salutation('Saludos, El equipo de AquaRuta.');
-        }
-    });
-}
+        $this->notify(new ResetPasswordNotification($token));
+    }
 
         /**
         * Relación: Un usuario pertenece a una empresa.

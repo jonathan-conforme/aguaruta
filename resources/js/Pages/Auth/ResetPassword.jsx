@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import GuestLayout from '@/Layouts/GuestLayout';
 import InputError from '@/Components/InputError';
 import { Head, useForm } from '@inertiajs/react';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 
 // Componentes de Material Tailwind
 import { Button, Input } from "@material-tailwind/react";
@@ -54,6 +55,7 @@ export default function ResetPassword({ token, email }) {
             <div className="w-full max-w-md mx-auto">
                 {/* Cabecera */}
                 <div className="text-center mb-8">
+                      <ApplicationLogo className="mb-4" />
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">AquaRuta</h2>
                     <p className="text-sm text-gray-600">Restablecer Contraseña</p>
                     <p className="text-xs text-gray-500 mt-2">

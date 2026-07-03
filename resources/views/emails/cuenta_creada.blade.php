@@ -8,7 +8,7 @@
     <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 30px; border-radius: 8px; border: 1px solid #e2e8f0;">
 
         <div style="text-align: center; margin-bottom: 20px;">
-            <img src="{{ $message->embed(public_path('icons/icons-512x512.png')) }}"
+            <img src="{{ $message->embed(public_path('icons/icon-512x512.png')) }}"
                  alt="Logo AquaRuta"
                  style="width: 100px; height: 100px; border-radius: 50%; object-fit: contain; border: 3px solid #e0e7ff; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         </div>

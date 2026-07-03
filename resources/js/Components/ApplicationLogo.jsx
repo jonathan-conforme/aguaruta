@@ -9,7 +9,7 @@ export default function ApplicationLogo({ className = "", ...props }) {
                     <div className="w-28 h-28 flex items-center justify-center bg-white rounded-full overflow-hidden p-2">
                         <img
                             {...props}
-                            src="/icons/icons-512x512.png"
+                            src="/icons/icon-512x512.png"
                             alt="Logo del Sistema"
                             className="w-full h-full object-contain"
                         />

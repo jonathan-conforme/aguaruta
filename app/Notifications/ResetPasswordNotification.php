@@ -39,7 +39,7 @@ class ResetPasswordNotification extends Notification
             'email' => $notifiable->getEmailForPasswordReset(),
         ], false));
 
-        // 🔥 Forzamos el uso exclusivo de tu plantilla HTML limpia
+        // plantilla HTML limpia
         return (new MailMessage)
             ->subject('Restablecer Contraseña - AquaRuta')
             ->view('emails.restablecer_password', [

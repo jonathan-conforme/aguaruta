@@ -150,18 +150,22 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">Administración</Typography>
                         </div>
                         <div className="flex flex-col font-medium gap-1 ml-2">
+                             <Link href={route('dashboard')}><ListItem className={itemClasses('dashboard.*')}><BuildingStorefrontIcon className="h-4 w-4" /> Dashboard</ListItem></Link>
                             {auth.user.role === 'super_admin' && (
                                 <>
-                                    <Link href={route('dashboard')}><ListItem className={itemClasses('dashboard.*')}><BuildingStorefrontIcon className="h-4 w-4" /> Dashboard</ListItem></Link>
+
                                     <Link href={route('companies.index')}><ListItem className={itemClasses('companies.*')}><BuildingStorefrontIcon className="h-4 w-4" /> Empresas</ListItem></Link>
                                     <Link href={route('employee-categories.index')}><ListItem className={itemClasses('employee-categories.*')}><IdentificationIcon className="h-4 w-4" /> Cat. de Empleado</ListItem></Link>
                                 </>
                             )}
                             {auth.user.role === 'admin' && (
+
                                 <Link href={route('employees.index')}><ListItem className={itemClasses('employees.*')}><UserGroupIcon className="h-4 w-4" /> Empleados</ListItem></Link>
+
                             )}
                         </div>
                     </div>
+
                     {auth.user.role === 'admin' && (
                         <div className="flex flex-col mt-4">
                             <div className="flex items-center gap-2 px-3 mb-2">
@@ -169,6 +173,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">Directorio</Typography>
                             </div>
                             <div className="flex flex-col font-medium gap-1 ml-2">
+
+
                                 <Link href={route('customers.index')}><ListItem className={itemClasses('customers.*')}><UserIcon className="h-4 w-4" /> Clientes</ListItem></Link>
                                 <Link href={route('customer-categories.index')}><ListItem className={itemClasses('customer-categories.*')}><TagIcon className="h-4 w-4" /> Cat. de Clientes</ListItem></Link>
                                 <Link href={route('suppliers.index')}><ListItem className={itemClasses('suppliers.*')}><BriefcaseIcon className="h-4 w-4" /> Proveedores</ListItem></Link>
@@ -200,21 +206,21 @@ export default function AuthenticatedLayout({ header, children }) {
                             </div>
                         </div>
                     )}
-                                                    {/* 5. REPORTES */}
-                                {auth.user.role === 'admin' && (
-                                    <div className="flex flex-col">
-                                        <div className="flex items-center gap-2 px-3 mb-2">
-                                            <ChartBarIcon className="h-4 w-4 text-indigo-400" />
-                                            <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">Reportes</Typography>
-                                        </div>
-                                        <div className="flex flex-col font-medium gap-1 ml-2">
+                    {/* 5. REPORTES */}
+                    {auth.user.role === 'admin' && (
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2 px-3 mb-2">
+                                <ChartBarIcon className="h-4 w-4 text-indigo-400" />
+                                <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">Reportes</Typography>
+                            </div>
+                            <div className="flex flex-col font-medium gap-1 ml-2">
 
-                                            <Link href="/admin/sales"><ListItem className={itemClasses('admin.sales.*')} onClick={() => setIsSidebarOpen(false)}> <DocumentTextIcon className="h-4 w-4" /> Historial de Ventas</ListItem></Link>
-                                            <Link href={route('admin.shifts.index')}><ListItem className={itemClasses('admin.shifts.*')} onClick={() => setIsSidebarOpen(false)}><ClockIcon className="h-4 w-4" /> Historial de Cierres</ListItem></Link>
+                                <Link href="/admin/sales"><ListItem className={itemClasses('admin.sales.*')} onClick={() => setIsSidebarOpen(false)}> <DocumentTextIcon className="h-4 w-4" /> Historial de Ventas</ListItem></Link>
+                                <Link href={route('admin.shifts.index')}><ListItem className={itemClasses('admin.shifts.*')} onClick={() => setIsSidebarOpen(false)}><ClockIcon className="h-4 w-4" /> Historial de Cierres</ListItem></Link>
 
-                                        </div>
-                                    </div>
-                                )}
+                            </div>
+                        </div>
+                    )}
                     {auth.user.role === 'admin' && (
                         <div className="flex flex-col mt-4">
                             <div className="flex items-center gap-2 px-3 mb-2">
@@ -240,6 +246,8 @@ export default function AuthenticatedLayout({ header, children }) {
                         <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">Operación</Typography>
                     </div>
                     <div className="flex flex-col font-medium gap-1 ml-2">
+
+                        <Link href={route('dashboard')}><ListItem className={itemClasses('dashboard')}><HomeIcon className="h-4 w-4" /> Dashboard</ListItem></Link>
                         <Link href={route('repartidor.sales.index')}><ListItem className={itemClasses('repartidor.sales.*')}><ClipboardDocumentListIcon className="h-4 w-4" /> Pedidos</ListItem></Link>
                         <Link href={route('repartidor.trips.index')}><ListItem className={itemClasses('repartidor.trips.*')}><MapIcon className="h-4 w-4" /> Mis Rutas</ListItem></Link>
                         <Link href={route('repartidor.shifts.index')}><ListItem className={itemClasses('repartidor.shifts.*')}><ClockIcon className="h-4 w-4" /> Historial Cierres</ListItem></Link>
@@ -377,7 +385,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                         </div>
                                     )}
 
-                                     {auth.user.role === 'admin' && (
+                                    {auth.user.role === 'admin' && (
                                         <div>
                                             <Typography variant="small" className="text-gray-500 font-bold mb-3 ml-1">Inventario:</Typography>
                                             <div className="grid grid-cols-2 gap-4">
@@ -406,10 +414,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <div>
                                             <Typography variant="small" className="text-gray-500 font-bold mb-3 ml-1">Reportes:</Typography>
                                             <div className="grid grid-cols-2 gap-4">
-                                               <GridCard href={route('admin.sales.index')}onClick={() => setIsMobileMenuOpen(false)} icon={DocumentTextIcon} label="Historial Ventas" iconColor="text-cyan-600" iconBg="bg-cyan-50"/>
+                                                <GridCard href={route('admin.sales.index')} onClick={() => setIsMobileMenuOpen(false)} icon={DocumentTextIcon} label="Historial Ventas" iconColor="text-cyan-600" iconBg="bg-cyan-50" />
                                                 <GridCard href={route('admin.shifts.index')} onClick={() => setIsMobileMenuOpen(false)} icon={ClockIcon} label="Historial Cierres" iconColor="text-blue-600" iconBg="bg-blue-50" />
 
-                                                       </div>
+                                            </div>
                                         </div>
                                     )}
                                 </>
@@ -472,8 +480,8 @@ export default function AuthenticatedLayout({ header, children }) {
                         <Link
                             href="/admin/sales"
                             className={`flex flex-col items-center justify-center gap-1 w-16 ${isActive("admin.sales.*")
-                                    ? "text-pink-600"
-                                    : "text-gray-500 hover:text-gray-900"
+                                ? "text-pink-600"
+                                : "text-gray-500 hover:text-gray-900"
                                 } transition-colors`}
                         >
                             <DocumentTextIcon

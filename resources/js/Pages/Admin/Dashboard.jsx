@@ -1,165 +1,222 @@
-
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import { Card, Typography, Button } from "@material-tailwind/react";
+import {
+    CurrencyDollarIcon,
+    TruckIcon,
+    UserGroupIcon,
+    CubeIcon,
+    ArrowTrendingUpIcon,
+    MapIcon,
+    PlusIcon
+} from "@heroicons/react/24/outline";
 
-// ÍCONOS DE MATERIAL UI (Asegúrate de tenerlos instalados, o puedes cambiarlos por SVG)
-import WarningAmberOutlinedIcon from '@mui/icons-material/WarningAmberOutlined';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
-import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
-import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
-
-export default function Dashboard(props) {
-    // Función de prueba para que el botón no dé error
-    const handleQuickAction = () => {
-        alert("Esta es una acción de prueba. El módulo está en desarrollo.");
+export default function AdminDashboard({ auth, stats }) {
+    const data = stats || {
+        totalSales: "$3,450.00",
+        activeTrips: 5,
+        totalCustomers: 284,
+        lowStockProducts: 2,
     };
 
     return (
         <AuthenticatedLayout
-            auth={props.auth}
-            errors={props.errors}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Panel de Control</h2>}
+            user={auth.user}
+            header={<span className="text-lg font-bold text-gray-800 tracking-tight">Panel Administrativo</span>}
         >
-            <Head title="Dashboard" />
+            <Head title="Admin Dashboard" />
 
-            <div className="py-8">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8 space-y-6">
+            <div className="max-w-7xl mx-auto space-y-6">
 
-                    {/* ⚠️ BANNER: PÁGINA EN DESARROLLO */}
-                    <div className="relative overflow-hidden bg-amber-50 border border-amber-200 rounded-2xl p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div className="absolute -right-10 -top-10 text-amber-100 pointer-events-none opacity-50">
-                            <WarningAmberOutlinedIcon sx={{ fontSize: 120 }} />
-                        </div>
+                {/* BANNER REDISEÑADO: Más elegante y menos intrusivo */}
+                <div className="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <Typography variant="h4" className="text-xl font-bold text-gray-900 tracking-tight">
+                            ¡Buen día, {auth.user.name.split(' ')[0]}!
+                        </Typography>
+                        <Typography className="text-sm text-gray-700 mt-0.5">
+                            Aquí tienes el rendimiento general de <span className="font-semibold text-indigo-600">AguaRuta</span> para hoy.
+                        </Typography>
+                    </div>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                        <Link href={route('trips.index')} className="flex-1 sm:flex-none">
+                            <Button size="sm" color="indigo" className="w-full flex items-center justify-center gap-2 rounded-xl normal-case shadow-none hover:shadow-none text-xs py-2.5">
+                                <PlusIcon className="w-4 h-4 stroke-[2.5]" /> Nuevo Viaje
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
 
-                        <div className="flex items-start space-x-3.5 z-10">
-                            <div className="p-2.5 bg-amber-500 text-white rounded-xl shadow-sm mt-0.5 flex items-center justify-center">
-                                <WarningAmberOutlinedIcon fontSize="small" />
-                            </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard
+                        title="Ventas del Mes"
+                        value={data.totalSales}
+                        icon={CurrencyDollarIcon}
+                        colorTheme="green"
+                        description="+14% vs mes anterior"
+                    />
+                    <StatCard
+                        title="Rutas en Curso"
+                        value={data.activeTrips}
+                        icon={TruckIcon}
+                        colorTheme="blue"
+                        description="Unidades en la calle"
+                    />
+                    <StatCard
+                        title="Clientes Totales"
+                        value={data.totalCustomers}
+                        icon={UserGroupIcon}
+                        colorTheme="purple"
+                        description="Cartera activa"
+                    />
+                    <StatCard
+                        title="Alertas de Stock"
+                        value={data.lowStockProducts}
+                        icon={CubeIcon}
+                        colorTheme="red"
+                        description="2 productos críticos"
+                    />
+                </div>
+
+                {/* SECCIÓN INFERIOR: Gráfico estilizado y Acciones */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                    {/* GRÁFICO SEMANAL: Barras delgadas con espacio para respirar */}
+                    <Card className="p-6 col-span-1 lg:col-span-2 bg-white shadow-none border border-gray-200/80 rounded-2xl">
+                        <div className="flex justify-between items-center mb-6">
                             <div>
-                                <h4 className="text-base font-bold text-slate-900">Módulo en Fase de Desarrollo</h4>
-                                <p className="text-sm text-slate-600 mt-0.5 max-w-xl">
-                                    Estamos construyendo este apartado para ti. Si necesitas asistencia, reportar un inconveniente o requieres soporte técnico, comunícate directamente con el desarrollador del sistema.
-                                </p>
+                                <Typography className="text-sm font-bold text-gray-900">Flujo de Ventas Semanal</Typography>
+                                <Typography className="text-xs text-gray-700">Volumen diario estimado</Typography>
                             </div>
+                            <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Estable
+                            </span>
                         </div>
 
-                      <div className="z-10 flex sm:justify-end">
-    <a
-        href="https://wa.me/593980659712?text=Hola%20Jonathan%20conforme,%20necesito%20asistencia%20con%20el%20sistema%20de%20gestión."
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center justify-center px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-sm whitespace-nowrap"
-    >
-        Contactar al Desarrollador
-    </a>
-</div>
-                    </div>
-
-                    {/* 📊 TARJETAS DE ESTADÍSTICAS (DATOS FICTICIOS) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-
-                        {/* Tarjeta 1 */}
-                        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Unidades Registradas</span>
-                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-bold">Total</div>
-                            </div>
-                            <div className="flex items-baseline space-x-2 mt-3">
-                                <span className="text-2xl font-black text-slate-900">150</span>
-                                <span className="text-xs text-slate-400">Vehículos activos</span>
-                            </div>
-                        </div>
-
-                        {/* Tarjeta 2 */}
-                        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Pendientes de Pago</span>
-                                <div className="p-2 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold">Alertas</div>
-                            </div>
-                            <div className="flex items-baseline space-x-2 mt-3">
-                                <span className="text-2xl font-black text-slate-900">12</span>
-                                <span className="text-xs text-rose-600 font-medium">Requieren atención</span>
-                            </div>
-                        </div>
-
-                        {/* Tarjeta 3 */}
-                        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Balance Mensual</span>
-                                <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-bold">Finanzas</div>
-                            </div>
-                            <div className="flex items-baseline space-x-2 mt-3">
-                                <span className="text-2xl font-black text-slate-900">$3,450.00</span>
-                                <span className="text-xs text-slate-400">Corte actual</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* 📑 SECCIONES Y APARTADOS DEL DASHBOARD */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                        {/* Apartado Izquierdo: Accesos Rápidos */}
-                        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
-                            <div className="flex items-center justify-between border-b border-slate-50 pb-4 mb-4">
-                                <h3 className="font-bold text-slate-900 text-base">Accesos Directos</h3>
-                                <span className="text-[10px] bg-slate-100 text-slate-500 font-bold uppercase tracking-widest px-2 py-0.5 rounded">Módulos</span>
-                            </div>
-                            <p className="text-sm text-slate-500 mb-4">
-                                Atajos rápidos a las operaciones principales del sistema:
-                            </p>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <button
-                                    onClick={handleQuickAction}
-                                    className="flex items-center space-x-3 p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 text-left transition-colors"
-                                >
-                                    <div className="p-2 bg-indigo-600 text-white rounded-lg">
-                                        <AddOutlinedIcon fontSize="small"/>
-                                    </div>
-                                    <div>
-                                        <span className="block text-xs font-bold text-slate-800">Nueva Operación</span>
-                                        <span className="text-[11px] text-slate-400">Registrar datos</span>
-                                    </div>
-                                </button>
-
-                                <div className="flex items-center space-x-3 p-3 rounded-xl border border-dashed border-slate-200 text-left opacity-60">
-                                    <div className="p-2 bg-slate-300 text-white rounded-lg">
-                                        <DescriptionOutlinedIcon fontSize="small"/>
-                                    </div>
-                                    <div>
-                                        <span className="block text-xs font-bold text-slate-600">Reportes</span>
-                                        <span className="text-[11px] text-slate-400">Próximamente...</span>
-                                    </div>
+                        <div className="h-44 flex items-end justify-between gap-2 pt-2 px-2 border-b border-gray-100">
+                            {[42, 65, 48, 82, 95, 35, 70].map((height, i) => (
+                                <div key={i} className="w-full flex flex-col items-center gap-2 h-full justify-end group">
+                                    {/* Tooltip de porcentaje al hacer hover */}
+                                    <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-[10px] px-1.5 py-0.5 rounded mb-1 absolute transform -translate-y-12">
+                                        {height}%
+                                    </span>
+                                    <div
+                                        style={{ height: `${height}%` }}
+                                        className="w-6 sm:w-8 bg-gradient-to-t from-indigo-500 to-indigo-400 rounded-t-md transition-all duration-300 group-hover:from-indigo-600 shadow-[0_2px_8px_rgba(99,102,241,0.15)]"
+                                    ></div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
+                        {/* Días de la semana alineados abajo */}
+                        <div className="flex justify-between px-2 pt-3 text-xs font-semibold text-gray-700">
+                            {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, i) => (
+                                <span key={i} className="w-6 sm:w-8 text-center">{day}</span>
+                            ))}
+                        </div>
+                    </Card>
 
-                        {/* Apartado Derecho: Estado del Sistema */}
-                        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm flex flex-col justify-between">
+                    {/* ACCIONES DE CONTROL LIMITADAS */}
+                    <Card className="p-6 bg-white shadow-none border border-gray-200/80 rounded-2xl flex flex-col justify-between">
+                        <div className="space-y-4">
                             <div>
-                                <div className="flex items-center justify-between border-b border-slate-50 pb-4 mb-4">
-                                    <h3 className="font-bold text-slate-900 text-base">Información de la Plataforma</h3>
-                                    <div className="flex items-center space-x-1.5">
-                                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                        <span className="text-xs font-bold text-slate-500">Entorno local</span>
-                                    </div>
-                                </div>
-                                <p className="text-sm text-slate-500">
-                                    Este sistema utiliza una arquitectura SPA moderna basada en <strong>Inertia.js</strong>, <strong>React</strong> y un backend robusto en <strong>Laravel</strong>.
-                                </p>
+                                <Typography className="text-sm font-bold text-gray-900">Accesos Directos</Typography>
+                                <Typography className="text-xs text-gray-700">Módulos de uso frecuente</Typography>
                             </div>
-
-                            <div className="text-xs text-slate-400 font-mono mt-6 pt-4 border-t border-slate-50 flex justify-between">
-                                <span>Versión del Software: Beta 1.0.0</span>
-                                <span>Año: {new Date().getFullYear()}</span>
+                            <div className="space-y-2">
+                                <Link href={route('delivery-routes.index')} className="w-full block">
+                                    <button className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-indigo-100 hover:bg-indigo-50/30 transition-all group text-left">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-gray-50 group-hover:bg-indigo-50 text-gray-500 group-hover:text-indigo-600 rounded-lg transition-colors">
+                                                <MapIcon className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <div className="text-xs font-bold text-gray-800">Ver Plan de Rutas</div>
+                                                <div className="text-[10px] text-gray-600">Organizar sectores</div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </Link>
+                                <Link href={route('products.index')} className="w-full block">
+                                    <button className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-indigo-100 hover:bg-indigo-50/30 transition-all group text-left">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-gray-50 group-hover:bg-indigo-50 text-gray-500 group-hover:text-indigo-600 rounded-lg transition-colors">
+                                                <PlusIcon className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <div className="text-xs font-bold text-gray-800">Cargar Inventario</div>
+                                                <div className="text-[10px] text-gray-600">Controlar stock nuevo</div>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </Link>
                             </div>
                         </div>
-
-                    </div>
-
+                        <div className="text-center pt-4 border-t border-gray-100 flex flex-col items-center justify-center gap-0.5">
+                            <Typography className="text-[10px] text-gray-400 font-medium tracking-wide">
+                                &copy; {new Date().getFullYear()} AguaRuta. Todos los derechos reservados.
+                            </Typography>
+                            <Typography className="text-[9px] text-indigo-500/80 font-bold tracking-widest uppercase">
+                                Production Stable • v2.1
+                            </Typography>
+                        </div>
+                    </Card>
                 </div>
             </div>
         </AuthenticatedLayout>
+    );
+}
+
+// COMPONENTE TARJETA ESTILIZADO CON COLORES ESTÁNDAR
+function StatCard({ title, value, icon: Icon, colorTheme = "gray", description }) {
+
+    // Cambiamos 'emerald' por 'green' y 'rose' por 'red' para usar la paleta ultra-estándar de Tailwind
+    const themes = {
+        green: {
+            title: "text-green-700",
+            iconBg: "bg-green-50",
+            iconColor: "text-green-600"
+        },
+        blue: {
+            title: "text-blue-700",
+            iconBg: "bg-blue-50",
+            iconColor: "text-blue-600"
+        },
+        purple: {
+            title: "text-purple-700",
+            iconBg: "bg-purple-50",
+            iconColor: "text-purple-600"
+        },
+        red: {
+            title: "text-red-700",
+            iconBg: "bg-red-50",
+            iconColor: "text-red-600"
+        },
+        gray: {
+            title: "text-slate-500",
+            iconBg: "bg-slate-50",
+            iconColor: "text-slate-600"
+        }
+    };
+
+    const currentTheme = themes[colorTheme] || themes.gray;
+
+    return (
+        <Card className="p-5 bg-white border border-gray-200/80 shadow-none rounded-2xl flex flex-row items-center justify-between">
+            <div className="space-y-1">
+                <Typography className={`text-[11px] font-bold ${currentTheme.title} uppercase tracking-wider`}>
+                    {title}
+                </Typography>
+                <Typography variant="h3" className="text-2xl font-black text-gray-900 tracking-tight">
+                    {value}
+                </Typography>
+                <Typography className="text-[11px] text-gray-500 font-medium">
+                    {description}
+                </Typography>
+            </div>
+            <div className={`p-3 rounded-xl ${currentTheme.iconBg} ${currentTheme.iconColor} shrink-0`}>
+                <Icon className="w-5 h-5 stroke-[2]" />
+            </div>
+        </Card>
     );
 }

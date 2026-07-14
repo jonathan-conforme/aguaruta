@@ -4,19 +4,20 @@ import { Head, Link } from '@inertiajs/react';
 import { Card, Typography, Button } from "@material-tailwind/react";
 import {
     MapIcon,
-    ClipboardDocumentListIcon,
     CurrencyDollarIcon,
     ExclamationCircleIcon,
     ClockIcon,
-    DocumentTextIcon
+    DocumentTextIcon,
+    ShoppingBagIcon,
+    WrenchScrewdriverIcon
 } from "@heroicons/react/24/outline";
 
 export default function EmployeeDashboard({ auth, stats }) {
-    // Valores por defecto si el backend viene vacío (Fórmula: Ventas en Efectivo - Gastos)
+    // Estructura de datos optimizada para el chofer en ruta
     const data = stats || {
-        pendingOrders: 8,
-        completedOrders: 12,
-        collectedCash: "$340.00", // Valor neto calculado en tiempo real
+        totalProductsSold: 48,       // Cantidad física (ej. Garrafones entregados)
+        totalExpenses: "$15.00",     // Gastos del día (gasolina, etc.)
+        collectedCash: "$325.00",    // Efectivo Neto Real (Ventas - Gastos)
     };
 
     return (
@@ -26,99 +27,96 @@ export default function EmployeeDashboard({ auth, stats }) {
         >
             <Head title="Mi Ruta" />
 
-            <div className="max-w-7xl mx-auto space-y-6">
+            <div className="max-w-7xl mx-auto space-y-6 px-4 sm:px-6 lg:px-8 py-4">
 
                 {/* BANNER DE BIENVENIDA OPERATIVO */}
-                <div className="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-start sm:items-center justify-between gap-4">
+                <div className="bg-white border border-gray-200/80 rounded-2xl p-5 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                        <div className="p-3.5 bg-blue-50 text-blue-600 rounded-2xl shrink-0 hidden sm:block">
+                        <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl shrink-0 hidden sm:block">
                             <MapIcon className="w-6 h-6 stroke-[2]" />
                         </div>
                         <div>
                             <div className="flex items-center gap-2">
-                                <Typography variant="h4" className="text-xl font-bold text-gray-900 tracking-tight">
+                                <Typography variant="h4" className="text-lg font-bold text-gray-900 tracking-tight">
                                     ¡Hola, {auth.user.name.split(' ')[0]}!
                                 </Typography>
                                 <span className="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-1">
-                                    <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse"></span> En Turno
+                                    <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span> Activo
                                 </span>
                             </div>
-                            <Typography className="text-sm text-gray-600 mt-0.5">
-                                Conduce con cuidado. Revisa tus entregas pendientes antes de arrancar tu viaje.
+                            <Typography className="text-xs sm:text-sm text-gray-600 mt-0.5">
+                                Revisa tu inventario cargado y registra cada venta para cuadrar tu caja sin problemas.
                             </Typography>
                         </div>
                     </div>
                 </div>
 
-                {/* MÉTRICAS DEL TURNO */}
+                {/* MÉTRICAS DE OPERACIÓN DIARIA */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <EmployeeStatCard
-                        title="Por Entregar"
-                        value={`${data.pendingOrders} Pedidos`}
-                        icon={ClipboardDocumentListIcon}
+                        title="Entregas / Ventas"
+                        value={`${data.totalProductsSold} pzas`}
+                        icon={ShoppingBagIcon}
+                        colorTheme="blue"
+                    />
+                    <EmployeeStatCard
+                        title="Gastos en Ruta"
+                        value={data.totalExpenses}
+                        icon={WrenchScrewdriverIcon}
                         colorTheme="amber"
                     />
                     <EmployeeStatCard
-                        title="Completados"
-                        value={data.completedOrders}
-                        icon={MapIcon}
-                        colorTheme="green"
-                    />
-                    <EmployeeStatCard
-                        title="Efectivo en Mano"
+                        title="Efectivo Neto en Mano"
                         value={data.collectedCash}
                         icon={CurrencyDollarIcon}
-                        colorTheme="blue"
+                        colorTheme="green"
                     />
                 </div>
 
                 {/* ACCIONES PRINCIPALES DE LA JORNADA */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-
                     {/* Tarjeta de Viajes Asignados y Pendientes */}
-                    <Card className="p-6 bg-white shadow-none border border-gray-200/80 rounded-2xl flex flex-col justify-between space-y-4">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <Typography className="text-sm font-bold text-gray-900">Viajes Asignados</Typography>
-                                {/* Badge dinámico con color verde estándar para denotar estado listo/operativo */}
-                                <span className="text-[9px] font-extrabold text-green-700 bg-green-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
-                                    Rutas Activas
+                    <Card className="p-6 bg-white shadow-none border border-gray-200/80 rounded-2xl flex flex-col justify-between space-y-5">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                                <Typography className="text-sm font-bold text-gray-900">Navegación y Ruta</Typography>
+                                <span className="text-[9px] font-extrabold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                    Mi Viaje
                                 </span>
                             </div>
                             <Typography className="text-xs text-gray-500 leading-relaxed">
-                                Revisa los viajes cargados y despachados por el administrador para tu turno de hoy. Accede de inmediato a tus entregas pendientes, direcciones de clientes y mapas de navegación.
+                                Revisa el mapa de clientes, los garrafones asignados y las entregas pendientes preparadas por el administrador para tu recorrido de hoy.
                             </Typography>
                         </div>
                         <Link href={route('repartidor.trips.index')} className="w-full">
-                            {/* Botón enfocado a la acción de ir a trabajar la ruta */}
-                            <Button className="w-full rounded-xl normal-case shadow-none hover:shadow-none flex justify-center items-center gap-2 text-xs py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold">
+                            <Button className="w-full rounded-xl normal-case shadow-none hover:shadow-none flex justify-center items-center gap-2 text-xs py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold">
                                 <MapIcon className="w-4 h-4 stroke-[2]" /> Ver Mis Viajes Pendientes
                             </Button>
                         </Link>
                     </Card>
 
                     {/* Tarjeta de Liquidación y Cierre Neto */}
-                    <Card className="p-6 bg-white shadow-none border border-gray-200/80 rounded-2xl flex flex-col justify-between space-y-4">
-                        <div>
-                            <div className="flex items-center gap-2 mb-1">
-                                <Typography className="text-sm font-bold text-gray-900">Liquidación y Cierre de Turno</Typography>
+                    <Card className="p-6 bg-white shadow-none border border-gray-200/80 rounded-2xl flex flex-col justify-between space-y-5">
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                                <Typography className="text-sm font-bold text-gray-900">Gastos y Cierre de Turno</Typography>
                                 <span className="p-0.5 bg-amber-50 text-amber-600 rounded-full">
-                                    <ExclamationCircleIcon className="w-4 h-4 stroke-[2.5]" />
+                                    <ExclamationCircleIcon className="w-4.5 h-4.5 stroke-[2.5]" />
                                 </span>
                             </div>
                             <Typography className="text-xs text-gray-500 leading-relaxed">
-                                Realiza el cierre definitivo de tu jornada. Declara los viáticos o gastos acumulados de combustible y entrega el desglose del efectivo total recolectado en todos los viajes.
+                                Controla tu dinero. Reporta viáticos de combustible o fallas mecánicas en ruta antes de realizar la entrega final de efectivo en la purificadora.
                             </Typography>
                         </div>
                         <div className="flex gap-3">
                             <Link href={route('repartidor.expenses.create', 1)} className="flex-1">
-                                <Button variant="text" className="w-full rounded-xl normal-case bg-gray-50 text-gray-600 text-xs py-3 font-bold hover:bg-gray-100 transition-colors">
+                                <Button variant="text" className="w-full rounded-xl normal-case bg-gray-50 text-gray-600 text-xs py-3.5 font-bold hover:bg-gray-100 transition-colors">
                                     Registrar Gasto
                                 </Button>
                             </Link>
                             <Link href={route('repartidor.shifts.close')} className="flex-1">
-                                <Button className="w-full rounded-xl normal-case shadow-none hover:shadow-none text-xs py-3 bg-amber-500 hover:bg-amber-600 text-amber-950 font-bold">
+                                <Button className="w-full rounded-xl normal-case shadow-none hover:shadow-none text-xs py-3.5 bg-amber-500 hover:bg-amber-600 text-amber-950 font-bold">
                                     Terminar Jornada
                                 </Button>
                             </Link>
@@ -128,7 +126,7 @@ export default function EmployeeDashboard({ auth, stats }) {
 
                 {/* ACCESOS RÁPIDOS ADICIONALES (AUDITORÍA DE HISTORIALES) */}
                 <div className="pt-2">
-                    <Typography className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-1">
+                    <Typography className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-1">
                         Consultas Rápidas
                     </Typography>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -138,8 +136,8 @@ export default function EmployeeDashboard({ auth, stats }) {
                                     <ClockIcon className="h-5 w-5 stroke-[2]" />
                                 </div>
                                 <div>
-                                    <Typography className="text-sm font-bold text-gray-800">Historial Cierres</Typography>
-                                    <Typography className="text-[11px] text-gray-500">Consulta cierres pasados detallados por viaje.</Typography>
+                                    <Typography className="text-sm font-bold text-gray-800">Historial de Turnos</Typography>
+                                    <Typography className="text-[11px] text-gray-500">Revisa tus horas trabajadas y montos entregados.</Typography>
                                 </div>
                             </div>
                         </Link>
@@ -150,28 +148,30 @@ export default function EmployeeDashboard({ auth, stats }) {
                                     <DocumentTextIcon className="h-5 w-5 stroke-[2]" />
                                 </div>
                                 <div>
-                                    <Typography className="text-sm font-bold text-gray-800">Historial Ventas</Typography>
-                                    <Typography className="text-[11px] text-gray-500">Revisa todas tus facturas y cobros en efectivo.</Typography>
+                                    <Typography className="text-sm font-bold text-gray-800">Historial de Ventas</Typography>
+                                    <Typography className="text-[11px] text-gray-500">Comprueba los tickets y ventas cobradas hoy.</Typography>
                                 </div>
                             </div>
                         </Link>
                     </div>
                 </div>
-                 <div className="text-center pt-4 border-t border-gray-100 flex flex-col items-center justify-center gap-0.5">
-                                            <Typography className="text-[10px] text-gray-400 font-medium tracking-wide">
-                                                &copy; {new Date().getFullYear()} AguaRuta. Todos los derechos reservados.
-                                            </Typography>
-                                            <Typography className="text-[9px] text-indigo-500/80 font-bold tracking-widest uppercase">
-                                                Production Stable • v2.1
-                                            </Typography>
-                                        </div>
+
+                {/* FOOTER */}
+                <div className="text-center pt-6 border-t border-gray-100 flex flex-col items-center justify-center gap-1">
+                    <Typography className="text-[10px] text-gray-400 font-medium tracking-wide">
+                        &copy; {new Date().getFullYear()} AguaRuta. Todos los derechos reservados.
+                    </Typography>
+                    <Typography className="text-[9px] text-indigo-500/80 font-bold tracking-widest uppercase">
+                        Production Stable • v2.1
+                    </Typography>
+                </div>
 
             </div>
         </AuthenticatedLayout>
     );
 }
 
-// SUBCOMPONENTE DE MÉTRICAS BLINDADO CON COLORES CORE DE TAILWIND
+// SUBCOMPONENTE DE MÉTRICAS ADAPTATIVO
 function EmployeeStatCard({ title, value, icon: Icon, colorTheme = "gray" }) {
     const themes = {
         amber: {
@@ -201,10 +201,10 @@ function EmployeeStatCard({ title, value, icon: Icon, colorTheme = "gray" }) {
     return (
         <Card className="p-5 bg-white border border-gray-200/80 shadow-none rounded-2xl flex flex-row items-center justify-between">
             <div className="space-y-1">
-                <Typography className={`text-[11px] font-bold ${currentTheme.title} uppercase tracking-wider`}>
+                <Typography className={`text-[10px] font-bold ${currentTheme.title} uppercase tracking-wider`}>
                     {title}
                 </Typography>
-                <Typography variant="h4" className="text-xl font-black text-gray-900 tracking-tight">
+                <Typography variant="h4" className="text-xl font-extrabold text-gray-900 tracking-tight">
                     {value}
                 </Typography>
             </div>

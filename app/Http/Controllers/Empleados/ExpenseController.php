@@ -36,7 +36,7 @@ class ExpenseController extends Controller
         ->first();
 
     if (!$shift) {
-        return redirect()->route('repartidor.trips.index')
+        return redirect()->route('repartidor.dashboard')
             ->with('info', 'Debes abrir caja antes de registrar gastos.');
     }
 

@@ -30,7 +30,7 @@ class ShiftsController extends Controller
 
             return Inertia::render('Admin/Shifts/Index', [
                 'shifts' => $this->shiftService->getEmployeeShifts(),
-                
+
             ]);
         }
 
@@ -47,7 +47,7 @@ class ShiftsController extends Controller
 
         // Si ya tiene una, lo mandamos a sus rutas
         if ($activeShift) {
-            return redirect()->route('repartidor.trips.index')
+            return redirect()->route('repartidor.dashboard')
                 ->with('info', 'Ya tienes una caja abierta.');
         }
 
@@ -101,7 +101,7 @@ class ShiftsController extends Controller
         // (por ejemplo, a su panel principal) con un mensaje de error o advertencia.
         if (!$activeShift) {
             // NOTA: Cambia 'dashboard' por el nombre de la ruta principal de tu repartidor
-            return redirect()->route('dashboard')
+            return redirect()->route('repartidor.dashboard')
                 ->with('info', 'No tienes un turno abierto actualmente para realizar el corte.');
         }
 

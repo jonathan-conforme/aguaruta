@@ -22,9 +22,7 @@ class SaleController extends Controller
     {
         $this->saleService = $saleService;
     }
-    /**
-     * Display a listing of the resource.
-     */
+
     /**
      * Display a listing of the resource.
      */
@@ -59,7 +57,7 @@ class SaleController extends Controller
 
         /*
          |--------------------------------------------------------------------------
-         | 🔥 AQUÍ ESTÁ LA MAGIA: Llamamos al servicio para llenar el modal
+         | :Llamamos al servicio para llenar el modal
          |--------------------------------------------------------------------------
          */
         $trips = $this->saleService->getTripsWithMetrics($user, $filterDate);
@@ -68,7 +66,7 @@ class SaleController extends Controller
 
         // Retornamos todo a React
         return Inertia::render('Empleados/Pos/Index', [
-            'trips' => $trips, // <-- ¡AHORA SÍ VA CON CONTADORES REALES!
+            'trips' => $trips,
             'sales' => $sales,
             'totalEarned' => $totalEarned,
             'salesByMethod' => $salesByMethod,
@@ -114,9 +112,7 @@ class SaleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
- /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(StoreSaleRequest $request)
     {
         try {

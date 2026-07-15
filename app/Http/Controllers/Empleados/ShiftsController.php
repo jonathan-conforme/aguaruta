@@ -61,7 +61,7 @@ class ShiftsController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $request->validate([ 
             'initial_cash' => ['required', 'numeric', 'min:0'],
         ]);
 

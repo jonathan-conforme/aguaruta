@@ -150,7 +150,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">Administración</Typography>
                         </div>
                         <div className="flex flex-col font-medium gap-1 ml-2">
-                             <Link href={route('dashboard')}><ListItem className={itemClasses('dashboard.*')}><BuildingStorefrontIcon className="h-4 w-4" /> Dashboard</ListItem></Link>
+                            <Link href={route('dashboard')}><ListItem className={itemClasses('dashboard.*')}><BuildingStorefrontIcon className="h-4 w-4" /> Dashboard</ListItem></Link>
                             {auth.user.role === 'super_admin' && (
                                 <>
 
@@ -299,7 +299,9 @@ export default function AuthenticatedLayout({ header, children }) {
                 <Card className="h-full w-full p-4 shadow-none rounded-none border-r border-gray-200 flex flex-col">
                     <div className="mb-4 p-4 flex items-center justify-between">
                         <Typography variant="h5" color="indigo" className="font-bold tracking-tight flex items-center gap-2">
-                            <TruckIcon className="h-7 w-7 text-indigo-500" /> AguaRuta
+                            <TruckIcon className="h-7 w-7 text-indigo-500" />  <span className="text-black block text-xl font-bold text-slate-900 tracking-tight dark:text-white">
+                                Aqua<span className="text-blue-500">RutaTech</span>
+                            </span>
                         </Typography>
                     </div>
                     <List className="flex-1 overflow-y-auto px-2 space-y-4">

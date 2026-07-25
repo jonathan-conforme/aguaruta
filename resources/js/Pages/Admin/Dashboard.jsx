@@ -18,6 +18,8 @@ export default function AdminDashboard({
     auth,
     todaySales = 0,
     monthSales = 0,
+    monthPurchases = 0,
+    utilidades = 0,
     productsSoldToday = 0,
     recoveredBottles = 0,
     activeTrips = 0,
@@ -65,70 +67,116 @@ export default function AdminDashboard({
                 </div>
 
                 {/* TARJETAS DE ESTADÍSTICAS */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                    <StatCard
-                        title="Ventas del Día"
-                        value={formatCurrency(todaySales)} // Formateado como dinero
-                        icon={CurrencyDollarIcon}
-                        colorTheme="green"
-                        description="Ingresos registrados hoy"
-                    />
+                {/* BLOQUE 1: FINANZAS */}
+                <div className="space-y-2">
+                    <Typography className="text-xs font-bold text-gray-800 uppercase tracking-wider">
+                        Finanzas del Mes
+                    </Typography>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                        <StatCard
+                            title="Ventas del Día"
+                            value={formatCurrency(todaySales)}
+                            icon={CurrencyDollarIcon}
+                            colorTheme="green"
+                            description="Ingresos registrados hoy"
+                        />
+                        <StatCard
+                            title="Ventas del Mes"
+                            value={formatCurrency(monthSales)}
+                            icon={CurrencyDollarIcon}
+                            colorTheme="blue"
+                            description="Acumulado mensual"
+                        />
+                        <StatCard
+                            title="Egresos del Mes"
+                            value={formatCurrency(monthPurchases)}
+                            icon={CurrencyDollarIcon}
+                            colorTheme="red"
+                            description="Compras e insumos totales"
+                        />
+                        <StatCard
+                            title="Utilidad Neta"
+                            value={formatCurrency(utilidades)}
+                            icon={CurrencyDollarIcon}
+                            colorTheme={utilidades >= 0 ? "emerald" : "red"}
+                            description={utilidades >= 0 ? "Ganancia real del mes" : "Balance temporal negativo"}
+                        />
+                     {/* En la tarjeta de Accesos Directos que ya tienes */}
+<Link href={route('admin.shifts.index')} className="w-full block">
+    <button className="w-full flex items-center justify-between p-3 rounded-xl border border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50/30 transition-all group text-left">
+        <div className="flex items-center gap-3">
+            <div className="p-2 bg-gray-50 group-hover:bg-indigo-50 text-gray-500 group-hover:text-indigo-600 rounded-lg transition-colors">
+                <CurrencyDollarIcon className="w-4 h-4" />
+            </div>
+            <div>
+                <div className="text-xs font-bold text-gray-800">Historial de Cajas</div>
+                <div className="text-[10px] text-gray-600">Revisar cierres y gastos de ruta</div>
+            </div>
+        </div>
+    </button>
+</Link>
+                    </div>
+                    
+                </div>
 
-                    <StatCard
-                        title="Ventas del Mes"
-                        value={formatCurrency(monthSales)} // Formateado como dinero
-                        icon={CurrencyDollarIcon}
-                        colorTheme="blue"
-                        description="Acumulado mensual"
-                    />
+                {/* BLOQUE 2: OPERACIONES DE CAMPO */}
+                <div className="space-y-2">
+                    <Typography className="text-xs font-bold text-gray-800 uppercase tracking-wider">
+                        Operaciones y Rutas
+                    </Typography>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                        <StatCard
+                            title="Viajes Activos"
+                            value={activeTrips}
+                            icon={TruckIcon}
+                            colorTheme="purple"
+                            description={`Pendientes: ${pendingTrips}`}
+                        />
+                        <StatCard
+                            title="Viajes Finalizados"
+                            value={completedTrips}
+                            icon={TruckIcon}
+                            colorTheme="green"
+                            description="Completados exitosamente"
+                        />
+                        <StatCard
+                            title="Productos Vendidos"
+                            value={productsSoldToday}
+                            icon={ShoppingCartIcon}
+                            colorTheme="blue"
+                            description="Unidades vendidas hoy"
+                        />
+                        <StatCard
+                            title="Envases Recuperados"
+                            value={recoveredBottles}
+                            icon={ArrowPathIcon}
+                            colorTheme="green"
+                            description="Envases retornados"
+                        />
+                    </div>
+                </div>
 
-                    <StatCard
-                        title="Viajes Activos"
-                        value={activeTrips}
-                        icon={TruckIcon}
-                        colorTheme="purple"
-                        description={`Pendientes: ${pendingTrips}`} // Usamos pendingTrips como información extra
-                    />
-
-                    <StatCard
-                        title="Viajes Finalizados"
-                        value={completedTrips}
-                        icon={TruckIcon}
-                        colorTheme="green"
-                        description="Completados exitosamente"
-                    />
-
-                    <StatCard
-                        title="Productos Vendidos"
-                        value={productsSoldToday}
-                        icon={ShoppingCartIcon}
-                        colorTheme="blue"
-                        description="Unidades vendidas hoy"
-                    />
-
-                    <StatCard
-                        title="Envases Recuperados"
-                        value={recoveredBottles}
-                        icon={ArrowPathIcon}
-                        colorTheme="green"
-                        description="Envases retornados"
-                    />
-
-                    <StatCard
-                        title="Clientes"
-                        value={totalCustomers}
-                        icon={UserGroupIcon}
-                        colorTheme="purple"
-                        description="Clientes registrados"
-                    />
-
-                    <StatCard
-                        title="Stock Bajo"
-                        value={lowStockProducts}
-                        icon={CubeIcon}
-                        colorTheme="red"
-                        description="Productos en alerta crítica"
-                    />
+                {/* BLOQUE 3: INVENTARIO Y CLIENTES */}
+                <div className="space-y-2">
+                    <Typography className="text-xs font-bold text-gray-800 uppercase tracking-wider">
+                        Gestión General
+                    </Typography>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <StatCard
+                            title="Clientes Totales"
+                            value={totalCustomers}
+                            icon={UserGroupIcon}
+                            colorTheme="purple"
+                            description="Clientes registrados en el sistema"
+                        />
+                        <StatCard
+                            title="Stock Bajo"
+                            value={lowStockProducts}
+                            icon={CubeIcon}
+                            colorTheme="red"
+                            description="Productos en alerta crítica"
+                        />
+                    </div>
                 </div>
 
                 {/* SECCIÓN INFERIOR */}

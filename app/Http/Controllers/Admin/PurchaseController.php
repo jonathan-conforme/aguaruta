@@ -63,10 +63,13 @@ class PurchaseController extends Controller
             'notes' => 'nullable|string',
             'total_amount' => 'required|numeric|min:0',
             // Validación del array de productos
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
+          'items'               => 'required|array|min:1',
+            'items.*.type'        => 'nullable|in:product,expense',
+            'items.*.product_id'  => 'nullable|required_if:items.*.type,product|exists:products,id',
+            'items.*.description' => 'nullable|required_if:items.*.type,expense|string|max:255',
+            'items.*.quantity'    => 'required|numeric|min:1',
+            'items.*.unit_price'  => 'required|numeric|min:0',
+            'items.*.subtotal'    => 'nullable|numeric|min:0',
         ]);
 
         $this->purchaseService->createPurchaseWithItems($validated);

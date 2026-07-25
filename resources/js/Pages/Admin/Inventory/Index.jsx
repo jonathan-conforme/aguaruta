@@ -7,7 +7,11 @@ import {
 } from "@material-tailwind/react";
 import {
     ArrowLeftIcon,
-    ArrowRightIcon
+    ArrowRightIcon,
+    ArrowDownLeftIcon, // Entrada
+    ArrowUpRightIcon,  // Salida
+    ArrowPathIcon,      // Envasado
+    ChevronDownIcon
 } from "@heroicons/react/24/solid";
 
 // 1. Helper para humanizar la acción en la tabla
@@ -26,7 +30,6 @@ const getMovementAction = (mov) => {
             return 'Movimiento registrado';
     }
 };
-
 // 2. Helper para renderizar los Chips con colores dinámicos (Diferenciando Ediciones)
 const renderMovementChip = (mov) => {
     const isEdit = mov.description?.toLowerCase().includes('edición');
@@ -65,6 +68,7 @@ const renderMovementChip = (mov) => {
 export default function Index({ movements, products }) {
     // Estado para el Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isOpen, setIsOpen] = React.useState(false);
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => {
@@ -75,7 +79,7 @@ export default function Index({ movements, products }) {
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         product_id: '',
-        type: 'in', // 'in', 'out', 'packaging'
+        type: 'packaging', // 'in', 'out', 'packaging'
         quantity: '',
         description: '',
     });
@@ -348,22 +352,67 @@ export default function Index({ movements, products }) {
                             {errors.product_id && <Typography variant="small" color="red" className="mt-1">{errors.product_id}</Typography>}
                         </div>
 
-                        {/* SELECT TIPO DE MOVIMIENTO */}
+                        {/* SELECT TIPO DE MOVIMIENTO (MODIFICADO CON ÍCONOS HEROICONS) */}
                         <div>
                             <label className="block text-sm font-medium text-blue-gray-700 mb-1">Tipo de Movimiento</label>
                             <div className="relative">
-                                <select
-                                    className="w-full border-blue-gray-200 text-blue-gray-700 rounded-md focus:border-indigo-500 focus:ring-indigo-500 text-sm shadow-sm py-2.5 pl-3 pr-10 appearance-none bg-white font-medium"
-                                    value={data.type}
-                                    onChange={e => setData('type', e.target.value)}
+                                {/* Botón Principal del Dropdown */}
+                                <button
+                                    type="button"
+                                    onClick={() => setIsOpen(!isOpen)}
+                                    className="w-full border border-blue-gray-200 text-blue-gray-700 rounded-md focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm py-2.5 pl-3 pr-10 bg-white font-medium flex items-center gap-2 text-left transition-all"
                                 >
-                                    <option value="in">📥 ENTRADA (Aumentar Stock Lleno)</option>
-                                    <option value="out">📤 SALIDA (Restar Stock / Merma)</option>
-                                    <option value="packaging">🔄 ENVASADO (Vacíos a Llenos)</option>
-                                </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-gray-400">
-                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
+                                    {data.type === 'out' && <ArrowRightIcon className="h-4 w-4 text-red-500" />}
+                                    {data.type === 'packaging' && <ArrowPathIcon className="h-4 w-4 text-blue-500" />}
+                                    {data.type === 'in' && <ArrowLeftIcon className="h-4 w-4 text-green-500" />}
+
+                                    <span>
+                                        {data.type === 'in' && 'ENTRADA (Aumentar Stock Lleno)'}
+                                        {data.type === 'packaging' && 'ENVASADO (Vacíos a Llenos)'}
+                                        {!data.type && 'Seleccionar tipo de movimiento...'}
+                                        {data.type === 'out' && 'SALIDA (Restar Stock / Merma)'}
+                                    </span>
+
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-gray-400">
+                                        <svg className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </button>
+
+                                {/* Lista Flotante de Opciones */}
+                                {isOpen && (
+                                    <div className="absolute z-50 mt-1 w-full rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-sm font-medium border border-blue-gray-100 overflow-hidden">
+                                        <div className="py-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => { setData('type', 'in'); setIsOpen(false); }}
+                                                className={`flex items-center gap-2 w-full px-4 py-2.5 text-blue-gray-700 hover:bg-gray-50 text-left ${data.type === 'in' ? 'bg-indigo-50/50 text-indigo-700' : ''}`}
+                                            >
+                                                <ArrowLeftIcon className="h-4 w-4 text-green-500" />
+                                                <span>ENTRADA (Aumentar Stock Lleno)</span>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => { setData('type', 'packaging'); setIsOpen(false); }}
+                                                className={`flex items-center gap-2 w-full px-4 py-2.5 text-blue-gray-700 hover:bg-gray-50 text-left ${data.type === 'packaging' ? 'bg-indigo-50/50 text-indigo-700' : ''}`}
+                                            >
+                                                <ArrowPathIcon className="h-4 w-4 text-blue-500" />
+                                                <span>ENVASADO (Vacíos a Llenos)</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => { setData('type', 'out'); setIsOpen(false); }}
+                                                className={`flex items-center gap-2 w-full px-4 py-2.5 text-blue-gray-700 hover:bg-gray-50 text-left ${data.type === 'out' ? 'bg-indigo-50/50 text-indigo-700' : ''}`}
+                                            >
+                                                <ArrowRightIcon className="h-4 w-4 text-red-500" />
+                                                <span>SALIDA (Restar Stock / Merma)</span>
+                                            </button>
+
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -383,7 +432,6 @@ export default function Index({ movements, products }) {
                                     </svg>
                                 }
                             />
-                            {/* Implementación del texto de ayuda reactivo */}
                             <Typography
                                 variant="small"
                                 className={`mt-1.5 text-xs font-medium transition-colors ${data.quantity ? 'text-indigo-600' : 'text-gray-500'}`}

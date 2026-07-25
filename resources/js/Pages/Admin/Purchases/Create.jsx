@@ -1,18 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 import { Card, Typography, Button, Input, Select, Option, Textarea, IconButton } from "@material-tailwind/react";
-import { TrashIcon, PlusCircleIcon, ArrowLeftIcon } from "@heroicons/react/24/solid";
+import { TrashIcon, PlusIcon, ArrowLeftIcon, CubeIcon, BanknotesIcon } from "@heroicons/react/24/solid";
 
-export default function Create({ suppliers, products }) {
+export default function Create({ suppliers = [], products = [] }) {
+    // Tipo de compra a nivel global del formulario (product u expense)
+    const [purchaseType, setPurchaseType] = useState('product');
+
     const { data, setData, post, processing, errors } = useForm({
         supplier_id: '',
         invoice_number: '',
         purchase_date: new Date().toISOString().split('T')[0],
         status: 'completed',
         notes: '',
-        total_amount: 0,
-        items: [{ product_id: '', quantity: 1, unit_price: 0, subtotal: 0 }]
+        total_amount: '0.00',
+        items: [{ product_id: '', description: '', quantity: 1, unit_price: 0, subtotal: 0 }]
     });
 
     const calculateTotal = (items) => {
@@ -24,8 +27,8 @@ export default function Create({ suppliers, products }) {
         const newItems = [...data.items];
         newItems[index][field] = value;
 
+        // Auto-calcular precio unitario cuando cambian cantidad o subtotal
         if (field === 'quantity' || field === 'subtotal') {
-
             const quantity = parseFloat(newItems[index].quantity || 0);
             const subtotal = parseFloat(newItems[index].subtotal || 0);
 
@@ -33,11 +36,19 @@ export default function Create({ suppliers, products }) {
                 newItems[index].unit_price = (subtotal / quantity).toFixed(2);
             }
         }
+
         calculateTotal(newItems);
     };
 
+    const handleTypeSwitch = (type) => {
+        setPurchaseType(type);
+        // Reiniciar ítems para no mezclar esquemas de datos inesperadamente
+        const resetItems = [{ product_id: '', description: '', quantity: 1, unit_price: 0, subtotal: 0 }];
+        setData(prev => ({ ...prev, items: resetItems, total_amount: '0.00' }));
+    };
+
     const addItem = () => {
-        calculateTotal([...data.items, { product_id: '', quantity: 1, unit_price: 0, subtotal: 0 }]);
+        calculateTotal([...data.items, { product_id: '', description: '', quantity: 1, unit_price: 0, subtotal: 0 }]);
     };
 
     const removeItem = (index) => {
@@ -47,142 +58,216 @@ export default function Create({ suppliers, products }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('purchases.store'));
+        // Incluimos el purchaseType en cada ítem al enviar
+        const formattedItems = data.items.map(item => ({
+            ...item,
+            type: purchaseType
+        }));
+
+        post(route('purchases.store'), {
+            data: { ...data, items: formattedItems }
+        });
     };
 
     return (
-        <AuthenticatedLayout header={<Typography variant="h5" color="blue-gray">Nueva Compra</Typography>}>
+        <AuthenticatedLayout header={<Typography variant="h5" color="blue-gray">Registrar Compra / Egreso</Typography>}>
             <Head title="Nueva Compra" />
 
-            <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <Card className="p-6 border border-gray-200 shadow-sm">
+
+                    {/* DATOS DE CABECERA */}
+                    <Card className="p-6 border border-gray-200/80 shadow-sm rounded-xl">
                         <div className="flex justify-between items-center mb-6">
-                            <Typography variant="h6">Datos de la Cabecera</Typography>
+                            <div>
+                                <Typography variant="h6" color="blue-gray">Datos del Comprobante</Typography>
+                                <Typography className="text-xs text-gray-500">Información del proveedor y la fecha</Typography>
+                            </div>
                             <Link href={route('purchases.index')}>
-                                <Button variant="text" size="sm" className="flex items-center gap-2"><ArrowLeftIcon className="h-4 w-4" /> Volver</Button>
+                                <Button variant="text" size="sm" className="flex items-center gap-2 text-gray-600">
+                                    <ArrowLeftIcon className="h-4 w-4" /> Volver
+                                </Button>
                             </Link>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                             <div>
-                                <Select label="Proveedor" value={data.supplier_id} onChange={(val) => setData('supplier_id', val)} error={!!errors.supplier_id}>
+                                <Select 
+                                    label="Proveedor" 
+                                    value={data.supplier_id} 
+                                    onChange={(val) => setData('supplier_id', val)} 
+                                    error={!!errors.supplier_id}
+                                >
                                     {suppliers.map(s => <Option key={s.id} value={String(s.id)}>{s.name}</Option>)}
                                 </Select>
                             </div>
-                            <Input label="N° Factura (Opcional)" value={data.invoice_number} onChange={e => setData('invoice_number', e.target.value)} />
-                            <Input type="date" label="Fecha" value={data.purchase_date} onChange={e => setData('purchase_date', e.target.value)} error={!!errors.purchase_date} />
+                            <div>
+                                <Input 
+                                    label="N° Factura / Comprobante" 
+                                    value={data.invoice_number} 
+                                    onChange={e => setData('invoice_number', e.target.value)} 
+                                />
+                            </div>
+                            <div>
+                                <Input 
+                                    type="date" 
+                                    label="Fecha de Compra" 
+                                    value={data.purchase_date} 
+                                    onChange={e => setData('purchase_date', e.target.value)} 
+                                    error={!!errors.purchase_date} 
+                                />
+                            </div>
                         </div>
                     </Card>
 
-                    <Card className="p-4 sm:p-6 border border-gray-200 shadow-sm">
-
-                        <Typography variant="h6" className="mb-4">
-                            Detalle de Productos
-                        </Typography>
-
-                        {data.items.map((item, index) => (
-
-                            <div
-                                key={index}
-                                className="grid grid-cols-1 md:grid-cols-5 gap-7 py-2 items-center border-b last:border-0"
-                            >
-
-                                {/* PRODUCTO */}
-                             {/* PRODUCTO */}
-<div className="lg:col-span-1">
-    <Select
-        label="Producto"
-        value={item.product_id}
-        onChange={(val) =>
-            handleItemChange(index, 'product_id', val)
-        }
-    >
-        {products.map((p) => (
-            <Option key={p.id} value={String(p.id)}>
-                {p.name} 
-                {p.units_per_package > 1 ? ` - Paca x${p.units_per_package}` : ' - Unidad'} 
-                {` (Llenos: ${p.current_stock ?? 0} | Vacíos: ${p.empty_stock ?? 0})`}
-            </Option>
-        ))}
-    </Select>
-</div>
-
-                                {/* CANTIDAD */}
-                                <div className="lg:col-span-1">
-                                    <Input
-                                        type="number"
-                                        label="Cant."
-                                        value={item.quantity}
-                                        min="1"
-                                        onChange={(e) =>
-                                            handleItemChange(index, 'quantity', e.target.value)
-                                        }
-                                    />
-                                </div>
-
-                                {/* PRECIO */}
-                                <div className="lg:col-span-1">
-                                    <Input
-                                        disabled
-                                        type="number"
-                                        step="0.01"
-                                        label="Precio U."
-                                        value={item.unit_price}
-                                        onChange={(e) =>
-                                            handleItemChange(index, 'unit_price', e.target.value)
-                                        }
-                                    />
-                                </div>
-
-                                {/* SUBTOTAL */}
-                                <Input
-                                    type="number"
-                                    step="0.01"
-                                    label="Subtotal"
-                                    value={item.subtotal}
-                                    onChange={(e) =>
-                                        handleItemChange(index, 'subtotal', e.target.value)
-                                    }
-                                />
-
-                                {/* ELIMINAR */}
-                                <div className="lg:col-span-1 flex items-center justify-center">
-                                    <IconButton
-                                        variant="text"
-                                        color="red"
-                                        onClick={() => removeItem(index)}
-                                        disabled={data.items.length === 1}
-                                    >
-                                        <TrashIcon className="h-5 w-5" />
-                                    </IconButton>
-                                </div>
+                    {/* SELECCIÓN DEL TIPO DE REGISTRO (TABS DE UX) */}
+                    <Card className="p-6 border border-gray-200/80 shadow-sm rounded-xl space-y-6">
+                        
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-gray-100">
+                            <div>
+                                <Typography variant="h6" color="blue-gray">Detalle del Registro</Typography>
+                                <Typography className="text-xs text-gray-500">¿Qué tipo de egreso estás registrando?</Typography>
                             </div>
-                        ))}
 
-                        {/* FOOTER */}
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-6 border-t pt-4">
+                            {/* TOGGLE PESTAÑAS */}
+                            <div className="inline-flex p-1 bg-gray-100 rounded-xl">
+                                <button
+                                    type="button"
+                                    onClick={() => handleTypeSwitch('product')}
+                                    className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                                        purchaseType === 'product'
+                                            ? 'bg-white text-indigo-600 shadow-sm'
+                                            : 'text-gray-500 hover:text-gray-800'
+                                    }`}
+                                >
+                                    <CubeIcon className="w-4 h-4" /> Productos (Inventario)
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => handleTypeSwitch('expense')}
+                                    className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
+                                        purchaseType === 'expense'
+                                            ? 'bg-white text-indigo-600 shadow-sm'
+                                            : 'text-gray-500 hover:text-gray-800'
+                                    }`}
+                                >
+                                    <BanknotesIcon className="w-4 h-4" /> Gastos / Operación
+                                </button>
+                            </div>
+                        </div>
 
+                        {/* LISTADO DE FILAS DE COMPRA */}
+                        <div className="space-y-4">
+                            {data.items.map((item, index) => (
+                                <div key={index} className="flex flex-col md:flex-row items-center gap-4 p-3 bg-gray-50/60 rounded-xl border border-gray-100">
+                                    
+                                    {/* CAMPO DINÁMICO SEGÚN EL TIPO */}
+                                    <div className="w-full md:flex-1">
+                                        {purchaseType === 'product' ? (
+                                            <Select
+                                                label="Seleccionar Producto"
+                                                value={item.product_id}
+                                                onChange={(val) => handleItemChange(index, 'product_id', val)}
+                                            >
+                                                {products.map((p) => (
+                                                    <Option key={p.id} value={String(p.id)}>
+                                                        {p.name} {p.units_per_package > 1 ? `(Paca x${p.units_per_package})` : ''} - Stock: {p.current_stock ?? 0}
+                                                    </Option>
+                                                ))}
+                                            </Select>
+                                        ) : (
+                                            <Input
+                                                label="Descripción del Gasto (Ej. Gasolina, Mantenimiento)"
+                                                value={item.description}
+                                                onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                                            />
+                                        )}
+                                    </div>
+
+                                    {/* CANTIDAD */}
+                                    <div className="w-full md:w-28">
+                                        <Input
+                                            type="number"
+                                            label="Cantidad"
+                                            value={item.quantity}
+                                            min="1"
+                                            onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
+                                        />
+                                    </div>
+
+                                    {/* PRECIO UNITARIO (CALCULADO) */}
+                                    <div className="w-full md:w-32">
+                                        <Input
+                                            disabled
+                                            type="number"
+                                            step="0.01"
+                                            label="Precio U."
+                                            value={item.unit_price}
+                                        />
+                                    </div>
+
+                                    {/* SUBTOTAL */}
+                                    <div className="w-full md:w-36">
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            label="Subtotal ($)"
+                                            value={item.subtotal}
+                                            onChange={(e) => handleItemChange(index, 'subtotal', e.target.value)}
+                                        />
+                                    </div>
+
+                                    {/* BOTÓN ELIMINAR */}
+                                    <div className="flex justify-end w-full md:w-auto">
+                                        <IconButton
+                                            variant="text"
+                                            color="red"
+                                            onClick={() => removeItem(index)}
+                                            disabled={data.items.length === 1}
+                                            className="shrink-0"
+                                        >
+                                            <TrashIcon className="h-5 w-5" />
+                                        </IconButton>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* ACCIONES Y TOTAL */}
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-gray-100">
                             <Button
-                                variant="text"
+                                variant="outlined"
                                 color="indigo"
+                                size="sm"
                                 onClick={addItem}
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-2 rounded-xl"
                             >
-                                <PlusCircleIcon className="h-5 w-5" />
-                                Agregar Fila
+                                <PlusIcon className="h-4 w-4 stroke-[3]" /> Agregar Ítem
                             </Button>
 
-                            <Typography variant="h5" color="blue-gray">
-                                Total: ${data.total_amount}
-                            </Typography>
+                            <div className="flex items-center gap-3 bg-indigo-50/50 px-5 py-2.5 rounded-xl border border-indigo-100">
+                                <Typography className="text-xs font-bold text-gray-600 uppercase tracking-wide">Total a Registrar:</Typography>
+                                <Typography className="text-xl font-black text-indigo-700">${data.total_amount}</Typography>
+                            </div>
                         </div>
                     </Card>
 
-                    <div className="flex justify-end gap-4">
-                        <Button type="submit" color="indigo" disabled={processing || data.items.length === 0}>
-                            {processing ? 'Guardando...' : 'Guardar Compra'}
+                    {/* NOTAS */}
+                    <Card className="p-4 border border-gray-200/80 shadow-sm rounded-xl">
+                        <Textarea
+                            label="Notas u observaciones adicionales"
+                            value={data.notes}
+                            onChange={(e) => setData('notes', e.target.value)}
+                        />
+                    </Card>
+
+                    {/* BOTÓN SUBMIT */}
+                    <div className="flex justify-end">
+                        <Button type="submit" color="indigo" className="rounded-xl px-8" disabled={processing || data.items.length === 0}>
+                            {processing ? 'Guardando...' : 'Guardar Comprobante'}
                         </Button>
                     </div>
+
                 </form>
             </div>
         </AuthenticatedLayout>

@@ -7,59 +7,75 @@ use App\Models\Sale;
 use App\Models\SaleDetail;
 use App\Models\Trip;
 use App\Models\Customer;
+use App\Models\Purchase;
 
 class AdminDashboardService
 {
     public function getStats($companyId)
-{
-    // Obtenemos la fecha de hoy en formato '2026-07-13' de forma segura
-    $hoy = now()->toDateString();
+    {
+        $hoy = now()->toDateString();
+        $mesActual = now()->month;
+        $anioActual = now()->year;
 
-    $todaySales = Sale::where('company_id', $companyId)
-        ->whereDate('created_at', $hoy) // Comparación directa de texto
-        ->sum('total');
+        // Ventas de hoy
+        $todaySales = Sale::where('company_id', $companyId)
+            ->whereDate('created_at', $hoy)
+            ->sum('total');
 
-    $monthSales = Sale::where('company_id', $companyId)
-        ->whereMonth('created_at', now()->month)
-        ->whereYear('created_at', now()->year)
-        ->sum('total');
+        // Ventas del mes
+        $monthSales = Sale::where('company_id', $companyId)
+            ->whereMonth('created_at', $mesActual)
+            ->whereYear('created_at', $anioActual)
+            ->sum('total');
 
-    $productsSoldToday = SaleDetail::where('company_id', $companyId)
-        ->whereDate('created_at', $hoy)
-        ->sum('quantity');
+        // Compras del mes (Egresos)
+        $monthPurchases = Purchase::where('company_id', $companyId)
+            ->whereMonth('purchase_date', $mesActual)
+            ->whereYear('purchase_date', $anioActual)
+            ->where('status', 'completed') // Solo considerar compras completadas
+            ->sum('total_amount');
 
-    $recoveredBottles = SaleDetail::where('company_id', $companyId)
-        ->whereDate('created_at', $hoy)
-        ->sum('recovered_bottles');
+        // Calculamos la Utilidad Neta (Ventas - Compras)
+        $utilidades = $monthSales - $monthPurchases;
 
-    $activeTrips = Trip::where('company_id', $companyId)
-        ->where('status', 'active')
-        ->count();
+        $productsSoldToday = SaleDetail::where('company_id', $companyId)
+            ->whereDate('created_at', $hoy)
+            ->sum('quantity');
 
-    $pendingTrips = Trip::where('company_id', $companyId)
-        ->where('status', 'pending')
-        ->count();
+        $recoveredBottles = SaleDetail::where('company_id', $companyId)
+            ->whereDate('created_at', $hoy)
+            ->sum('recovered_bottles');
 
-    $completedTrips = Trip::where('company_id', $companyId)
-        ->where('status', 'completed')
-        ->count();
+        $activeTrips = Trip::where('company_id', $companyId)
+            ->where('status', 'active')
+            ->count();
 
-    $totalCustomers = Customer::where('company_id', $companyId)->count();
+        $pendingTrips = Trip::where('company_id', $companyId)
+            ->where('status', 'pending')
+            ->count();
 
-    $lowStockProducts = Product::where('company_id', $companyId)
-        ->where('current_stock', '<=', 10)
-        ->count();
+        $completedTrips = Trip::where('company_id', $companyId)
+            ->where('status', 'completed')
+            ->count();
 
-    return [
-        'todaySales' => (float) $todaySales, // Forzamos a que sea número flotante
-        'monthSales' => (float) $monthSales,
-        'productsSoldToday' => (int) $productsSoldToday,
-        'recoveredBottles' => (int) $recoveredBottles,
-        'activeTrips' => $activeTrips,
-        'pendingTrips' => $pendingTrips,
-        'completedTrips' => $completedTrips,
-        'totalCustomers' => $totalCustomers,
-        'lowStockProducts' => $lowStockProducts,
-    ];
-}
+        $totalCustomers = Customer::where('company_id', $companyId)->count();
+
+        $lowStockProducts = Product::where('company_id', $companyId)
+            ->where('current_stock', '<=', 10)
+            ->count();
+
+        return [
+            'todaySales'        => (float) $todaySales,
+            'monthSales'        => (float) $monthSales,
+            'monthPurchases'    => (float) $monthPurchases,
+            'utilidades'        => (float) $utilidades,
+            'productsSoldToday' => (int) $productsSoldToday,
+            'recoveredBottles'  => (int) $recoveredBottles,
+            'activeTrips'       => $activeTrips,
+            'pendingTrips'      => $pendingTrips,
+            'completedTrips'    => $completedTrips,
+            'totalCustomers'    => $totalCustomers,
+            'lowStockProducts'  => $lowStockProducts,
+        ];
+    }
 }

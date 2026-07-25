@@ -8,15 +8,16 @@ return [
             'app_users' => 1,//agrado recientemeente para validar por usuarios logiado
             'employees' => 3,
             'clients' => 200,
-            'routes_per_day' => 1,
+            'routes_per_day' => 25,
             'products' => 10,
         ],
         'modules' => [
             'routes' => true,
             'inventory' => true,
             'cash_closing' => true,
-            'purchases' => false,
+            'purchases' => true,
             'payroll' => false,
+            'offline' => false,
         ],
     ],
 
@@ -27,8 +28,9 @@ return [
             'app_users' => 4, //agrado recientemeente para validar por usuarios logiado
             'employees' => 8,
             'clients' => 500,
-            'routes_per_day' => 5,
+            'routes_per_day' => 50,
             'products' => 20,
+            'offline' => false,
         ],
         'modules' => [
             'routes' => true,
@@ -36,6 +38,7 @@ return [
             'cash_closing' => true,
             'purchases' => true,
             'payroll' => false,
+            'offline' => false,
         ],
     ],
 
@@ -54,6 +57,7 @@ return [
             'cash_closing' => true,
             'purchases' => true,
             'payroll' => true,
+            'offline' => false,
         ],
     ],
     'vip' => [
@@ -71,6 +75,7 @@ return [
             'cash_closing' => true,
             'purchases' => true,
             'payroll' => true,
+            'offline' => false,
         ],
     ],
 

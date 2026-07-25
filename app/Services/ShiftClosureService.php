@@ -19,9 +19,7 @@ class ShiftClosureService
      */
     public function calculateClosure(Shift $shift): array
     {
-        // NOTA: Aquí asumo que agregaste shift_id a tus ventas.
-        // Si no, tendrías que filtrar por trip_id correspondientes al usuario.
-        $sales = Sale::with('details.product')
+            $sales = Sale::with('details.product')
             ->where('shift_id', $shift->id)
             ->get();
 
@@ -33,7 +31,7 @@ class ShiftClosureService
         $expenses = Expense::where('shift_id', $shift->id)
     ->sum('amount');
 
-        // 2. Cálculo del efectivo esperado en caja
+        
         // Efectivo inicial + Ventas en efectivo puro
         $expectedCash = $shift->initial_cash + $cashSales - $expenses;
 
@@ -50,7 +48,6 @@ class ShiftClosureService
         $productold = $sales->flatMap->details->groupBy('product_id')->map(function ($details) {
             return [
                 'product_id' => $details->first()->product_id,
-                // Asumiendo que tienes la relación 'product' en SaleDetail
                 'name'       => $details->first()->product->name ?? 'Producto Desconocido',
                 'quantity'   => $details->sum('quantity'),
                 'total'      => $details->sum('subtotal'),
@@ -79,9 +76,6 @@ class ShiftClosureService
     /**
      * Ejecuta el cierre definitivo del turno y reingresa el inventario.
      */
-    /**
-     * Ejecuta el cierre definitivo del turno y reingresa el inventario.
-     */
     public function closeShift(Shift $shift, float $declaredCash): Shift
     {
         // 1. Obtenemos el resumen exacto de lo que se vendió
@@ -96,13 +90,12 @@ class ShiftClosureService
         })->get();
 
         foreach ($detallesViaje as $detalle) {
-            // Como tu columna 'quantity' ya descuenta las ventas automáticamente,
-            // este es exactamente el sobrante que debe regresar a bodega.
+            //  sobrante que debe regresar a bodega.
             $sobranteQueRegresa = $detalle->quantity;
 
             if ($sobranteQueRegresa > 0) {
                 // 1. Sumamos el stock a la tabla Product
-                $productoBodega = $detalle->product; // Ya lo tenemos cargado gracias al 'with'
+                $productoBodega = $detalle->product; 
 
                 if ($productoBodega) {
                     $productoBodega->increment('current_stock', $sobranteQueRegresa);

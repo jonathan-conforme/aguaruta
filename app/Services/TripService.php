@@ -109,7 +109,7 @@ class TripService
             $trip->update($tripData);
 
             // 3. OBTENER ESTADO ACTUAL Y NUEVO
-            $oldProduct = $trip->product->keyBy('id'); // Colección indexada por product_id
+           $oldProduct = ($trip->products ?? collect())->keyBy('id'); // Colección indexada por product_id
             $newProductData = collect($data['products'] ?? [])->keyBy('product_id');
 
             // Obtenemos todos los IDs únicos (los que ya estaban + los nuevos)

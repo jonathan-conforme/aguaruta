@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Empleados;
 
 use App\Services\ShiftClosureService;
 use App\Http\Controllers\Controller;
+use App\Services\ShiftService;
 use Illuminate\Http\Request;
 use App\Models\Shift;
-use App\Services\ShiftService;
 use Inertia\Inertia;
 
 class ShiftsController extends Controller
@@ -61,7 +61,7 @@ class ShiftsController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([ 
+        $request->validate([
             'initial_cash' => ['required', 'numeric', 'min:0'],
         ]);
 
@@ -111,6 +111,13 @@ class ShiftsController extends Controller
         return Inertia::render('Empleados/Shifts/Close', [
             'closureData' => $closureData,
         ]);
+    }
+    public function exportPdf(Request $request)
+    {
+        // Usa EXACTAMENTE el mismo servicio
+        $pdf = $this->shiftService->generatePdfReport($request->date);
+
+        return $pdf->download('Mis_Cajas_' . now()->format('Y-m-d') . '.pdf');
     }
 
     /**

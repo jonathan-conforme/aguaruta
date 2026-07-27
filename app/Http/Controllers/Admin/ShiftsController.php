@@ -24,12 +24,20 @@ class ShiftsController extends Controller
 
    public function index()
 {
-    
+
     return Inertia::render('Admin/Shifts/Index', [
         'shifts' => $this->shiftService->getAdminShifts()
     ]);
-    
+
 }
+public function exportPdf(Request $request)
+    {
+        // 1. Delegas la lógica al Servicio
+        $pdf = $this->shiftService->generatePdfReport($request->date);
+
+        // 2. Retornas la descarga
+        return $pdf->download('Reporte_General_Cajas_' . now()->format('Y-m-d') . '.pdf');
+    }
 
     /**
      * Show the form for creating a new resource.

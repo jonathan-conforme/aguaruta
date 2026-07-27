@@ -73,5 +73,9 @@ public function isPending()
     public function sales() {
     return $this->hasMany(Sale::class);
 }
+public function details()
+{
+    return $this->hasMany(TripDetail::class, 'trip_id');
+}
 
 }

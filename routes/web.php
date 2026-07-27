@@ -95,14 +95,16 @@ Route::middleware(['auth', 'verified', 'role:admin', 'check.company'])->group(fu
     Route::patch('/delivery-routes/{route}/toggle', [DeliveryRouteController::class, 'toggle'])->name('delivery-routes.toggle');
     Route::resource('shifts', AdminShiftsController::class);
     Route::get('/admin/sales', [EmpleadoSaleController::class, 'index'])->name('admin.sales.index');
-      Route::get('/shifts', [AdminShiftsController::class, 'index'])
+    Route::get('/shifts', [AdminShiftsController::class, 'index'])
             ->name('admin.shifts.index');
-            Route::get('/mi-plan', [\App\Http\Controllers\Admin\SubscriptionController::class, 'index'])
+    Route::get('/mi-plan', [\App\Http\Controllers\Admin\SubscriptionController::class, 'index'])
         ->name('subscription.index');
-        Route::get('/admin/reports/sales/download', [ReportController::class, 'downloadSalesReport'])
+    Route::get('/admin/reports/sales/download', [ReportController::class, 'downloadSalesReport'])
         ->name('admin.reports.sales.download');
-        Route::post('/employees/{employee}/reset-password', [EmployeeController::class, 'resetPassword'])
+    Route::post('/employees/{employee}/reset-password', [EmployeeController::class, 'resetPassword'])
     ->name('employees.reset-password');
+    Route::get('/shifts/export/pdf', [AdminShiftsController::class, 'exportPdf'])
+    ->name('admin.shifts.export.pdf');
 
 
 
@@ -145,6 +147,8 @@ Route::middleware(['auth', 'verified', 'role:empleado', 'check.company'])
         ->name('expenses.create');
     Route::post('/expenses', [ExpenseController::class, 'store'])
         ->name('expenses.store');
+    Route::get('/shifts/export/pdf', [ShiftsController::class, 'exportPdf'])
+    ->name('shifts.export.pdf');
 });
 
 });

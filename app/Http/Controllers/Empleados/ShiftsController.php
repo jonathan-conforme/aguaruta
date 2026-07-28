@@ -48,7 +48,7 @@ class ShiftsController extends Controller
         // Si ya tiene una, lo mandamos a sus rutas
         if ($activeShift) {
             return redirect()->route('repartidor.dashboard')
-                ->with('info', 'Ya tienes una caja abierta.');
+                ->with('info', 'Ya  aqui esta el problemaa caja abierta.');
         }
 
         // Si no tiene, mostramos la pantalla de Inertia para abrir caja
@@ -165,6 +165,7 @@ class ShiftsController extends Controller
         // Cerramos el turno
         $this->closureService->closeShift($activeShift, $request->final_cash);
 
-        return redirect()->route('dashboard')->with('success', 'Turno cerrado exitosamente. Diferencia en caja: $' . number_format($difference, 2));
+        return redirect()->route('repartidor.dashboard')
+        ->with('success', 'Turno cerrado exitosamente. Diferencia en caja: $' . number_format($difference, 2));
     }
 }

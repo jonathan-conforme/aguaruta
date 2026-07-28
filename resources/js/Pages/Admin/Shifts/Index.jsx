@@ -12,6 +12,7 @@ import {
     ArrowUpIcon,
     FunnelIcon,
     CurrencyDollarIcon,
+    ArrowDownTrayIcon,
     CalendarIcon
 } from "@heroicons/react/24/solid";
 
@@ -116,7 +117,7 @@ export default function Index({ auth, shifts }) {
 
             <div className="max-w-4xl mx-auto space-y-6 py-6 px-4">
 
-                {/* 🎛️ BARRA DE FILTRO POR FECHA Y BOTÓN PARA LIMPIAR */}
+                {/* BARRA DE FILTRO POR FECHA Y BOTÓN PARA LIMPIAR */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
                     <div className="flex items-center gap-2 text-gray-700 font-medium text-sm w-full sm:w-auto">
                         <FunnelIcon className="h-5 w-5 text-indigo-500" />
@@ -141,6 +142,19 @@ export default function Index({ auth, shifts }) {
                                 Ver todos
                             </button>
                         )}
+                        <a
+                            href={route(
+                                auth.user.role === "admin"
+                                    ? "admin.shifts.export.pdf"
+                                    : "repartidor.shifts.export.pdf",
+                                selectedDate ? { date: selectedDate } : {}
+                            )}
+                            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg active:scale-95"
+                        >
+                            <ArrowDownTrayIcon className="h-5 w-5" />
+                            Descargar PDF
+                        </a>
+
                     </div>
                 </div>
                 {/*en components/ui/shiftsumarycards estan alli se puede editar o implementar */}

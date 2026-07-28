@@ -143,6 +143,7 @@
     </div>
 
     @php
+        $totalInitialCash = 0;
         $totalVentas = 0;
         $totalGastos = 0;
         $totalViajesGlobal = 0;
@@ -151,7 +152,7 @@
         foreach ($shifts as $shift) {
             $ventas = $shift->trips ? $shift->trips->sum('cash_sales_sum_total') : $shift->total_sales ?? 0;
             $gastos = $shift->expenses_sum_amount ?? 0;
-
+            $totalInitialCash += $shift->initial_cash ?? 0;
             $totalVentas += $ventas;
             $totalGastos += $gastos;
             $totalViajesGlobal += $shift->total_trips ?? $shift->trips->count();
@@ -166,7 +167,7 @@
             }
         }
 
-        $totalNeto = $totalVentas - $totalGastos;
+        $totalNeto = $totalVentas - $totalGastos +$totalInitialCash;
 
         $grupos = $shifts->groupBy(function ($shift) {
             $fecha = \Carbon\Carbon::parse($shift->opened_at)->startOfDay();
@@ -239,7 +240,7 @@
                             ? $shift->trips->sum('cash_sales_sum_total')
                             : $shift->total_sales ?? 0;
                         $gastosShift = $shift->expenses_sum_amount ?? 0;
-                        $netoShift = $ventasShift - $gastosShift;
+                        $netoShift = $ventasShift - $gastosShift + ($shift->initial_cash ?? 0);
                         $numViajes = $shift->total_trips ?? $shift->trips->count();
 
                         // Nombres de las rutas atendiadas en este turno

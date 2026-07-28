@@ -53,29 +53,29 @@ class Trip extends Model
     {
         return $this->belongsToMany(Product::class, 'trip_details', 'trip_id', 'product_id')
                     ->using(TripDetail::class)
-                    ->withPivot('quantity', 'initial_quantity', 'returned_quantity', 'recovered_bottles', 'company_id') // 🔥 2. Agregamos company_id para que lo traiga en las consultas
-                    ->withTimestamps();
+                    ->withPivot('quantity', 'initial_quantity', 'returned_quantity', 'recovered_bottles', 'company_id');
+
     }
     public function route()
     {
         return $this->belongsTo(DeliveryRoute::class, 'delivery_route_id');
     }
 
-    public function isActive()
-{
-    return $this->status === 'active';
-}
+        public function isActive()
+    {
+        return $this->status === 'active';
+    }
 
-public function isPending()
-{
-    return $this->status === 'pending';
-}
-    public function sales() {
-    return $this->hasMany(Sale::class);
-}
-public function details()
-{
-    return $this->hasMany(TripDetail::class, 'trip_id');
-}
+        public function isPending()
+        {
+            return $this->status === 'pending';
+        }
+            public function sales() {
+            return $this->hasMany(Sale::class);
+        }
+        public function details()
+        {
+            return $this->hasMany(TripDetail::class, 'trip_id');
+        }
 
 }

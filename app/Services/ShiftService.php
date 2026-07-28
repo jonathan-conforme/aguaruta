@@ -57,19 +57,19 @@ class ShiftService
                 $query->where('status', 'completed')
                     ->with([
                         'route', // Cargamos la ruta de entrega
-                        'details' // Cargamos los detalles para sumar envases
+                        'details', // Cargamos los detalles para sumar envases
                     ])
                     ->withSum([
                         'sales as cash_sales_sum_total' => function ($q) {
                             $q->where('payment_method', 'cash');
-                        }
+                        },
                     ], 'total');
-            }
+            },
         ])
-        ->withCount(['trips as total_trips' => function ($query) {
-            $query->where('status', 'completed');
-        }])
-        ->withSum('expenses', 'amount');
+            ->withCount(['trips as total_trips' => function ($query) {
+                $query->where('status', 'completed');
+            }])
+            ->withSum('expenses', 'amount');
 
         // Filtro por rol
         if ($user->role === 'empleado' || $user->role === 'repartidor') {

@@ -75,7 +75,7 @@ class CustomerController extends Controller
 
         $this->customerService->createCustomer($validated);
 
-        return back()->with('success', 'Cliente registrado correctamente');
+        return back()->with('success', 'El Cliente ha sido registrado correctamente');
     }
 
     public function update(Request $request, Customer $customer)
@@ -108,12 +108,12 @@ class CustomerController extends Controller
 
         $this->customerService->updateCustomer($customer, $validated);
 
-        return back()->with('success', 'Cliente actualizado correctamente');
+        return back()->with('info', 'El Cliente ha sido actualizado correctamente.');
     }
 
     public function destroy(Customer $customer)
     {
         $this->customerService->deleteCustomer($customer);
-        return back()->with('success', 'Cliente eliminado');
+        return back()->with('error', 'El cliente ha sido eliminado correctamente del sistema.');
     }
 }

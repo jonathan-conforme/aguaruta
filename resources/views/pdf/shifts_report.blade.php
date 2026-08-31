@@ -42,33 +42,23 @@
         }
 
         .summary-title {
-            font-size: 7.5px;
+            font-size: 7px;
             text-transform: uppercase;
             color: #64748b;
             font-weight: bold;
         }
 
         .summary-value {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             margin-top: 2px;
         }
 
-        .text-green {
-            color: #16a34a;
-        }
-
-        .text-red {
-            color: #dc2626;
-        }
-
-        .text-indigo {
-            color: #4f46e5;
-        }
-
-        .text-amber {
-            color: #d97706;
-        }
+        .text-green { color: #16a34a; }
+        .text-red { color: #dc2626; }
+        .text-indigo { color: #4f46e5; }
+        .text-amber { color: #d97706; }
+        .text-purple { color: #7e22ce; }
 
         .date-badge {
             background: #e2e8f0;
@@ -90,24 +80,24 @@
             background: #f1f5f9;
             color: #334155;
             text-align: left;
-            font-size: 8px;
+            font-size: 7.5px;
             font-weight: bold;
-            padding: 4px 5px;
+            padding: 4px 4px;
             border-bottom: 1.5px solid #cbd5e1;
         }
 
         td {
-            padding: 4px 5px;
+            padding: 4px 4px;
             border-bottom: 1px solid #f1f5f9;
-            font-size: 8.5px;
+            font-size: 8px;
         }
 
         .badge-open {
-            background: #dbeafe;
-            color: #1e40af;
+            background: #FEF3C7;
+            color: #92400E;
             padding: 1px 3px;
             border-radius: 2px;
-            font-size: 7px;
+            font-size: 6.5px;
             font-weight: bold;
         }
 
@@ -117,20 +107,12 @@
             color: #475569;
             padding: 1px 3px;
             border-radius: 2px;
-            font-size: 7.5px;
+            font-size: 7px;
         }
 
-        .text-right {
-            text-align: right;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .font-bold {
-            font-weight: bold;
-        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: bold; }
     </style>
 </head>
 
@@ -148,16 +130,21 @@
         $totalGastos = 0;
         $totalViajesGlobal = 0;
         $totalEnvasesRecuperados = 0;
+        $totalEntregado = 0;
 
         foreach ($shifts as $shift) {
-            $ventas = $shift->trips ? $shift->trips->sum('cash_sales_sum_total') : $shift->total_sales ?? 0;
+            $ventas = $shift->trips ? $shift->trips->sum('cash_sales_sum_total') : ($shift->total_sales ?? 0);
             $gastos = $shift->expenses_sum_amount ?? 0;
+
             $totalInitialCash += $shift->initial_cash ?? 0;
             $totalVentas += $ventas;
             $totalGastos += $gastos;
-            $totalViajesGlobal += $shift->total_trips ?? $shift->trips->count();
+            $totalViajesGlobal += $shift->total_trips ?? ($shift->trips ? $shift->trips->count() : 0);
 
-            // Sumar envases/botellas recuperadas en los viajes del turno
+            if ($shift->status === 'closed') {
+                $totalEntregado += $shift->final_cash ?? 0;
+            }
+
             if ($shift->trips) {
                 foreach ($shift->trips as $trip) {
                     if ($trip->details) {
@@ -167,49 +154,50 @@
             }
         }
 
-        $totalNeto = $totalVentas - $totalGastos +$totalInitialCash;
+        $totalEsperado = $totalVentas - $totalGastos + $totalInitialCash;
+        $diferenciaTotal = $totalEntregado - $totalEsperado;
 
         $grupos = $shifts->groupBy(function ($shift) {
             $fecha = \Carbon\Carbon::parse($shift->opened_at)->startOfDay();
             $hoy = \Carbon\Carbon::now()->startOfDay();
             $diff = $hoy->diffInDays($fecha, false);
 
-            if ($diff === 0) {
-                return 'Hoy';
-            }
-            if ($diff === -1) {
-                return 'Ayer';
-            }
-            if ($diff === -2) {
-                return 'Antes de ayer';
-            }
+            if ($diff === 0) return 'Hoy';
+            if ($diff === -1) return 'Ayer';
+            if ($diff === -2) return 'Antes de ayer';
 
             return $fecha->format('d/m/Y');
         });
     @endphp
 
-    <!-- Tarjetas de resumen general de 5 métricas -->
+    <!-- Tarjetas de resumen general de 6 métricas -->
     <table class="summary-grid">
         <tr>
-            <td class="summary-card" width="20%">
-                <div class="summary-title">Total Viajes</div>
+            <td class="summary-card" width="16%">
+                <div class="summary-title">Viajes</div>
                 <div class="summary-value">{{ $totalViajesGlobal }}</div>
             </td>
-            <td class="summary-card" width="20%">
-                <div class="summary-title">Envases Recup.</div>
+            <td class="summary-card" width="16%">
+                <div class="summary-title">Envases Rec.</div>
                 <div class="summary-value text-amber">{{ $totalEnvasesRecuperados }} pcs</div>
             </td>
-            <td class="summary-card" width="20%">
+            <td class="summary-card" width="17%">
                 <div class="summary-title">Ventas Efec.</div>
                 <div class="summary-value text-green">${{ number_format($totalVentas, 2) }}</div>
             </td>
-            <td class="summary-card" width="20%">
+            <td class="summary-card" width="17%">
                 <div class="summary-title">Gastos</div>
                 <div class="summary-value text-red">${{ number_format($totalGastos, 2) }}</div>
             </td>
-            <td class="summary-card" width="20%">
-                <div class="summary-title">Neto Caja</div>
-                <div class="summary-value text-indigo">${{ number_format($totalNeto, 2) }}</div>
+            <td class="summary-card" width="17%">
+                <div class="summary-title">Efec. Esperado</div>
+                <div class="summary-value text-indigo">${{ number_format($totalEsperado, 2) }}</div>
+            </td>
+            <td class="summary-card" width="17%">
+                <div class="summary-title">Efec. Entregado</div>
+                <div class="summary-value {{ $diferenciaTotal < -0.01 ? 'text-red' : ($diferenciaTotal > 0.01 ? 'text-purple' : 'text-green') }}">
+                    ${{ number_format($totalEntregado, 2) }}
+                </div>
             </td>
         </tr>
     </table>
@@ -226,11 +214,13 @@
                     <th>Horario (A / C)</th>
                     <th>Ruta(s)</th>
                     <th class="text-center">Viajes</th>
-                    <th class="text-center">Envases</th>
-                    <th class="text-right">Fila Inic.</th>
+                    <th class="text-center">Env.</th>
+                    <th class="text-right">Base</th>
                     <th class="text-right">Ventas</th>
                     <th class="text-right">Gastos</th>
-                    <th class="text-right">Neto</th>
+                    <th class="text-right">Esperado</th>
+                    <th class="text-right">Entregado</th>
+                    <th class="text-right">Diferencia</th>
                 </tr>
             </thead>
             <tbody>
@@ -238,13 +228,17 @@
                     @php
                         $ventasShift = $shift->trips
                             ? $shift->trips->sum('cash_sales_sum_total')
-                            : $shift->total_sales ?? 0;
+                            : ($shift->total_sales ?? 0);
                         $gastosShift = $shift->expenses_sum_amount ?? 0;
-                        $netoShift = $ventasShift - $gastosShift + ($shift->initial_cash ?? 0);
-                        $numViajes = $shift->total_trips ?? $shift->trips->count();
+                        $esperadoShift = $ventasShift - $gastosShift + ($shift->initial_cash ?? 0);
 
-                        // Nombres de las rutas atendiadas en este turno
-                        // Busca el nombre en la propiedad 'name', 'title' o 'route_name' de forma flexible
+                        $entregadoShift = $shift->status === 'closed' ? ($shift->final_cash ?? 0) : 0;
+                        $diferenciaShift = $shift->status === 'closed'
+                            ? ($shift->difference ?? ($entregadoShift - $esperadoShift))
+                            : 0;
+
+                        $numViajes = $shift->total_trips ?? ($shift->trips ? $shift->trips->count() : 0);
+
                         $rutas = $shift->trips
                             ? $shift->trips
                                 ->map(function ($trip) {
@@ -256,7 +250,7 @@
                                 ->unique()
                                 ->implode(', ')
                             : '';
-                        // Envases recuperados en este turno
+
                         $envasesShift = 0;
                         if ($shift->trips) {
                             foreach ($shift->trips as $t) {
@@ -274,7 +268,7 @@
                             @if ($shift->status === 'closed' && $shift->closed_at)
                                 {{ \Carbon\Carbon::parse($shift->closed_at)->format('H:i') }}
                             @else
-                                <span class="badge-open">ABIERTA</span>
+                                <span class="badge-open">EN CURSO</span>
                             @endif
                         </td>
                         <td>
@@ -282,11 +276,30 @@
                         </td>
                         <td class="text-center font-bold">{{ $numViajes }}</td>
                         <td class="text-center text-amber font-bold">{{ $envasesShift }}</td>
-                        <td class="text-right" style="color: #64748b;">${{ number_format($shift->initial_cash, 2) }}
-                        </td>
+                        <td class="text-right" style="color: #64748b;">${{ number_format($shift->initial_cash, 2) }}</td>
                         <td class="text-right text-green">${{ number_format($ventasShift, 2) }}</td>
                         <td class="text-right text-red">${{ number_format($gastosShift, 2) }}</td>
-                        <td class="text-right font-bold text-indigo">${{ number_format($netoShift, 2) }}</td>
+                        <td class="text-right font-bold text-indigo">${{ number_format($esperadoShift, 2) }}</td>
+                        <td class="text-right font-bold">
+                            @if($shift->status === 'closed')
+                                ${{ number_format($entregadoShift, 2) }}
+                            @else
+                                <span style="color: #94a3b8;">--</span>
+                            @endif
+                        </td>
+                        <td class="text-right font-bold">
+                            @if($shift->status === 'closed')
+                                @if($diferenciaShift < -0.01)
+                                    <span class="text-red">${{ number_format($diferenciaShift, 2) }}</span>
+                                @elseif($diferenciaShift > 0.01)
+                                    <span class="text-purple">+${{ number_format($diferenciaShift, 2) }}</span>
+                                @else
+                                    <span class="text-green">$0.00</span>
+                                @endif
+                            @else
+                                <span style="color: #94a3b8;">--</span>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
             </tbody>

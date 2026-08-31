@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
-use App\Models\InventoryMovement;
-use App\Models\Product;
+use App\Notifications\MovimientoInventarioNotification;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
+use App\Models\InventoryMovement;
+use App\Models\Product;
+use App\Models\User;
 
 class InventoryMovementService
 {
@@ -35,50 +38,69 @@ class InventoryMovementService
         ->paginate($perPage)
         ->withQueryString();
 }
-    public function createMovement(array $data)
-    {
-        $data['company_id'] = Auth::user()->company_id;
+   public function createMovement(array $data)
+{
+    $data['company_id'] = Auth::user()->company_id;
 
-        // Usamos una transacción para que, si algo falla, no se guarde a medias
-        return DB::transaction(function () use ($data) {
+    // 1. Guardar la transacción en la variable $movement
+    $movement = DB::transaction(function () use ($data) {
+        $product = Product::lockForUpdate()->findOrFail($data['product_id']);
 
-        // 1. Actualizar el stock del producto
-          // 1. Bloquea la fila en la Base de Datos y encuentra el producto por su ID
-$product = Product::lockForUpdate()->findOrFail($data['product_id']);
+        // Multiplicador seguro por si units_per_package es 0 o nulo
+        $factor = ($product->units_per_package && $product->units_per_package > 0)
+            ? $product->units_per_package
+            : 1;
 
-            // Convertimos a unidades reales
-        $realQuantity = $data['quantity'] * $product->units_per_package;
+        $realQuantity = $data['quantity'] * $factor;
 
-
-        // PUNTAL DE SEGURIDAD: Validamos los envases vacíos ANTES de alterar la base de datos
-            if ($data['type'] === 'packaging') {
-                if (($product->empty_stock?? 0) < $realQuantity) {
-                    throw ValidationException::withMessages([
-                        'quantity' => "No tienes suficientes envases vacíos. Disponibles: " . ($product->empty_stock ?? 0)
-                    ]);
-                }
+        // Validación de envases vacíos antes de procesar
+        if ($data['type'] === 'packaging') {
+            if (($product->empty_stock ?? 0) < $realQuantity) {
+                throw ValidationException::withMessages([
+                    'quantity' => "No tienes suficientes envases vacíos. Disponibles: " . ($product->empty_stock ?? 0)
+                ]);
             }
+        }
 
-        // Guardar movimiento
+        // Validación de stock antes de registrar una salida
+        if ($data['type'] === 'out') {
+            if (($product->current_stock ?? 0) < $realQuantity) {
+                throw ValidationException::withMessages([
+                    'quantity' => "Stock insuficiente para realizar la salida. Disponible: " . ($product->current_stock ?? 0)
+                ]);
+            }
+        }
+
+        // Crear registro del movimiento
         $movement = InventoryMovement::create([
             ...$data,
             'quantity' => $realQuantity,
         ]);
 
-
-            if ($data['type'] === 'in') {
+        // Actualizar stock según el tipo de movimiento
+        if ($data['type'] === 'in') {
             $product->current_stock += $realQuantity;
         } elseif ($data['type'] === 'out') {
-            $product->empty_stock -= $realQuantity;
+            $product->current_stock -= $realQuantity; // Corregido: resta de current_stock
         } elseif ($data['type'] === 'packaging') {
-                // Si es envasado: Restamos de los vacíos y sumamos a los llenos (current_stock)
-                $product->empty_stock -= $realQuantity;
-                $product->current_stock += $realQuantity;
-            }
+            $product->empty_stock -= $realQuantity;
+            $product->current_stock += $realQuantity;
+        }
 
-            $product->save();
+        $product->save();
 
-            return $movement;
-        });
+        return $movement;
+    });
+
+    // 2. ENVÍO DE NOTIFICACIÓN (Ahora sí se ejecuta correctamente al estar fuera de la transacción)
+    $admins = User::where('company_id', $data['company_id'])
+        ->where('role', 'admin')
+        ->get();
+
+    if ($admins->isNotEmpty()) {
+        Notification::send($admins, new MovimientoInventarioNotification($movement, $movement->product));
     }
+
+    return $movement;
+}
 }

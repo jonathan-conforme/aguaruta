@@ -7,11 +7,19 @@ use Illuminate\Support\Facades\Auth;
 
 class CustomerService
 {
-    public function getAllCustomers()
-    {
-        // Traemos el cliente con su categoría usando Eager Loading
-        return Customer::with(['category', 'deliveryRoute'])->orderBy('name', 'asc')->get();
-    }
+    public function getAllCustomers(?string $search = null)
+{
+    return Customer::with(['category', 'deliveryRoute'])
+        ->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('identification', 'like', "%{$search}%");
+            });
+        })
+        ->orderBy('name', 'asc')
+        ->paginate(15)
+        ->withQueryString();
+}
 
     public function createCustomer(array $data)
     {

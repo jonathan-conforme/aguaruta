@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services\Admin;
 
 use App\Models\Product;
@@ -32,19 +31,23 @@ class AdminDashboardService
         $monthPurchases = Purchase::where('company_id', $companyId)
             ->whereMonth('purchase_date', $mesActual)
             ->whereYear('purchase_date', $anioActual)
-            ->where('status', 'completed') // Solo considerar compras completadas
+            ->where('status', 'completed')
             ->sum('total_amount');
 
-        // Calculamos la Utilidad Neta (Ventas - Compras)
+        // Utilidad Neta
         $utilidades = $monthSales - $monthPurchases;
 
-        $productsSoldToday = SaleDetail::where('company_id', $companyId)
-            ->whereDate('created_at', $hoy)
-            ->sum('quantity');
+        // Productos vendidos hoy
+        $productsSoldToday = SaleDetail::whereHas('sale', function ($query) use ($companyId, $hoy) {
+            $query->where('company_id', $companyId)
+                  ->whereDate('created_at', $hoy);
+        })->sum('quantity');
 
-        $recoveredBottles = SaleDetail::where('company_id', $companyId)
-            ->whereDate('created_at', $hoy)
-            ->sum('recovered_bottles');
+        // Envases recuperados hoy
+        $recoveredBottles = SaleDetail::whereHas('sale', function ($query) use ($companyId, $hoy) {
+            $query->where('company_id', $companyId)
+                  ->whereDate('created_at', $hoy);
+        })->sum('recovered_bottles');
 
         $activeTrips = Trip::where('company_id', $companyId)
             ->where('status', 'active')
@@ -64,6 +67,34 @@ class AdminDashboardService
             ->where('current_stock', '<=', 10)
             ->count();
 
+        // 1. FLUJO DE VENTAS SEMANAL (Lunes a Domingo de la semana actual)
+        $startOfWeek = now()->startOfWeek();
+        $endOfWeek = now()->endOfWeek();
+
+        $weeklySalesRaw = Sale::where('company_id', $companyId)
+            ->whereBetween('created_at', [$startOfWeek, $endOfWeek])
+            ->selectRaw('DATE(created_at) as date, SUM(total) as total')
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
+        $weeklySalesFlow = [];
+        for ($i = 0; $i < 7; $i++) {
+            $dateString = $startOfWeek->copy()->addDays($i)->toDateString();
+            $weeklySalesFlow[] = (float) ($weeklySalesRaw[$dateString] ?? 0);
+        }
+
+        // 2. FLUJO DE VENTAS MENSUAL (Enero a Diciembre del año actual)
+        $monthlySalesRaw = Sale::where('company_id', $companyId)
+            ->whereYear('created_at', $anioActual)
+            ->selectRaw('MONTH(created_at) as month, SUM(total) as total')
+            ->groupBy('month')
+            ->pluck('total', 'month');
+
+        $monthlySalesFlow = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $monthlySalesFlow[] = (float) ($monthlySalesRaw[$m] ?? 0);
+        }
+
         return [
             'todaySales'        => (float) $todaySales,
             'monthSales'        => (float) $monthSales,
@@ -76,6 +107,8 @@ class AdminDashboardService
             'completedTrips'    => $completedTrips,
             'totalCustomers'    => $totalCustomers,
             'lowStockProducts'  => $lowStockProducts,
+            'weeklySalesFlow'   => $weeklySalesFlow,
+            'monthlySalesFlow'  => $monthlySalesFlow,
         ];
     }
 }

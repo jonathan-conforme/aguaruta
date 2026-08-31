@@ -2,13 +2,20 @@ import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { Card, Typography, CardHeader, CardBody, Chip } from "@material-tailwind/react";
+import StatCard from '@/Components/UI/StatCard';
+import Modal from '@/Components/Modal';
+
 import {
     BanknotesIcon,
     ArrowsRightLeftIcon,
     CreditCardIcon,
     QuestionMarkCircleIcon,
-    ArrowDownTrayIcon
-} from "@heroicons/react/24/outline";
+    ArrowDownTrayIcon,
+    CurrencyDollarIcon,
+    FunnelIcon,
+    ExclamationTriangleIcon,
+    ShoppingBagIcon
+} from "@heroicons/react/24/solid";
 
 const PaymentBadge = ({ method }) => {
     const methods = {
@@ -51,29 +58,76 @@ const PaymentBadge = ({ method }) => {
     );
 };
 
-export default function Index({ auth, sales, totalEarned, salesByMethod, currentDateFilter, baseUrl }) {
-
+export default function Index({ auth, sales = [], totalEarned = 0, salesByMethod = {}, currentDateFilter, filters, baseUrl }) {
     const isAdmin = auth.user.role === 'admin' || auth.user.role === 'super_admin';
-    const [selectedDate, setSelectedDate] = useState(currentDateFilter);
+
+    const [startDate, setStartDate] = useState(filters?.start_date || currentDateFilter || '');
+    const [endDate, setEndDate] = useState(filters?.end_date || currentDateFilter || '');
     const [reportRange, setReportRange] = useState('day');
 
-    const handleDateChange = (e) => {
-        const newDate = e.target.value;
-        setSelectedDate(newDate);
+    const [modalError, setModalError] = useState('');
+    const [showModal, setShowModal] = useState(false);
 
-        router.get(baseUrl, { date: newDate }, {
-            preserveState: true,
-            replace: true
-        });
+    const checkIsInvalid = (start, end) => {
+        if (!start || !end) return false;
+        const startD = new Date(start);
+        const endD = new Date(end);
+        if (endD < startD) return true;
+
+        const diffDays = Math.ceil(Math.abs(endD - startD) / (1000 * 60 * 60 * 24));
+        return diffDays > 31;
     };
 
-    const handleDownload = () => {
-        const url = route('admin.reports.sales.download', {
-            date: selectedDate,
-            range: reportRange
-        });
-        window.open(url, '_blank');
+    const isInvalidRange = checkIsInvalid(startDate, endDate);
+
+    const handleFilter = (start, end) => {
+        if (start && end) {
+            const startD = new Date(start);
+            const endD = new Date(end);
+
+            if (endD < startD) {
+                setModalError("La fecha 'Hasta' no puede ser anterior a la fecha 'Desde'.");
+                setShowModal(true);
+                return;
+            }
+
+            const diffDays = Math.ceil(Math.abs(endD - startD) / (1000 * 60 * 60 * 24));
+            if (diffDays > 31) {
+                setModalError("Solo puedes consultar o descargar reportes de hasta 1 mes (31 días).");
+                setShowModal(true);
+                return;
+            }
+        }
+
+        router.get(
+            baseUrl || route('admin.sales.index'),
+            {
+                ...(start && { start_date: start, date: start }),
+                ...(end && { end_date: end })
+            },
+            { preserveState: true, replace: true }
+        );
     };
+
+    const clearFilters = () => {
+        setStartDate('');
+        setEndDate('');
+        router.get(baseUrl || route('admin.sales.index'));
+    };
+const handleDownload = () => {
+    // Determinamos la ruta según el rol del usuario
+    const routeName = isAdmin
+        ? 'admin.reports.sales.download'
+        : 'repartidor.reports.sales.download';
+
+    const url = route(routeName, {
+        ...(startDate && { start_date: startDate, date: startDate }),
+        ...(endDate && { end_date: endDate }),
+        range: reportRange
+    });
+
+    window.location.href = url;
+};
 
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(value || 0);
@@ -86,51 +140,112 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
         >
             <Head title="Historial de Ventas" />
 
-            <div className="py-12 bg-gray-50/50 min-h-screen">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-8 bg-gray-50/50 min-h-screen">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
-                    {/* Panel Integrado: Controles de Filtro y Exportación */}
-                    <div className="mb-6 flex flex-col md:flex-row items-start md:items-center justify-between bg-white p-4 rounded-lg shadow-sm border border-gray-200 gap-4">
-                        <div>
-                            <Typography variant="h6" color="blue-gray">Gestión de Ventas</Typography>
-                            <Typography variant="small" color="gray" className="font-normal">
-                                Filtra la vista actual o exporta las liquidaciones.
-                            </Typography>
+                    {/* TARJETAS DE MÉTRICAS / RESUMEN */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <StatCard
+                            title="Total Vendido"                           value={formatCurrency(totalEarned)}
+                            icon={CurrencyDollarIcon}
+                            colorTheme="green"
+                            description="Ventas acumuladas en el periodo"
+                        />
+                        <StatCard
+                            title="Cobrado en Efectivo"
+                            value={formatCurrency(salesByMethod?.cash)}
+                            icon={BanknotesIcon}
+                            colorTheme="blue"
+                            description="Ingresos directos en caja"
+                        />
+                        <StatCard
+                            title="Transferencias / Crédito"
+                            value={formatCurrency((salesByMethod?.transfer || 0) + (salesByMethod?.credit || 0))}
+                            icon={ArrowsRightLeftIcon}
+                            colorTheme="purple"
+                            description="Ventas no efectivas"
+                        />
+                    </div>
+
+                    {/* BARRA DE FILTROS Y EXPORTACIÓN */}
+                    <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between bg-white p-4 rounded-xl border border-gray-200 shadow-sm gap-4">
+                        <div className="flex items-center gap-2 text-gray-700 font-medium text-sm">
+                            <FunnelIcon className="h-5 w-5 text-indigo-500" />
+                            <span>Filtro y Exportación:</span>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                            <input
-                                type="date"
-                                value={selectedDate}
-                                onChange={handleDateChange}
-                                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-700 bg-white w-full sm:w-auto"
-                            />
+                        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <span>Desde:</span>
+                                <input
+                                    type="date"
+                                    value={startDate}
+                                    onChange={(e) => {
+                                        setStartDate(e.target.value);
+                                        handleFilter(e.target.value, endDate);
+                                    }}
+                                    className="text-xs font-medium text-gray-700 bg-gray-50 border border-gray-300 rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
 
-                            <div className="hidden md:block w-px h-8 bg-gray-200 mx-1"></div>
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                                <span>Hasta:</span>
+                                <input
+                                    type="date"
+                                    value={endDate}
+                                    onChange={(e) => {
+                                        setEndDate(e.target.value);
+                                        handleFilter(startDate, e.target.value);
+                                    }}
+                                    className="text-xs font-medium text-gray-700 bg-gray-50 border border-gray-300 rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                />
+                            </div>
+
+                            {(startDate || endDate) && (
+                                <button
+                                    onClick={clearFilters}
+                                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline whitespace-nowrap"
+                                >
+                                    Limpiar
+                                </button>
+                            )}
 
                             <select
                                 value={reportRange}
                                 onChange={(e) => setReportRange(e.target.value)}
-                                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-700 bg-white cursor-pointer w-full sm:w-auto"
+                                className="text-xs font-medium text-gray-700 bg-gray-50 border border-gray-300 rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer"
                             >
-                                <option value="day">Reporte Diario</option>
-                                <option value="week">Reporte Semanal</option>
-                                <option value="fortnight">Reporte Quincenal</option>
-                                <option value="month">Reporte Mensual</option>
+                                <option value="day">Diario</option>
+                                <option value="week">Semanal</option>
+                                <option value="fortnight">Quincenal</option>
+                                <option value="month">Mensual</option>
                             </select>
 
-                            <button
-                                onClick={handleDownload}
-                                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors text-sm shadow-sm w-full sm:w-auto"
-                            >
-                                <ArrowDownTrayIcon className="h-4 w-4" />
-                                Exportar
-                            </button>
+                            {/* BOTÓN EXPORTAR PDF CON VALIDACIÓN */}
+                            {isInvalidRange ? (
+                                <button
+                                    type="button"
+                                    disabled
+                                    title="Selecciona un rango válido (máximo 31 días) para descargar el PDF"
+                                    className="inline-flex items-center gap-2 rounded-lg bg-gray-300 px-4 py-2 text-sm font-medium text-gray-500 cursor-not-allowed shadow-none"
+                                >
+                                    <ArrowDownTrayIcon className="h-4 w-4" />
+                                    Exportar PDF
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleDownload}
+                                    className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-md hover:bg-indigo-700 transition-all cursor-pointer"
+                                >
+                                    <ArrowDownTrayIcon className="h-4 w-4" />
+                                    Descargar PDF
+                                </button>
+                            )}
                         </div>
                     </div>
 
-                    {/* Contenedor Principal */}
-                    <Card className="h-full w-full border border-blue-gray-50 shadow-sm mt-6">
+                    {/* DETALLE DE VENTA / TABLA */}
+                    <Card className="h-full w-full border border-blue-gray-50 shadow-sm">
                         <CardHeader floated={false} shadow={false} className="rounded-none p-4">
                             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                 <div>
@@ -138,7 +253,7 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
                                         Detalle de Transacciones
                                     </Typography>
                                     <Typography color="gray" className="mt-1 font-normal text-sm">
-                                        Mostrando <span className="font-medium text-blue-600">{sales.length}</span> ventas para la fecha seleccionada.
+                                        Mostrando <span className="font-medium text-blue-600">{sales.length}</span> ventas para el rango seleccionado.
                                     </Typography>
                                 </div>
                             </div>
@@ -147,7 +262,7 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
                         <CardBody className="px-0 py-0">
                             {sales.length > 0 ? (
                                 <>
-                                    {/* 📱 VISTA MÓVIL: Tarjetas Apiladas (Se muestra en sm y se oculta en md) */}
+                                    {/* VISTA MÓVIL */}
                                     <div className="grid grid-cols-1 gap-4 p-4 md:hidden">
                                         {sales.map((sale) => {
                                             const saleTime = new Date(sale.created_at).toLocaleTimeString('es-ES', {
@@ -159,7 +274,6 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
                                                     key={sale.id}
                                                     className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:border-indigo-200 transition-all flex flex-col gap-3"
                                                 >
-                                                    {/* Fila superior: Hora y Total */}
                                                     <div className="flex justify-between items-center border-b border-gray-100 pb-2">
                                                         <span className="text-xs font-semibold bg-gray-100 text-gray-600 px-2.5 py-1 rounded-md">
                                                             {saleTime}
@@ -169,7 +283,6 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
                                                         </Typography>
                                                     </div>
 
-                                                    {/* Datos informativos */}
                                                     <div className="grid grid-cols-2 gap-y-2 text-xs">
                                                         {isAdmin && (
                                                             <div className="col-span-2 flex flex-col gap-0.5">
@@ -187,7 +300,6 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
                                                         </div>
                                                     </div>
 
-                                                    {/* Productos vendidos */}
                                                     <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                                                         <span className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Productos</span>
                                                         <div className="flex flex-col gap-1">
@@ -205,7 +317,6 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
                                                         </div>
                                                     </div>
 
-                                                    {/* Fila Inferior: Insignia de Pago */}
                                                     <div className="flex justify-between items-center pt-1">
                                                         <span className="text-xs text-gray-400 font-medium">Método de pago</span>
                                                         <PaymentBadge method={sale.payment_method} />
@@ -215,11 +326,11 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
                                         })}
                                     </div>
 
-                                    {/* 💻 VISTA ESCRITORIO: Tabla tradicional (Oculta en móviles, se muestra en md) */}
+                                    {/* VISTA ESCRITORIO */}
                                     <div className="hidden md:block overflow-x-auto">
-                                        <table className="w-full table-auto text-left" role="table">
+                                        <table className="w-full table-auto text-left">
                                             <thead>
-                                                <tr role="row">
+                                                <tr>
                                                     <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4">Hora</th>
                                                     {isAdmin && <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4">Vendedor</th>}
                                                     <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4">Cliente</th>
@@ -237,7 +348,7 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
                                                     });
 
                                                     return (
-                                                        <tr key={sale.id} className="hover:bg-blue-gray-50/50 transition-colors" role="row">
+                                                        <tr key={sale.id} className="hover:bg-blue-gray-50/50 transition-colors">
                                                             <td className={classes}>
                                                                 <Typography variant="small" color="blue-gray" className="font-medium">
                                                                     {saleTime}
@@ -291,14 +402,13 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
                                     </div>
                                 </>
                             ) : (
-                                /* Estado Vacío Integrado Uniformemente */
                                 <div className="p-8 text-center flex flex-col items-center justify-center gap-3">
-                                    <span className="text-4xl">🧾</span>
+                                    <ShoppingBagIcon className="h-12 w-12 text-gray-300" />
                                     <Typography color="blue-gray" className="font-medium text-lg">
                                         Sin movimientos
                                     </Typography>
                                     <Typography color="gray" className="font-normal text-sm max-w-md text-center">
-                                        No se encontraron registros de ventas para la fecha seleccionada ({selectedDate}).
+                                        No se encontraron registros de ventas para las fechas seleccionadas.
                                     </Typography>
                                 </div>
                             )}
@@ -306,6 +416,34 @@ export default function Index({ auth, sales, totalEarned, salesByMethod, current
                     </Card>
                 </div>
             </div>
+
+            {/* MODAL DE ADVERTENCIA PARA RANGO DE FECHAS */}
+            <Modal
+                show={showModal}
+                maxWidth="md"
+                onClose={() => setShowModal(false)}
+            >
+                <div className="p-6 text-center">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 mb-4">
+                        <ExclamationTriangleIcon className="h-6 w-6 text-amber-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        Rango de fechas no permitido
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-6">
+                        {modalError}
+                    </p>
+                    <div className="flex justify-center">
+                        <button
+                            type="button"
+                            onClick={() => setShowModal(false)}
+                            className="inline-flex justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        >
+                            Entendido
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

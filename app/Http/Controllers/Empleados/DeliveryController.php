@@ -38,39 +38,39 @@ class DeliveryController extends Controller
      * Cambia el estado del viaje de "pending" a "active" y asigna la caja
      */
     public function start(Request $request, Trip $trip)
-    {
-        $user = auth()->user();
+{
+    $user = auth()->user();
 
-        // Seguridad: Verificar que el empleado no intente iniciar el viaje de otro
-        if ($trip->seller_id !== $user->id && $trip->driver_id !== $user->id) {
-            abort(403, 'No tienes permiso para iniciar este viaje.');
-        }
-
-        // 1. BUSCAMOS LA CAJA ABIERTA DEL VENDEDOR DE ESTE VIAJE
-        $activeShift = Shift::where('user_id', $trip->seller_id)
-            ->where('status', 'open')
-            ->first();
-
-        // 2. VALIDAMOS QUE EXISTA LA CAJA ANTES DE INICIAR
-        if (!$activeShift) {
-            // Si no hay caja abierta, lo mandamos a abrirla
-            return redirect()->route('repartidor.shifts.create')
-                ->with('info', 'El vendedor necesita abrir caja antes de iniciar el viaje.');
-        }
-
-        // 3. ACTUALIZAMOS EL VIAJE Y LE ASIGNAMOS EL SHIFT_ID
-        if ($trip->status === 'pending') {
-            $trip->update([
-                'status' => 'active',
-                'shift_id' => $activeShift->id // ¡Aquí ocurre la magia que conecta el viaje con la caja!
-            ]);
-        }
-
-        // Redirigimos de vuelta a sus rutas (no a create, porque ya abrió caja)
-       // return back()->with('success', '¡Ruta iniciada correctamente!');
+    // 1. Verificar permisos (si es vendedor o chofer asignado)
+    if ($trip->seller_id !== $user->id && $trip->driver_id !== $user->id) {
+        abort(403, 'No tienes permiso para iniciar este viaje.');
     }
 
+    // 2. Buscar caja abierta del usuario CONECTADO (no de $trip->seller_id)
+    $activeShift = Shift::where('user_id', $user->id)
+        ->where('status', 'open')
+        ->first();
 
+    // Si realmente no tiene caja abierta, lo enviamos a abrirla
+    if (!$activeShift) {
+        return redirect()->route('repartidor.shifts.create')
+            ->with('info', 'Debes abrir caja antes de iniciar el viaje.');
+    }
+
+    // 3. Activar el viaje y enlazar el shift_id
+    if ($trip->status === 'pending') {
+        $trip->update([
+            'status' => 'active',
+            'shift_id' => $activeShift->id,
+            'seller_id' => $trip->seller_id ?? $user->id // Asegura el seller_id si venía nulo
+        ]);
+    }
+
+    // 4. Redirigir directamente al POS / Formulario de Ventas
+    return redirect()
+        ->route('repartidor.sales.create', $trip->id)
+        ->with('success', '¡Ruta iniciada correctamente!');
+}
     /**
      * Cambia el estado del viaje a "completed" (Cerrar viaje)
      */

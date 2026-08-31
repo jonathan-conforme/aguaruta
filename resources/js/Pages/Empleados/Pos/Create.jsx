@@ -21,6 +21,8 @@ export default function CreateSale({ trip, customers }) {
         payment_method: 'cash',
         returned_bottles: 0,
         total: 0,
+        initial_payment: 0,
+        payment_type: 'cash',
         products: trip.products.map(p => ({
             product_id: p.id,
             name: p.name,
@@ -101,7 +103,9 @@ export default function CreateSale({ trip, customers }) {
             total: 0,
             products: updatedProducts,
             customer_id: '',
-            payment_method: 'cash'
+            payment_method: 'cash',
+            initial_payment: 0,
+            payment_type: 'cash'
         });
 
         setSearchCustomer('');
@@ -322,7 +326,10 @@ export default function CreateSale({ trip, customers }) {
 
                     {/* 3. ENVASES Y MÉTODO DE PAGO */}
                     <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                        <label className="block text-sm font-bold text-gray-700 mb-4 border-b border-gray-100 pb-2">3. Detalles de facturación</label>
+                        <label className="block text-sm font-bold text-gray-700 mb-4 border-b border-gray-100 pb-2">
+                            3. Detalles de facturación
+                        </label>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-xs font-bold text-red-500 uppercase mb-2">Envases Devueltos</label>
@@ -347,11 +354,17 @@ export default function CreateSale({ trip, customers }) {
                                         <button
                                             key={method.id}
                                             type="button"
-                                            onClick={() => setData('payment_method', method.id)}
+                                            onClick={() => {
+                                                setData(prev => ({
+                                                    ...prev,
+                                                    payment_method: method.id,
+                                                    initial_payment: method.id === 'credit' ? prev.initial_payment : 0
+                                                }));
+                                            }}
                                             className={`py-3 px-1 border-2 rounded-xl text-sm font-bold transition-all ${data.payment_method === method.id
-                                                ? method.color + ' shadow-sm'
-                                                : 'bg-white border-gray-100 text-gray-400 hover:bg-gray-50'
-                                            }`}
+                                                    ? method.color + ' shadow-sm'
+                                                    : 'bg-white border-gray-100 text-gray-400 hover:bg-gray-50'
+                                                }`}
                                         >
                                             {method.label}
                                         </button>
@@ -359,6 +372,50 @@ export default function CreateSale({ trip, customers }) {
                                 </div>
                             </div>
                         </div>
+
+                        {/* DESPLEGABLE SOLO CUANDO SE SELECCIONA CRÉDITO */}
+                        {data.payment_method === 'credit' && (
+                            <div className="mt-5 p-4 bg-amber-50/60 border border-amber-200 rounded-xl space-y-3">
+                                <p className="text-xs font-bold text-amber-900 uppercase tracking-wide">
+                                    Detalle del Crédito / Abono Inicial
+                                </p>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Abono Inicial ($)</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            max={data.total}
+                                            value={data.initial_payment === 0 ? '' : data.initial_payment}
+                                            placeholder="0.00"
+                                            onChange={(e) => setData('initial_payment', parseFloat(e.target.value) || 0)}
+                                            className="w-full rounded-lg border-gray-300 font-bold text-gray-800 focus:border-amber-500 focus:ring-amber-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Tipo de Abono</label>
+                                        <select
+                                            value={data.payment_type}
+                                            onChange={(e) => setData('payment_type', e.target.value)}
+                                            className="w-full rounded-lg border-gray-300 font-medium text-gray-800 focus:border-amber-500 focus:ring-amber-500"
+                                        >
+                                            <option value="cash">Efectivo</option>
+                                            <option value="transfer">Transferencia</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Saldo Pendiente</label>
+                                        <div className="py-2.5 px-3 bg-white border border-amber-200 rounded-lg font-black text-red-600 text-lg">
+                                            ${Math.max(0, data.total - (data.initial_payment || 0)).toFixed(2)}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* 4. TOTAL Y BOTÓN DE ENVÍO */}

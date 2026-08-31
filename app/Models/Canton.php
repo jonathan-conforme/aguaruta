@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Canton extends Model
 {
+    use HasFactory;
+    
     protected $guarded = ['id'];
 
     // Un cantón pertenece a una provincia
@@ -19,5 +22,5 @@ class Canton extends Model
     {
         return $this->hasMany(Sector::class);
     }
-    
+
 }

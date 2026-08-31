@@ -1,6 +1,12 @@
 import React from 'react';
 import { Card, CardHeader, CardBody, CardFooter, Typography, Chip } from "@material-tailwind/react";
-import { BanknotesIcon, CheckCircleIcon, LockClosedIcon, TruckIcon } from "@heroicons/react/24/solid";
+import {
+    BanknotesIcon,
+    CheckCircleIcon,
+    LockClosedIcon,
+    TruckIcon,
+    ExclamationTriangleIcon
+} from "@heroicons/react/24/solid";
 
 export default function ShiftCard({ shift, isAdmin = false }) {
     const totalRecaudado = shift.trips?.reduce(
@@ -9,6 +15,19 @@ export default function ShiftCard({ shift, isAdmin = false }) {
     ) || 0;
 
     const isClosed = shift.status === 'closed';
+
+    // 1. Cálculos de Arqueo de Caja
+    const initialCash = Number(shift.initial_cash || 0);
+    const expensesAmount = Number(shift.expenses_sum_amount || 0);
+    const expectedCash = initialCash + totalRecaudado - expensesAmount;
+
+    const finalCash = isClosed && shift.final_cash !== null && shift.final_cash !== undefined
+        ? Number(shift.final_cash)
+        : null;
+
+    const difference = isClosed && finalCash !== null ? finalCash - expectedCash : 0;
+    const isMissing = isClosed && difference < -0.01;
+    const isSurplus = isClosed && difference > 0.01;
 
     return (
         <Card className="w-full border border-blue-gray-100 shadow-md">
@@ -21,7 +40,7 @@ export default function ShiftCard({ shift, isAdmin = false }) {
                 }`}
             >
                 <div>
-                    <Typography variant="small" className="font-bold uppercase tracking-wider">
+                    <Typography variant="small" className="font-bold uppercase tracking-wider text-gray-800">
                         Caja del {new Date(shift.opened_at).toLocaleDateString()}
                     </Typography>
 
@@ -34,7 +53,7 @@ export default function ShiftCard({ shift, isAdmin = false }) {
                     <Typography variant="small" className="flex items-center gap-1 mt-1 text-gray-600">
                         {isClosed ? (
                             <>
-                                <LockClosedIcon className="h-4 w-4 text-gray-505" />
+                                <LockClosedIcon className="h-4 w-4 text-gray-500" />
                                 Cerrada
                             </>
                         ) : (
@@ -46,11 +65,29 @@ export default function ShiftCard({ shift, isAdmin = false }) {
                     </Typography>
                 </div>
 
-                <Chip
-                    variant={isClosed ? "filled" : "gradient"}
-                    color={isClosed ? "blue-gray" : "green"}
-                    value={isClosed ? "Cerrada" : "En Progreso"}
-                />
+                <div className="flex items-center gap-2">
+                    {/* ALERTA VISUAL SI HAY FALTANTE O SOBRANTE */}
+                    {isClosed && isMissing && (
+                        <Chip
+                            size="sm"
+                            color="red"
+                            value={`Faltante: -$${Math.abs(difference).toFixed(2)}`}
+                            icon={<ExclamationTriangleIcon className="h-4 w-4" />}
+                        />
+                    )}
+                    {isClosed && isSurplus && (
+                        <Chip
+                            size="sm"
+                            color="blue"
+                            value={`Sobrante: +$${difference.toFixed(2)}`}
+                        />
+                    )}
+                    <Chip
+                        variant={isClosed ? "filled" : "gradient"}
+                        color={isClosed ? "blue-gray" : "green"}
+                        value={isClosed ? "Cerrada" : "En Progreso"}
+                    />
+                </div>
             </CardHeader>
 
             {/* BODY */}
@@ -88,7 +125,7 @@ export default function ShiftCard({ shift, isAdmin = false }) {
                     )}
                 </ul>
             </CardBody>
-           
+
             {/* FOOTER */}
             <CardFooter className="p-5 bg-indigo-600 text-white rounded-b-xl">
                 <div className="flex justify-between items-center">
@@ -96,26 +133,34 @@ export default function ShiftCard({ shift, isAdmin = false }) {
                         Resumen del turno
                     </Typography>
 
-                    <div className="text-right">
+                    <div className="text-right space-y-0.5">
                         <Typography className="text-indigo-200 text-xs">
-                            Inicial: ${Number(shift.initial_cash || 0).toFixed(2)}
+                            Inicial: ${initialCash.toFixed(2)}
                         </Typography>
                         <Typography className="text-indigo-100 text-xs font-medium">
                             Ventas Efectivo: ${totalRecaudado.toFixed(2)}
                         </Typography>
                         <Typography className="text-red-200 text-xs">
-                            Gastos de viaje: -${Number(shift.expenses_sum_amount || 0).toFixed(2)}
+                            Gastos de viaje: -${expensesAmount.toFixed(2)}
                         </Typography>
 
-                        <div className="flex items-center justify-end gap-2 mt-1 pt-1 border-t border-indigo-500">
-                            <BanknotesIcon className="h-5 w-5 text-green-300" />
-                            <Typography className="text-xl font-black text-white">
-                                ${(
-                                    Number(shift.initial_cash || 0) +
-                                    totalRecaudado -
-                                    Number(shift.expenses_sum_amount || 0)
-                                ).toFixed(2)}
-                            </Typography>
+                        {/* ESPERADO VS ENTREGADO */}
+                        <div className="pt-2 mt-1 border-t border-indigo-500/80 space-y-1">
+                            <div className="flex items-center justify-end gap-2 text-xs text-indigo-100">
+                                <span>Esperado:</span>
+                                <span className="font-semibold">${expectedCash.toFixed(2)}</span>
+                            </div>
+
+                            <div className="flex items-center justify-end gap-2">
+                                <span className="text-xs text-indigo-200 font-medium">Entregado:</span>
+                                <BanknotesIcon className={`h-5 w-5 ${isMissing ? 'text-red-300' : 'text-green-300'}`} />
+                                <Typography className={`text-xl font-black ${isMissing ? 'text-red-200' : 'text-white'}`}>
+                                    {isClosed && finalCash !== null
+                                        ? `$${finalCash.toFixed(2)}`
+                                        : 'Pendiente'
+                                    }
+                                </Typography>
+                            </div>
                         </div>
                     </div>
                 </div>

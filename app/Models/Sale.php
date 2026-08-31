@@ -17,6 +17,9 @@ class Sale extends Model
         'customer_id',
         'shift_id',
         'payment_method',
+        'status',
+        'paid_amount',
+        'balance_amount',
         'total',
         
     ];
@@ -45,6 +48,10 @@ class Sale extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
+    public function payments()
+{
+    return $this->hasMany(Payment::class);
+}
     
 
 }

@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Employee;
-use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Models\EmployeeCategory;
 use App\Rules\ValidarRucEcuador;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use App\Services\PlanService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use App\Models\Employee;
+use App\Models\User;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Hash;
 
 
 
@@ -157,4 +157,10 @@ $currentUsersCount = $company->users()->where('role', '!=', 'admin')->count();
     // Si no existe un usuario en la tabla 'users' con esa identificación o email
     return back()->with('error', 'Este empleado no cuenta con un usuario activo en el sistema.');
 }
+/**
+ * Historial de cobros realizados por el empleado autenticado.
+ */
+
+
+
 }

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 
 import {
     Card,
@@ -15,7 +15,8 @@ import {
     Input,
     Select,
     Option,
-    Textarea
+    Textarea,
+
 } from "@material-tailwind/react";
 
 import {
@@ -24,18 +25,24 @@ import {
     TrashIcon,
     UserIcon,
     IdentificationIcon,
-    MapPinIcon
+    MapPinIcon,
+    ArrowLeftIcon,
+    ArrowRightIcon,
+    UsersIcon,
+    ExclamationTriangleIcon,
+    BeakerIcon,
 } from "@heroicons/react/24/solid";
 import DeleteConfirmModal from '@/Components/DeleteConfirmModal';
+import StatCard from '@/Components/UI/StatCard';
 
-export default function Index({ customers, categories, routes }) {
-
+export default function Index({ customers, categories, routes, stats, filters }) {
+    const [search, setSearch] = useState(filters?.search || '');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState(null);
 
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [customersToDelete, setCustomersToDelete] = useState(null);
-
+    const isFirstRender = useRef(true);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset, clearErrors } = useForm({
         name: '',
@@ -46,6 +53,29 @@ export default function Index({ customers, categories, routes }) {
         bottle_debt: 0,
         delivery_route_id: '',
     });
+    useEffect(() => {
+        // 3. Salta la ejecución automática al entrar a la pantalla
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            if (search.length > 0 && search.length < 2) return;
+
+            router.get(
+                route('customers.index'),
+                { search: search || undefined },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    replace: true,
+                }
+            );
+        }, 400);
+
+        return () => clearTimeout(timeout);
+    }, [search]);
 
     const openModal = (customer = null) => {
         clearErrors();
@@ -88,6 +118,15 @@ export default function Index({ customers, categories, routes }) {
         }
     };
 
+    const handlePageChange = (url) => {
+        if (!url) return;
+
+        router.get(url, {}, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
     // 2.LÓGICA DE ELIMINACIÓN MODULAR
     const openDeleteModal = (customers) => {
         setCustomersToDelete(customers);
@@ -118,6 +157,43 @@ export default function Index({ customers, categories, routes }) {
                 </Typography>
             }
         >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6">
+
+                <StatCard
+                    title="Clientes registrados"
+                    value={stats.total}
+                    icon={UsersIcon}
+                    colorTheme="blue"
+                    description="Total de clientes"
+                />
+
+                <StatCard
+                    title="Clientes con deuda"
+                    value={stats.with_debt}
+                    icon={ExclamationTriangleIcon}
+                    colorTheme="red"
+                    description="Tienen envases pendientes"
+                />
+
+                <StatCard
+                    title="Envases pendientes"
+                    value={stats.bottle_debt}
+                    icon={BeakerIcon}
+                    colorTheme="purple"
+                    description="Total de envases adeudados"
+                />
+
+            </div>
+            <div className="p-6 border-b">
+                <div className="max-w-md">
+                    <Input
+                        label="Buscar por nombre o identificación"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+            </div>
+
             <Head title="Clientes" />
 
             <div className="max-w-7xl mx-auto">
@@ -155,8 +231,8 @@ export default function Index({ customers, categories, routes }) {
                             </thead>
 
                             <tbody>
-                                {customers.map((customer, index) => {
-                                    const isLast = index === customers.length - 1;
+                                {customers.data.map((customer, index) => {
+                                    const isLast = index === customers.data.length - 1;
                                     const classes = isLast ? "p-4" : "p-4 border-b";
 
                                     return (
@@ -203,9 +279,42 @@ export default function Index({ customers, categories, routes }) {
                                     );
                                 })}
                             </tbody>
+
                         </table>
+                        {/* BARRA DE PAGINACIÓN */}
+                        <div className="flex flex-col sm:flex-row items-center justify-between border-t border-blue-gray-50 p-4 gap-4">
+                            <Typography variant="small" color="gray" className="font-normal text-center sm:text-left">
+                                Página <strong className="text-blue-gray-900">{customers.current_page}</strong> de{" "}
+                                <strong className="text-blue-gray-900">{customers.last_page}</strong>
+                            </Typography>
+
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="outlined"
+                                    color="blue-gray"
+                                    size="sm"
+                                    className="flex items-center gap-1"
+                                    onClick={() => handlePageChange(customers.prev_page_url)}
+                                    disabled={!customers.prev_page_url}
+                                >
+                                    <ArrowLeftIcon strokeWidth={2} className="h-3 w-3" /> <span className="hidden sm:inline">Anterior</span>
+                                </Button>
+
+                                <Button
+                                    variant="outlined"
+                                    color="blue-gray"
+                                    size="sm"
+                                    className="flex items-center gap-1"
+                                    onClick={() => handlePageChange(customers.next_page_url)}
+                                    disabled={!customers.next_page_url}
+                                >
+                                    <span className="hidden sm:inline">Siguiente</span> <ArrowRightIcon strokeWidth={2} className="h-3 w-3" />
+                                </Button>
+                            </div>
+                        </div>
                     </CardBody>
                 </Card>
+
             </div>
 
             {/* MODAL */}

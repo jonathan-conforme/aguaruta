@@ -8,7 +8,7 @@ use App\Models\Traits\BelongsToCompany;
 class Supplier extends Model
 {
    use BelongsToCompany;
-   
+
    protected $fillable = [
         'company_id',
         'name',
@@ -18,7 +18,7 @@ class Supplier extends Model
         'address',
         'ruc_or_id'
    ];
-   public function company(): BelongsTo
+   public function company(): BelongsToCompany
     {
         return $this->belongsTo(Company::class);
     }

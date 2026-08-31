@@ -1,125 +1,247 @@
-import { useState } from 'react';
-import { router } from '@inertiajs/react';
+import React, { useState } from 'react';
+import { Head, router } from '@inertiajs/react';
+import { Card, Typography, Chip, Button } from "@material-tailwind/react";
 import {
-    Button,
-    Dialog,
-    DialogHeader,
-    DialogBody,
-    DialogFooter,
-    Card,
-    Typography
-} from "@material-tailwind/react";
+    CheckIcon,
+    XMarkIcon,
+    CalendarDaysIcon,
+    ExclamationTriangleIcon,
+    ArrowPathIcon
+} from "@heroicons/react/24/solid";
 
-export default function Expired() {
-    const [openPrecios, setOpenPrecios] = useState(false);
+// 🇪🇨 DICCIONARIO DE TRADUCCIONES PARA LÍMITES Y MÓDULOS
+const labelTranslations = {
+    // Límites
+    'app_users': 'Personal con acceso a la App',
+    'employees': 'Empleados permitidos',
+    'clients': 'Clientes permitidos',
+    'routes_per_day': 'Rutas por día',
+    'products': 'Productos en catálogo',
 
-    const handleOpenPrecios = () => setOpenPrecios(!openPrecios);
+    // Módulos
+    'routes': 'Gestión de Rutas',
+    'inventory': 'Control de Inventario',
+    'cash_closing': 'Cierre de Caja',
+    'purchases': 'Módulo de Compras',
+    'payroll': 'Nómina / Roles de Pago'
+};
 
-    // 📞 CONFIGURA AQUÍ TUS DATOS DE SOPORTE
-    const WHATSAPP_SOPORTE = "593987654321"; // Reemplaza con tu número de Ecuador (sin el +)
-    const mensajeWpp = encodeURIComponent("Hola, mi suscripción ha vencido y me gustaría renovar mi plan.");
+export default function Expired({ auth, currentPlanName = 'basico', subscriptionEndsAt, allPlans }) {
+    const [loading, setLoading] = useState(false);
+
+    //  DATOS DE SOPORTE WHATSAPP
+    const WHATSAPP_SOPORTE = "593980659712"; // Reemplaza con tu número de Ecuador
+    const mensajeWpp = encodeURIComponent("Hola, mi suscripción ha vencido y me gustaría realizar el pago de renovación.");
+
+    // Recarga el estado actual para verificar si el super_admin ya activó la cuenta
+    const handleCheckStatus = () => {
+        setLoading(true);
+        router.get(route('dashboard'), {}, {
+        onFinish: () => setLoading(false),
+    });
+    };
+
+    // Formateador de fecha en español (Ecuador)
+    const formattedExpiry = subscriptionEndsAt
+        ? new Date(subscriptionEndsAt.includes('T') ? subscriptionEndsAt : `${subscriptionEndsAt}T00:00:00`).toLocaleDateString('es-EC', { day: 'numeric', month: 'long', year: 'numeric' })
+        : "Vendido / Expirado";
+
+    // Fallback de seguridad en caso de que la ruta no envíe la variable allPlans
+    const plansToDisplay = allPlans || {
+        basico: {
+            price: 25,
+            limits: { app_users: 2, employees: 5, clients: 100, routes_per_day: 1, products: 10 },
+            modules: { routes: true, inventory: true, cash_closing: true, purchases: false, payroll: false }
+        },
+        premium: {
+            price: 45,
+            limits: { app_users: 5, employees: 15, clients: 500, routes_per_day: 5, products: 50 },
+            modules: { routes: true, inventory: true, cash_closing: true, purchases: true, payroll: false }
+        },
+        empresarial: {
+            price: 75,
+            limits: { app_users: 999, employees: 999, clients: 999, routes_per_day: 999, products: 999 },
+            modules: { routes: true, inventory: true, cash_closing: true, purchases: true, payroll: true }
+        }
+    };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
-            <div className="bg-white p-8 md:p-10 rounded-2xl shadow-xl border border-gray-100 text-center max-w-lg w-full">
+        <div className="min-h-screen bg-gray-50/50 py-12 px-4 sm:px-6 lg:px-8">
+            <Head title="Suscripción Vencida" />
 
-                {/* Icono de Alerta */}
-                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 mb-6">
-                    <svg className="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
+            <div className="max-w-7xl mx-auto">
+
+                {/* 🚨 ALERTA PRINCIPAL DE BLOQUEO POR SUSCRIPCIÓN */}
+                <Card className="mb-8 p-6 md:p-8 border-2 border-red-200 bg-white shadow-lg rounded-2xl">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-start gap-4">
+                            <div className="p-3 bg-red-100 rounded-xl text-red-600 shrink-0">
+                                <ExclamationTriangleIcon className="h-10 w-10" />
+                            </div>
+                            <div>
+                                <Typography variant="h4" color="blue-gray" className="font-bold">
+                                    Tu suscripción ha vencido
+                                </Typography>
+                                <Typography variant="paragraph" color="gray" className="mt-1 max-w-2xl">
+                                    El acceso operativo a tu planta purificadora se encuentra temporalmente pausado. Realiza tu pago por transferencia y notifica a soporte para reactivar tu servicio inmediatamente.
+                                </Typography>
+                            </div>
+                        </div>
+
+                        {/* ACCIONES DE REACTIVACIÓN Y LOGOUT */}
+                        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                            <Button
+                                color="green"
+                                size="lg"
+                                className="flex items-center justify-center gap-2 shadow-green-100"
+                                onClick={() => window.open(`https://wa.me/${WHATSAPP_SOPORTE}?text=${mensajeWpp}`, '_blank')}
+                            >
+                                Notificar Pago (WhatsApp)
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                color="indigo"
+                                size="lg"
+                                disabled={loading}
+                                onClick={handleCheckStatus}
+                                className="flex items-center justify-center gap-2"
+                            >
+                                <ArrowPathIcon className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+                                {loading ? 'Verificando...' : 'Verificar Estado'}
+                            </Button>
+
+                            <Button
+                                variant="text"
+                                color="red"
+                                size="lg"
+                                onClick={() => router.post(route('logout'))}
+                            >
+                                Salir
+                            </Button>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* 1. SECCIÓN DESTACADA: ESTADO DEL PLAN ANTERIOR */}
+                <Card className="mb-10 p-6 border border-indigo-100 bg-gradient-to-br from-indigo-50/40 via-white to-white shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div className="flex items-center gap-3 mb-2">
+                            <Typography variant="h5" color="blue-gray" className="font-bold">
+                                Plan Vencido:
+                            </Typography>
+                            <Chip
+                                size="md"
+                                variant="gradient"
+                                value={currentPlanName === 'basico' ? 'Básico' : currentPlanName}
+                                color={
+                                    currentPlanName === "basico" ? "cyan" :
+                                    currentPlanName === "premium" ? "purple" : "indigo"
+                                }
+                                className="capitalize font-bold"
+                            />
+                        </div>
+                        <Typography variant="paragraph" color="gray" className="max-w-xl">
+                            Revisa a continuación los módulos y límites correspondientes a tu plan contratado o aprovecha la renovación para actualizar a una versión superior.
+                        </Typography>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 px-4 py-3 bg-white border border-red-100 rounded-xl shadow-2xs">
+                        <CalendarDaysIcon className="h-6 w-6 text-red-500" />
+                        <div>
+                            <Typography variant="small" color="gray" className="font-medium leading-none mb-1">
+                                Fecha de corte:
+                            </Typography>
+                            <Typography variant="small" color="red" className="font-bold">
+                                {formattedExpiry}
+                            </Typography>
+                        </div>
+                    </div>
+                </Card>
+
+                {/* 2. PARRILLA COMPARATIVA DE PLANES */}
+                <div className="mb-6">
+                    <Typography variant="h5" color="blue-gray" className="font-bold">
+                        Planes Disponibles para Renovación
+                    </Typography>
                 </div>
 
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                    Tu suscripción ha vencido
-                </h1>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+                    {Object.entries(plansToDisplay).map(([name, details]) => {
+                        const isCurrent = name === currentPlanName;
 
-                <p className="text-gray-600 mb-8">
-                    Para seguir gestionando tu planta purificadora y disfrutar de todas las herramientas, necesitas renovar tu plan.
-                </p>
+                        return (
+                            <Card
+                                key={name}
+                                className={`p-6 bg-white border transition-all ${
+                                    isCurrent
+                                        ? 'border-2 border-indigo-500 shadow-md ring-4 ring-indigo-500/5 scale-[1.01]'
+                                        : 'border-blue-gray-100 shadow-xs hover:border-gray-300'
+                                }`}
+                            >
+                                <div className="flex justify-between items-center mb-2">
+                                    <Typography variant="h4" color="blue-gray" className="capitalize font-extrabold">
+                                        {name === 'basico' ? 'Básico' : name}
+                                    </Typography>
+                                    {isCurrent && (
+                                        <Chip size="sm" color="indigo" value="Tu Plan" className="font-bold rounded-full px-3" />
+                                    )}
+                                </div>
 
-                {/* Botones de Acción Principal */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-                    <Button
-                        color="indigo"
-                        size="lg"
-                        className="flex-1"
-                        onClick={handleOpenPrecios}
-                    >
-                        Ver Planes de Precios
-                    </Button>
+                                <div className="flex items-baseline gap-1 mb-6">
+                                    <Typography variant="h2" color="blue-gray" className="font-extrabold">
+                                        {new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(details.price)}
+                                    </Typography>
+                                    <Typography variant="small" color="gray" className="font-normal text-xs ml-1">
+                                        / mes
+                                    </Typography>
+                                </div>
 
-                    <Button
-                        variant="outlined"
-                        color="green"
-                        size="lg"
-                        className="flex-1 flex items-center justify-center gap-2"
-                        onClick={() => window.open(`https://wa.me/${WHATSAPP_SOPORTE}?text=${mensajeWpp}`, '_blank')}
-                    >
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.301-.15-1.779-.877-2.053-.976-.275-.1-.475-.15-.675.15-.199.302-.775.976-.951 1.176-.174.2-.35.226-.651.076-.301-.15-1.268-.467-2.416-1.492-.893-.795-1.496-1.778-1.671-2.078-.175-.3-.018-.463.132-.612.135-.133.301-.352.451-.527.15-.175.2-.3.301-.5.1-.2.05-.375-.025-.526-.075-.15-.675-1.625-.925-2.225-.244-.582-.493-.503-.675-.512-.174-.01-.374-.012-.574-.012s-.525.075-.8.375c-.275.3-1.05 1.026-1.05 2.5s1.075 2.9 1.225 3.1c.15.2 2.115 3.228 5.124 4.532.715.311 1.273.497 1.708.635.72.228 1.374.196 1.892.119.577-.085 1.779-.726 2.029-1.426.25-.7.25-1.3.175-1.426-.076-.125-.276-.2-.576-.35z"/></svg>
-                        WhatsApp Soporte
-                    </Button>
+                                {/* Límites Operativos */}
+                                <div className="mb-6">
+                                    <Typography variant="small" color="blue-gray" className="font-bold uppercase tracking-wider text-xs opacity-60 mb-3">
+                                        Límites incluidos
+                                    </Typography>
+                                    <div className="space-y-2.5">
+                                        {details.limits && Object.entries(details.limits).map(([limit, value]) => (
+                                            <div key={limit} className="flex justify-between items-center py-1 border-b border-blue-gray-50/50">
+                                                <Typography variant="small" color="gray">
+                                                    {labelTranslations[limit] || limit}
+                                                </Typography>
+                                                <Typography variant="small" color="blue-gray" className="font-bold">
+                                                    {value >= 999 ? 'Ilimitado' : value}
+                                                </Typography>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Módulos Habilitados */}
+                                <div>
+                                    <Typography variant="small" color="blue-gray" className="font-bold uppercase tracking-wider text-xs opacity-60 mb-3">
+                                        Módulos habilitados
+                                    </Typography>
+                                    <ul className="space-y-2">
+                                        {details.modules && Object.entries(details.modules).map(([module, enabled]) => (
+                                            <li key={module} className="flex items-center gap-2.5 text-sm">
+                                                {enabled ? (
+                                                    <CheckIcon className="h-4 w-4 text-green-500 stroke-[3]" />
+                                                ) : (
+                                                    <XMarkIcon className="h-4 w-4 text-red-300" />
+                                                )}
+                                                <span className={` ${enabled ? 'text-gray-800 font-medium' : 'text-gray-400 line-through'}`}>
+                                                    {labelTranslations[module] || module}
+                                                </span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </Card>
+                        );
+                    })}
                 </div>
 
-                {/* Enlace secundario */}
-                <button
-                    onClick={() => router.visit('/login')}
-                    className="text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors underline"
-                >
-                    Volver al Inicio / Salir
-                </button>
             </div>
-
-            {/* 💰 MODAL DE PLANES Y PRECIOS */}
-            <Dialog open={openPrecios} handler={handleOpenPrecios} size="md">
-                <DialogHeader className="justify-center text-2xl font-bold text-gray-900">
-                    Nuestros Planes
-                </DialogHeader>
-                <DialogBody divider className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                    {/* Plan Básico */}
-                    <Card className="p-6 border border-gray-200 shadow-none">
-                        <Typography variant="h5" color="blue-gray" className="mb-2">
-                            Plan Básico
-                        </Typography>
-                        <Typography variant="h3" color="indigo" className="mb-4">
-                            $25<span className="text-sm text-gray-600">/mes</span>
-                        </Typography>
-                        <ul className="text-sm text-gray-600 space-y-2">
-                            <li>✓ Hasta 5 Empleados</li>
-                            <li>✓ Gestión de Clientes</li>
-                            <li>✓ Soporte por Correo</li>
-                        </ul>
-                    </Card>
-
-                    {/* Plan Pro */}
-                    <Card className="p-6 border-2 border-indigo-500 shadow-none relative">
-                        <span className="absolute top-0 right-0 bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-bl-lg rounded-tr-lg">
-                            RECOMENDADO
-                        </span>
-                        <Typography variant="h5" color="blue-gray" className="mb-2">
-                            Plan Pro
-                        </Typography>
-                        <Typography variant="h3" color="indigo" className="mb-4">
-                            $45<span className="text-sm text-gray-600">/mes</span>
-                        </Typography>
-                        <ul className="text-sm text-gray-600 space-y-2">
-                            <li>✓ Empleados Ilimitados</li>
-                            <li>✓ Facturación y Rutas</li>
-                            <li>✓ Soporte Prioritario 24/7</li>
-                        </ul>
-                    </Card>
-
-                </DialogBody>
-                <DialogFooter className="justify-center gap-2">
-                    <Button variant="outlined" color="red" onClick={handleOpenPrecios}>
-                        Cerrar
-                    </Button>
-                    <Button color="green" onClick={() => window.open(`https://wa.me/${WHATSAPP_SOPORTE}?text=${mensajeWpp}`, '_blank')}>
-                        Pagar Ahora
-                    </Button>
-                </DialogFooter>
-            </Dialog>
         </div>
     );
 }

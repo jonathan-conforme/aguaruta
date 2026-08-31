@@ -7,11 +7,11 @@ import {
     Dialog, DialogHeader, DialogBody, IconButton,
     Alert, Spinner, Tooltip, Menu, MenuHandler, MenuList, MenuItem
 } from "@material-tailwind/react";
-import { 
-    CheckCircleIcon, 
-    TruckIcon, 
+import {
+    CheckCircleIcon,
+    TruckIcon,
     ArchiveBoxIcon,
-     
+
 } from "@heroicons/react/24/outline";
 
 // --- FUNCIONES AUXILIARES ---
@@ -41,10 +41,10 @@ const ActionMenu = ({ tripId, onEdit, onDelete }) => {
     return (
         <div className="flex items-center gap-1">
             <Tooltip content="Ver detalles">
-                <IconButton 
-                    variant="text" 
-                    size="sm" 
-                    color="blue" 
+                <IconButton
+                    variant="text"
+                    size="sm"
+                    color="blue"
                     onClick={() => router.visit(`/trips/${tripId}`)}
                     aria-label="Ver detalles del viaje"
                 >
@@ -54,12 +54,12 @@ const ActionMenu = ({ tripId, onEdit, onDelete }) => {
                     </svg>
                 </IconButton>
             </Tooltip>
-            
+
             <Tooltip content="Editar viaje">
-                <IconButton 
-                    variant="text" 
-                    size="sm" 
-                    color="amber" 
+                <IconButton
+                    variant="text"
+                    size="sm"
+                    color="amber"
                     onClick={() => onEdit(tripId)}
                     aria-label="Editar viaje"
                 >
@@ -68,12 +68,12 @@ const ActionMenu = ({ tripId, onEdit, onDelete }) => {
                     </svg>
                 </IconButton>
             </Tooltip>
-            
+
             <Tooltip content="Eliminar viaje">
-                <IconButton 
-                    variant="text" 
-                    size="sm" 
-                    color="red" 
+                <IconButton
+                    variant="text"
+                    size="sm"
+                    color="red"
                     onClick={handleDelete}
                     disabled={isDeleting}
                     aria-label="Eliminar viaje"
@@ -105,7 +105,7 @@ const ProductsList = ({ products }) => {
             {visibleProducts.map(p => (
                 <div key={p.id} className="flex items-center bg-gray-50 border border-gray-200 rounded px-2 py-1 gap-1.5 w-max">
                     <span className="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 rounded-sm">
-                         {p.pivot.initial_quantity}/{p.pivot.quantity} 
+                         {p.pivot.initial_quantity}/{p.pivot.quantity}
                     </span>
                     <Typography variant="small" color="gray" className="text-xs font-medium truncate max-w-[120px]" title={p.name}>
                         {p.name}
@@ -113,9 +113,9 @@ const ProductsList = ({ products }) => {
                 </div>
             ))}
             {hasManyProducts && (
-                <Button 
-                    variant="text" 
-                    size="sm" 
+                <Button
+                    variant="text"
+                    size="sm"
                     className="text-xs w-max"
                     onClick={() => setExpanded(!expanded)}
                 >
@@ -129,7 +129,7 @@ const ProductsList = ({ products }) => {
 // Componente de empleado mejorado con tooltip
 const EmployeeBadge = ({ user, color = "blue", role }) => {
     if (!user) return <span className="text-gray-400 text-sm">—</span>;
-    
+
     const colorClasses = {
         blue: "bg-blue-50 text-blue-900 border-blue-100",
         purple: "bg-purple-50 text-purple-900 border-purple-100",
@@ -151,76 +151,77 @@ const EmployeeBadge = ({ user, color = "blue", role }) => {
     );
 };
 
-// Componente de estado con iconos
+
 // Componente de estado con Heroicons ANIMADOS
 const StatusBadge = ({ status }) => {
-    
-    // 🚚 El camión trabajando (Vibración)
+
+    // El camión trabajando (Vibración)
     const truckIcon = (
-        <TruckIcon 
-            className={`h-4 w-4 ${status === 'active' ? 'animate-motor' : ''}`} 
+        <TruckIcon
+            className={`h-4 w-4 ${status === 'active' ? 'animate-motor' : ''}`}
         />
     );
 
-    // ✨ El latido de éxito (Escala)
+    // El latido de éxito (Escala)
     const checkIcon = (
-        <CheckCircleIcon 
-            className={`h-4 w-4 ${status === 'completed' ? 'animate-exito' : ''}`} 
+        <CheckCircleIcon
+            className={`h-4 w-4 ${status === 'completed' ? 'animate-exito' : ''}`}
         />
     );
 
-    // 📦 La cajita esperando (Flote) - Usa 'animate-flotar', 'animate-tictac' o 'animate-pulse'
+    // La cajita esperando (Flote) - Usa 'animate-flotar', 'animate-tictac' o 'animate-pulse'
     const boxIcon = (
-        <ArchiveBoxIcon 
-            className={`h-4 w-4 ${status === 'pending' ? 'animate-flotar' : ''}`} 
+        <ArchiveBoxIcon
+            className={`h-4 w-4 ${status === 'pending' ? 'animate-flotar' : ''}`}
         />
     );
 
     const config = {
-        completed: { 
-            color: "green", 
-            icon: checkIcon, 
-            label: "Completado" 
+        completed: {
+            color: "green",
+            icon: checkIcon,
+            label: "Completado"
         },
-        active: { 
-            color: "blue", 
-            icon: truckIcon, 
-            label: "En Ruta" 
+        active: {
+            color: "blue",
+            icon: truckIcon,
+            label: "En Ruta"
         },
-        pending: { 
-            color: "amber", 
+        pending: {
+            color: "amber",
             icon: boxIcon, // <-- Usamos el icono con la animación de espera
-            label: "En Bodega" 
+            label: "En Bodega"
         }
     };
-    
+
     const current = config[status] || config.pending;
-    
+
     return (
-        <Chip 
-            variant="ghost" 
-            color={current.color} 
-            size="sm" 
+        <Chip
+            variant="ghost"
+            color={current.color}
+            size="sm"
             value={
                 <span className="flex items-center gap-1.5 font-medium">
                     {current.icon}
                     {current.label}
                 </span>
-            } 
-            className="rounded-full w-max" 
+            }
+            className="rounded-full w-max"
         />
     );
 };
-    
-    
+
+
 
 // --- COMPONENTE PRINCIPAL ---
-export default function Index({ auth, trips, users, products, routes }) { 
+export default function Index({ auth, trips, users, products, routes }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTrip, setSelectedTrip] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const allTrips = Array.isArray(trips) ? trips : (trips?.data || []);
 
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
@@ -233,8 +234,8 @@ export default function Index({ auth, trips, users, products, routes }) {
     };
 
     // Filtrar viajes
-    const filteredTrips = trips.filter(trip => {
-        const matchesSearch = searchTerm === '' || 
+ const filteredTrips = allTrips.filter(trip => {
+        const matchesSearch = searchTerm === '' ||
             trip.route?.route_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             trip.driver?.name?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'all' || trip.status === statusFilter;
@@ -249,7 +250,7 @@ export default function Index({ auth, trips, users, products, routes }) {
 
             <div className="py-12 bg-gray-50/50 min-h-screen">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    
+
                     {/* Feedback de carga */}
                     {isLoading && (
                         <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
@@ -266,7 +267,7 @@ export default function Index({ auth, trips, users, products, routes }) {
                                 <div>
                                     <Typography variant="h5" color="blue-gray">Historial de Despachos</Typography>
                                     <Typography color="gray" className="mt-1 font-normal text-sm">
-                                        Control de rutas, choferes y cargas. 
+                                        Control de rutas, choferes y cargas.
                                         <span className="font-medium text-blue-600"> {filteredTrips.length}</span> viajes encontrados
                                     </Typography>
                                 </div>
@@ -286,7 +287,7 @@ export default function Index({ auth, trips, users, products, routes }) {
                                             aria-label="Buscar viajes"
                                         />
                                     </div>
-                                    
+
                                     <select
                                         className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                         value={statusFilter}
@@ -331,15 +332,15 @@ export default function Index({ auth, trips, users, products, routes }) {
                                                     <tr key={trip.id} className="hover:bg-blue-gray-50/50 transition-colors group" role="row">
                                                         <td className={classes}>
                                                             <Typography variant="small" color="blue-gray" className="font-medium">
-                                                                {new Date(trip.date).toLocaleDateString('es-ES', { 
-                                                                    day: '2-digit', 
-                                                                    month: 'short', 
-                                                                    year: 'numeric' 
+                                                                {new Date(trip.date).toLocaleDateString('es-ES', {
+                                                                    day: '2-digit',
+                                                                    month: 'short',
+                                                                    year: 'numeric'
                                                                 })}
                                                             </Typography>
                                                         </td>
 
-                                                        {/* Chofer 
+                                                        {/* Chofer
                                                         <td className={classes}>
                                                             <EmployeeBadge user={trip.driver} color="blue" role="Chofer" />
                                                         </td>
@@ -350,7 +351,7 @@ export default function Index({ auth, trips, users, products, routes }) {
                                                         </td>
 
 
-                                                         {/* ayudantes 
+                                                         {/* ayudantes
                                                         <td className={classes}>
                                                             <div className="flex flex-col gap-1.5">
                                                                 {trip.helper1 && <EmployeeBadge user={trip.helper1} color="teal" role="Ayudante" />}
@@ -362,9 +363,9 @@ export default function Index({ auth, trips, users, products, routes }) {
                                                             <StatusBadge status={trip.status} />
                                                         </td>
                                                         <td className={classes }>
-                                                            
+
                                                             <ProductsList products={trip.products} />
-                                                          
+
                                                         </td>
                                                         <td className={classes}>
                                                             <div className="flex items-center gap-1.5">
@@ -394,7 +395,7 @@ export default function Index({ auth, trips, users, products, routes }) {
                                                             {searchTerm || statusFilter !== 'all' ? 'No se encontraron viajes' : 'Sin despachos'}
                                                         </Typography>
                                                         <Typography color="gray" className="font-normal text-sm max-w-md text-center">
-                                                            {searchTerm || statusFilter !== 'all' 
+                                                            {searchTerm || statusFilter !== 'all'
                                                                 ? 'No hay viajes que coincidan con los filtros seleccionados. Prueba con otros criterios.'
                                                                 : 'Aún no se han registrado viajes. Haz clic en "Nuevo Viaje" para empezar.'}
                                                         </Typography>
@@ -414,6 +415,48 @@ export default function Index({ auth, trips, users, products, routes }) {
                                 </table>
                             </div>
                         </CardBody>
+
+{/* Paginación */}
+{trips.last_page > 1 && (
+    <div className="flex justify-center items-center gap-2 p-4 border-t border-blue-gray-100">
+        {/* Ir a página anterior */}
+        {trips.current_page > 1 && (
+            <Button
+                variant="outlined"
+                size="sm"
+                onClick={() => router.visit(trips.links[0].url)}
+            >
+                ← Anterior
+            </Button>
+        )}
+
+        {/* Números de página */}
+        <div className="flex gap-1">
+            {trips.links.slice(1, -1).map((link) => (
+                <Button
+                    key={link.label}
+                    variant={link.active ? "filled" : "outlined"}
+                    size="sm"
+                    color={link.active ? "indigo" : "gray"}
+                    onClick={() => router.visit(link.url)}
+                >
+                    {link.label}
+                </Button>
+            ))}
+        </div>
+
+        {/* Ir a página siguiente */}
+        {trips.current_page < trips.last_page && (
+            <Button
+                variant="outlined"
+                size="sm"
+                onClick={() => router.visit(trips.links[trips.links.length - 1].url)}
+            >
+                Siguiente →
+            </Button>
+        )}
+    </div>
+)}
                     </Card>
 
                     {/* MODAL MEJORADO */}
@@ -423,7 +466,7 @@ export default function Index({ auth, trips, users, products, routes }) {
                                 {selectedTrip ? 'Editar Viaje' : 'Planificar Nuevo Viaje'}
                             </Typography>
                             <Typography color="gray" className="mt-1 font-normal text-sm">
-                                {selectedTrip 
+                                {selectedTrip
                                     ? 'Modifica los datos del viaje seleccionado'
                                     : 'Asigna el equipo de trabajo y la carga para el nuevo despacho'}
                             </Typography>

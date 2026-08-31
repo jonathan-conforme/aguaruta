@@ -20,11 +20,13 @@ use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\TripController;
 use App\Http\Controllers\Empleados\ExpenseController;
 use App\Http\Controllers\Admin\SubscriptionController;
+use App\Http\Controllers\Empleados\ReceivableController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\Auth\PasswordChangeController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Empleados\DashboardController as EmpleadosDashboardController;
+use Illuminate\Notifications\DatabaseNotification;
 use Inertia\Inertia;
 
 
@@ -56,6 +58,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    Route::post('/notifications/{notification}/read', function (DatabaseNotification $notification) {
+        if ($notification->notifiable_id === auth()->id()) {
+            $notification->markAsRead();
+        }
+        return back();
+    })->name('notifications.read');
 });
 
 // ==========================================
@@ -105,7 +114,8 @@ Route::middleware(['auth', 'verified', 'role:admin', 'check.company'])->group(fu
     ->name('employees.reset-password');
     Route::get('/shifts/export/pdf', [AdminShiftsController::class, 'exportPdf'])
     ->name('admin.shifts.export.pdf');
-
+Route::get('/admin/receivables', [ReceivableController::class, 'index'])->name('admin.receivables.index');
+Route::get('/admin/receivables/history', [ReceivableController::class, 'history'])->name('admin.receivables.history');
 
 
 });
@@ -149,6 +159,12 @@ Route::middleware(['auth', 'verified', 'role:empleado', 'check.company'])
         ->name('expenses.store');
     Route::get('/shifts/export/pdf', [ShiftsController::class, 'exportPdf'])
     ->name('shifts.export.pdf');
+    Route::get('/receivables', [ReceivableController::class, 'index'])->name('receivables.index');
+    Route::get('/receivables/history', [ReceivableController::class, 'history'])->name('receivables.history');
+    Route::post('/receivables/{sale}/payments', [ReceivableController::class, 'storePayment'])->name('receivables.payment');
+    Route::get('/reports/sales/download', [ReportController::class, 'downloadSalesReport'])
+        ->name('reports.sales.download');
+
 });
 
 });

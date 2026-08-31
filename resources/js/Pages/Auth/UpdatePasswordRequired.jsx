@@ -34,6 +34,9 @@ export default function UpdatePasswordRequired() {
         { label: 'Una letra mayúscula', test: (pwd) => /[A-Z]/.test(pwd) },
         { label: 'Un número', test: (pwd) => /[0-9]/.test(pwd) },
         { label: 'Un carácter especial (@, $, !, etc.)', test: (pwd) => /[^A-Za-z0-9]/.test(pwd) },
+        { label: 'Contraseñas iguales en ambos campos', test: (pwd) => pwd === data.password_confirmation }
+        
+
     ];
 
     const metRequirements = passwordRequirements.filter(req => req.test(data.password)).length;

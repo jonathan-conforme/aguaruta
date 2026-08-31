@@ -41,9 +41,10 @@ export default function PosIndex({ auth, trips = [] }) {
         );
     };
 
-    const handleActivateRoute = (tripId) => {
-        post(route('repartidor.trips.start', tripId));
-    };
+    // Cambia esto en tu Index.jsx:
+const handleActivateRoute = (tripId) => {
+    router.post(route('repartidor.trips.start', tripId));
+};
 
     return (
         <AuthenticatedLayout
@@ -187,37 +188,6 @@ export default function PosIndex({ auth, trips = [] }) {
                         </div>
                     </div>
 
-                    <div className="bg-gray-50 rounded-lg p-4 border mb-4">
-                        <p className="font-semibold">
-                            {selectedTrip?.route?.route_name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                            Viaje #{selectedTrip?.id}
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-3 mb-4">
-                        <div className="bg-indigo-50 rounded-lg p-3 text-center">
-                            <p className="text-xs text-gray-500">Pedidos</p>
-                            <p className="text-xl font-bold text-indigo-600">
-                                {selectedTrip?.sales_count || 0}
-                            </p>
-                        </div>
-
-                        <div className="bg-green-50 rounded-lg p-3 text-center">
-                            <p className="text-xs text-gray-500">Ventas</p>
-                            <p className="text-xl font-bold text-green-600">
-                                ${Number(selectedTrip?.sales_sum_total || 0).toFixed(2)}
-                            </p>
-                        </div>
-
-                        <div className="bg-amber-50 rounded-lg p-3 text-center">
-                            <p className="text-xs text-gray-500">Clientes</p>
-                            <p className="text-xl font-bold text-amber-600">
-                                {selectedTrip?.clientes_visitados || 0}
-                            </p>
-                        </div>
-                    </div>
 
                     <div className="space-y-2 text-sm text-gray-700">
                         <div>✓ No podrás registrar más ventas.</div>

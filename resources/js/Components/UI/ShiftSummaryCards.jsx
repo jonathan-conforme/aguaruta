@@ -4,21 +4,28 @@ import {
     BanknotesIcon,
     ArrowUpIcon,
     CurrencyDollarIcon,
+    CheckBadgeIcon,
+    ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 
 export default function ShiftSummaryCards({
-    totalVentas,
-    totalGastos,
-    totalNeto,
+    totalVentas = 0,
+    totalGastos = 0,
+    totalEsperado = 0,
+    totalEntregado = 0,
+    diferenciaTotal = 0,
 }) {
     const money = (value) =>
         new Intl.NumberFormat("es-EC", {
             style: "currency",
             currency: "USD",
-        }).format(value);
+        }).format(value || 0);
+
+    const isMissing = diferenciaTotal < -0.01;
+    const isSurplus = diferenciaTotal > 0.01;
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
                 title="Total Ventas"
                 value={money(totalVentas)}
@@ -36,14 +43,26 @@ export default function ShiftSummaryCards({
             />
 
             <StatCard
-                title="Efectivo a Recibir de todos los viajes "
-                value={money(totalNeto)}
+                title="Efectivo Esperado"
+                value={money(totalEsperado)}
                 icon={CurrencyDollarIcon}
                 colorTheme="green"
-                description="Ventas - Gastos"
+                description="Base + Ventas - Gastos"
             />
 
+            <StatCard
+                title="Efectivo Recibido"
+                value={money(totalEntregado)}
+                icon={isMissing ? ExclamationTriangleIcon : CheckBadgeIcon}
+                colorTheme={isMissing ? "red" : isSurplus ? "purple" : "green"}
+                description={
+                    isMissing
+                        ? `Faltante: ${money(diferenciaTotal)}`
+                        : isSurplus
+                        ? `Sobrante: +${money(diferenciaTotal)}`
+                        : "Cajas 100% cuadradas"
+                }
+            />
         </div>
-        
     );
 }

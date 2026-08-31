@@ -7,21 +7,21 @@ use App\Models\Sale;
 use App\Models\SaleDetail;
 use App\Models\Trip;
 use App\Models\Customer;
+use App\Models\Payment;
 use Illuminate\Support\Facades\DB;
 
 class SaleService
 {
-
-/**
+    /**
      * Obtiene los viajes del usuario con contadores de métricas para el POS Móvil
      */
     public function getTripsWithMetrics($user, string $date)
     {
-        return \App\Models\Trip::with(['route', 'products'])
-            ->withCount('sales') // Genera sales_count
-            ->withSum('sales', 'total') // Genera sales_sum_total
+        return Trip::with(['route', 'products'])
+            ->withCount('sales')
+            ->withSum('sales', 'total')
             ->withCount(['sales as clientes_visitados' => function ($query) {
-                $query->select(\DB::raw('count(distinct(customer_id))'));
+                $query->select(DB::raw('count(distinct(customer_id))'));
             }])
             ->where('company_id', $user->company_id)
             ->whereDate('date', $date)
@@ -48,7 +48,6 @@ class SaleService
                 'products.customerCategories'
             ])->findOrFail($data['trip_id']);
 
-            // Optimización: acceso O(1) a los productos
             $tripProducts = $trip->products->keyBy('id');
 
             $customer = Customer::select([
@@ -63,7 +62,6 @@ class SaleService
              |--------------------------------------------------------------------------
              */
             foreach ($data['products'] as $item) {
-
                 if ($item['quantity'] <= 0) {
                     continue;
                 }
@@ -85,18 +83,66 @@ class SaleService
 
             /*
              |--------------------------------------------------------------------------
+             | CÁLCULO DE MONTOS, SALDOS Y ESTADO
+             |--------------------------------------------------------------------------
+             */
+            $total = (float) $data['total'];
+            $paymentMethod = $data['payment_method']; // 'cash', 'transfer', 'credit'
+
+            if (in_array($paymentMethod, ['cash', 'transfer'])) {
+                $paidAmount = $total;
+                $initialPaymentMethod = $paymentMethod;
+            } else { // credit
+                $initialPayment = (float) ($data['initial_payment'] ?? 0);
+                $paidAmount = min($total, max(0, $initialPayment));
+                $initialPaymentMethod = $data['payment_type'] ?? 'cash'; // Con qué pagó el abono (cash/transfer)
+            }
+
+            $balanceAmount = round($total - $paidAmount, 2);
+
+            if ($balanceAmount <= 0) {
+                $status = 'paid';
+            } elseif ($paidAmount > 0) {
+                $status = 'partial';
+            } else {
+                $status = 'pending';
+            }
+
+            /*
+             |--------------------------------------------------------------------------
              | CREAR VENTA
              |--------------------------------------------------------------------------
              */
+            $companyId = $shift->company_id ?? auth()->user()->company_id;
+
             $sale = Sale::create([
-                'trip_id'          => $trip->id,
-                'customer_id'      => $customer?->id,
-                'user_id'          => auth()->id(),
-                'payment_method'   => $data['payment_method'],
-                'total'            => $data['total'],
-                'shift_id'         => $shift->id,
-                'returned_bottles' => $data['returned_bottles'] ?? 0,
+                'company_id'     => $companyId,
+                'trip_id'        => $trip->id,
+                'customer_id'    => $customer?->id,
+                'shift_id'       => $shift->id,
+                'payment_method' => $paymentMethod,
+                'total'          => $total,
+                'paid_amount'    => $paidAmount,
+                'balance_amount' => $balanceAmount,
+                'status'         => $status,
             ]);
+
+            /*
+             |--------------------------------------------------------------------------
+             | REGISTRAR PAGO INICIAL (PARA CUADRE DE CAJA DEL TURNO)
+             |--------------------------------------------------------------------------
+             */
+            if ($paidAmount > 0) {
+                Payment::create([
+                    'company_id'     => $companyId,
+                    'sale_id'        => $sale->id,
+                    'customer_id'    => $customer?->id,
+                    'shift_id'       => $shift->id, // Se imputa al turno actual del cobrador
+                    'amount'         => $paidAmount,
+                    'payment_method' => $initialPaymentMethod,
+                    'notes'          => $paymentMethod === 'credit' ? 'Abono inicial en venta a crédito' : 'Pago al contado',
+                ]);
+            }
 
             $totalSoldBottles = 0;
 
@@ -112,10 +158,8 @@ class SaleService
                 }
 
                 $tripProduct = $tripProducts[$item['product_id']];
-
                 $price = $item['price'];
 
-                // Precio por categoría de cliente
                 if (
                     $customer &&
                     $customer->customer_category_id &&
@@ -130,12 +174,12 @@ class SaleService
                 }
 
                 SaleDetail::create([
-                    'sale_id'            => $sale->id,
-                    'product_id'         => $item['product_id'],
-                    'quantity'           => $item['quantity'],
-                    'recovered_bottles'  => $data['returned_bottles'] ?? 0,
-                    'unit_price'         => $price,
-                    'subtotal'           => $item['quantity'] * $price,
+                    'sale_id'           => $sale->id,
+                    'product_id'        => $item['product_id'],
+                    'quantity'          => $item['quantity'],
+                    'recovered_bottles' => $data['returned_bottles'] ?? 0,
+                    'unit_price'        => $price,
+                    'subtotal'          => $item['quantity'] * $price,
                 ]);
 
                 // Descontar stock del viaje
@@ -157,30 +201,21 @@ class SaleService
              |--------------------------------------------------------------------------
              */
             if ($customer) {
-
                 $returnedBottles = $data['returned_bottles'] ?? 0;
-
                 $difference = $totalSoldBottles - $returnedBottles;
 
                 if ($difference > 0) {
                     $customer->increment('bottle_debt', $difference);
                 } elseif ($difference < 0) {
-
-                    // Evita dejar la deuda negativa
-                    $newDebt = max(
-                        0,
-                        $customer->bottle_debt - abs($difference)
-                    );
-
-                    $customer->update([
-                        'bottle_debt' => $newDebt
-                    ]);
+                    $newDebt = max(0, $customer->bottle_debt - abs($difference));
+                    $customer->update(['bottle_debt' => $newDebt]);
                 }
             }
 
             return $sale->fresh([
                 'details',
-                'customer'
+                'customer',
+                'payments'
             ]);
         });
     }

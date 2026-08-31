@@ -2,15 +2,15 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\DB;
-use App\Models\InventoryMovement;
-use App\Models\TripDetail;
-use App\Models\Product;
 use App\Models\Expense;
+use App\Models\InventoryMovement;
+use App\Models\Product;
+use App\Models\Sale;
 use App\Models\Shift;
 use App\Models\Trip;
-use App\Models\Sale;
+use App\Models\TripDetail;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ShiftClosureService
 {
@@ -19,7 +19,7 @@ class ShiftClosureService
      */
     public function calculateClosure(Shift $shift): array
     {
-            $sales = Sale::with('details.product')
+        $sales = Sale::with('details.product')
             ->where('shift_id', $shift->id)
             ->get();
 
@@ -27,49 +27,48 @@ class ShiftClosureService
         $cashSales = $sales->where('payment_method', 'cash')->sum('total');
         $transferSales = $sales->where('payment_method', 'transfer')->sum('total');
         $creditSales = $sales->where('payment_method', 'credit')->sum('total');
-        // 1.5 🔥 GASTOS DEL TURNO
+        // GASTOS DEL TURNO
         $expenses = Expense::where('shift_id', $shift->id)
-    ->sum('amount');
+            ->sum('amount');
 
-        
         // Efectivo inicial + Ventas en efectivo puro
         $expectedCash = $shift->initial_cash + $cashSales - $expenses;
 
-        // 3. Resumen de inventario (Envases y Productos)
-      $recoveredBottles = $sales
-    ->flatMap->details
-    ->filter(function ($detail) {
+        // Resumen de inventario (Envases y Productos)
+        $recoveredBottles = $sales
+            ->flatMap->details
+            ->filter(function ($detail) {
 
-        return $detail->product
-            && $detail->product->requires_return;
+                return $detail->product
+                    && $detail->product->requires_return;
 
-    })
-    ->sum('recovered_bottles'); // Agrupamos los detalles para saber cuántos productos de cada tipo se vendieron
+            })
+            ->sum('recovered_bottles');
         $productold = $sales->flatMap->details->groupBy('product_id')->map(function ($details) {
             return [
                 'product_id' => $details->first()->product_id,
-                'name'       => $details->first()->product->name ?? 'Producto Desconocido',
-                'quantity'   => $details->sum('quantity'),
-                'total'      => $details->sum('subtotal'),
+                'name' => $details->first()->product->name ?? 'Producto Desconocido',
+                'quantity' => $details->sum('quantity'),
+                'total' => $details->sum('subtotal'),
             ];
         })->values()->all();
 
         return [
-            'shift_id'          => $shift->id,
-            'opened_at'         => $shift->opened_at->format('Y-m-d H:i:s'),
-            'initial_cash'      => $shift->initial_cash,
-            'sales_summary'     => [
-                'cash'     => $cashSales,
+            'shift_id' => $shift->id,
+            'opened_at' => $shift->opened_at->format('Y-m-d H:i:s'),
+            'initial_cash' => $shift->initial_cash,
+            'sales_summary' => [
+                'cash' => $cashSales,
                 'transfer' => $transferSales,
-                'credit'   => $creditSales,
-                'total'    => $sales->sum('total'),
-                ],
+                'credit' => $creditSales,
+                'total' => $sales->sum('total'),
+            ],
             'expenses' => $expenses,
-            'expected_cash'     => $expectedCash,
+            'expected_cash' => $expectedCash,
             'inventory_summary' => [
-            'recovered_bottles' => $recoveredBottles,
-            'product_sold'     => $productold,
-            ]
+                'recovered_bottles' => $recoveredBottles,
+                'product_sold' => $productold,
+            ],
         ];
     }
 
@@ -86,7 +85,7 @@ class ShiftClosureService
         // Traemos todos los detalles de los viajes activos de este turno, incluyendo el modelo de producto
         $detallesViaje = TripDetail::with('product')->whereHas('trip', function ($query) use ($shift) {
             $query->where('shift_id', $shift->id)
-                  ->whereIn('status', ['active', 'completed']);
+                ->whereIn('status', ['active', 'completed']);
         })->get();
 
         foreach ($detallesViaje as $detalle) {
@@ -95,16 +94,16 @@ class ShiftClosureService
 
             if ($sobranteQueRegresa > 0) {
                 // 1. Sumamos el stock a la tabla Product
-                $productoBodega = $detalle->product; 
+                $productoBodega = $detalle->product;
 
                 if ($productoBodega) {
                     $productoBodega->increment('current_stock', $sobranteQueRegresa);
 
                     InventoryMovement::create([
-                        'company_id'  => $productoBodega->company_id,
-                        'product_id'  => $productoBodega->id,
-                        'type'        => 'in',
-                        'quantity'    => $sobranteQueRegresa,
+                        'company_id' => $productoBodega->company_id,
+                        'product_id' => $productoBodega->id,
+                        'type' => 'in',
+                        'quantity' => $sobranteQueRegresa,
                         'description' => "Devolución de envaces llenos de agua al almacén. Turno ID: {$shift->id}",
                     ]);
                 }
@@ -112,7 +111,7 @@ class ShiftClosureService
 
             // 2. ACTUALIZAMOS trip_details (Usando tu modelo en lugar de DB::table)
             $detalle->update([
-                'returned_quantity' => $sobranteQueRegresa
+                'returned_quantity' => $sobranteQueRegresa,
             ]);
         }
 
@@ -129,7 +128,7 @@ class ShiftClosureService
             if ($detalleEnvase) {
                 // Guardamos la cantidad de envases recuperados en la tabla trip_details
                 $detalleEnvase->update([
-                    'recovered_bottles' => $recoveredBottles
+                    'recovered_bottles' => $recoveredBottles,
                 ]);
 
                 // 2. Sumamos los envases vacíos a la tabla Product usando el producto dinámico
@@ -138,10 +137,10 @@ class ShiftClosureService
                 $envaseProducto->increment('empty_stock', $recoveredBottles);
 
                 InventoryMovement::create([
-                    'company_id'  => $envaseProducto->company_id,
-                    'product_id'  => $envaseProducto->id,
-                    'type'        => 'in',
-                    'quantity'    => $recoveredBottles,
+                    'company_id' => $envaseProducto->company_id,
+                    'product_id' => $envaseProducto->id,
+                    'type' => 'in',
+                    'quantity' => $recoveredBottles,
                     'description' => "Ingreso de envases vacios recuperados en ruta. Turno ID: {$shift->id}",
                 ]);
             }
@@ -156,8 +155,19 @@ class ShiftClosureService
         // --- 5. CIERRE FINAL DEL TURNO ---
         $shift->update([
             'final_cash' => $declaredCash,
-            'closed_at'  => Carbon::now(),
-            'status'     => 'closed',
+            'closed_at' => Carbon::now(),
+            'status' => 'closed',
+        ]);
+
+        // --- 5. CIERRE FINAL DEL TURNO ---
+        $expectedCash = $closureData['expected_cash'];
+        $difference = $declaredCash - $expectedCash; // Negativo = Faltante | Positivo = Sobrante
+
+        $shift->update([
+            'final_cash' => $declaredCash,
+            'expected_cash' => $expectedCash, // Opcional si agregaste la columna
+            'closed_at' => Carbon::now(),
+            'status' => 'closed',
         ]);
 
         return $shift;

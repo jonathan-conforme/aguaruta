@@ -3,92 +3,99 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Sale;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ReportController extends Controller
 {
+
+
+ 
+
     public function downloadSalesReport(Request $request)
     {
-        $companyId = auth()->user()->company_id;
-        $range = $request->query('range', 'day'); // day, week, fortnight, month
+        $user = auth()->user();
+        $companyId = $user->company_id;
+        $startDateInput = $request->query('start_date');
+        $endDateInput = $request->query('end_date');
+        $range = $request->query('range', 'day');
         $dateInput = $request->query('date', Carbon::today()->toDateString());
 
-        $referenceDate = Carbon::parse($dateInput);
-
-        // Determinamos las fechas de inicio y fin según el rango seleccionado
-        switch ($range) {
-            case 'week':
-                $startDate = $referenceDate->copy()->startOfWeek();
-                $endDate = $referenceDate->copy()->endOfWeek();
-                $filename = "Ventas_Semana_{$startDate->format('Y-m-d')}";
-                break;
-            case 'fortnight':
-                if ($referenceDate->day <= 15) {
+        // Prioridad al rango personalizado de la vista; si no existe, procesa el selector rápido
+        if ($startDateInput && $endDateInput) {
+            $startDate = Carbon::parse($startDateInput)->startOfDay();
+            $endDate = Carbon::parse($endDateInput)->endOfDay();
+        } else {
+            $referenceDate = Carbon::parse($dateInput);
+            switch ($range) {
+                case 'week':
+                    $startDate = $referenceDate->copy()->startOfWeek();
+                    $endDate = $referenceDate->copy()->endOfWeek();
+                    break;
+                case 'fortnight':
+                    if ($referenceDate->day <= 15) {
+                        $startDate = $referenceDate->copy()->startOfMonth();
+                        $endDate = $referenceDate->copy()->day(15)->endOfDay();
+                    } else {
+                        $startDate = $referenceDate->copy()->day(16)->startOfDay();
+                        $endDate = $referenceDate->copy()->endOfMonth();
+                    }
+                    break;
+                case 'month':
                     $startDate = $referenceDate->copy()->startOfMonth();
-                    $endDate = $referenceDate->copy()->day(15)->endOfDay();
-                } else {
-                    $startDate = $referenceDate->copy()->day(16)->startOfDay();
                     $endDate = $referenceDate->copy()->endOfMonth();
-                }
-                $filename = "Ventas_Quincena_{$startDate->format('Y-m-d')}";
-                break;
-            case 'month':
-                $startDate = $referenceDate->copy()->startOfMonth();
-                $endDate = $referenceDate->copy()->endOfMonth();
-                $filename = "Ventas_Mes_{$referenceDate->format('Y-m')}";
-                break;
-            case 'day':
-            default:
-                $startDate = $referenceDate->copy()->startOfDay();
-                $endDate = $referenceDate->copy()->endOfDay();
-                $filename = "Ventas_Diario_{$referenceDate->format('Y-m-d')}";
-                break;
+                    break;
+                case 'day':
+                default:
+                    $startDate = $referenceDate->copy()->startOfDay();
+                    $endDate = $referenceDate->copy()->endOfDay();
+                    break;
+            }
         }
 
-        // Streaming de la respuesta (Perfecto para tu hosting actual)
-        return response()->stream(function () use ($companyId, $startDate, $endDate) {
-            $handle = fopen('php://output', 'w');
+        // 1. Iniciar la consulta en la variable $query
+        $query = Sale::where('company_id', $companyId)
+            ->whereBetween('created_at', [$startDate, $endDate]);
 
-            // BOM para que Excel lea las tildes y caracteres latinos correctamente
-            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+        // 2. Si NO es admin ni super_admin, filtrar solo por el vendedor asignado al turno (shift)
+        if (! in_array($user->role, ['admin', 'super_admin'])) {
+            $query->whereHas('shift', function ($shiftQuery) use ($user) {
+                $shiftQuery->where('user_id', $user->id);
+            });
+        }
 
-            // Encabezados del Excel
-            fputcsv($handle, [
-                'Fecha',
-                'Hora',
-                'Vendedor / Chofer',
-                'Cliente',
-                'Total ($)',
-                'Envases Retornados',
-                'Método de Pago'
-            ]);
+        // 3. Obtener los resultados
+        $sales = $query->with([
+            'shift.user:id,name',
+            'user:id,name',
+            'customer:id,name',
+            'trip:id,trip_number',
+            'details.product:id,name',
+        ])
+            ->orderBy('created_at', 'asc')
+            ->get();
 
-            // Consulta optimizada (Chunk para no llenar la RAM)
-            Sale::where('company_id', $companyId)
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->with(['user:id,name', 'customer:id,name'])
-                ->orderBy('created_at', 'asc')
-                ->chunk(200, function ($sales) use ($handle) {
-                    foreach ($sales as $sale) {
-                        fputcsv($handle, [
-                            $sale->created_at->format('Y-m-d'),
-                            $sale->created_at->format('H:i'),
-                            $sale->user->name ?? 'N/A',
-                            $sale->customer->name ?? 'Consumidor Final',
-                            number_format($sale->total, 2, '.', ''),
-                            $sale->returned_bottles ?? 0,
-                            strtoupper($sale->payment_method ?? 'Efectivo')
-                        ]);
-                    }
-                });
+        // Totales generales para las tarjetas del PDF
+        $totalEarned = $sales->sum('total');
+        $cashEarned = $sales->where('payment_method', 'cash')->sum('total');
+        $transferEarned = $sales->where('payment_method', 'transfer')->sum('total');
+        $creditEarned = $sales->where('payment_method', 'credit')->sum('total');
 
-            fclose($handle);
-        }, 200, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '.csv"',
-        ]);
+        $pdf = Pdf::loadView('pdf.sales_report', compact(
+            'sales',
+            'startDate',
+            'endDate',
+            'totalEarned',
+            'cashEarned',
+            'transferEarned',
+            'creditEarned'
+        ));
+
+        $filename = 'Reporte_Ventas_'.$startDate->format('Y-m-d').'_al_'.$endDate->format('Y-m-d').'.pdf';
+
+        return $pdf->download($filename);
     }
 }

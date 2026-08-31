@@ -5,18 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\BelongsToCompany;
-use APP\Models\trips;
+
 
 class Shift extends Model
 {
     use HasFactory, BelongsToCompany;
 
-    // Los campos que se pueden llenar masivamente
+
     protected $fillable = [
         'company_id',
         'user_id',
         'opened_at',
-        'closed_at', // Recuerda la corrección de 'closet_at' a 'closed_at' en tu migración
+        'closed_at',
         'initial_cash',
         'final_cash',
         'status',
@@ -36,7 +36,7 @@ class Shift extends Model
         return $this->belongsTo(User::class);
     }
 
-    // Relación con las ventas del turno (Si agregaste el shift_id a la tabla sales)
+    // Relación con las ventas del turno
     public function sales()
     {
         return $this->hasMany(Sale::class);

@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\BelongsToCompany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class DeliveryRoute extends Model
 {
-    use BelongsToCompany;
+    use BelongsToCompany, HasFactory;
 
     protected $fillable = [
         'company_id',

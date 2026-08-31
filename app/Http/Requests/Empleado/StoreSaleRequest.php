@@ -14,12 +14,15 @@ class StoreSaleRequest extends FormRequest
             'trip_id' => 'required|exists:trips,id',
             'customer_id' => 'required|exists:customers,id',
             'payment_method' => 'required|in:cash,transfer,credit',
+            'initial_payment' => 'nullable|numeric|min:0',
+            'payment_type' => 'nullable|in:cash,transfer',
             'returned_bottles' => 'required|integer|min:0',
             'total' => 'required|numeric|min:0',
             'products' => 'required|array|min:1',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:0',
             'products.*.price' => 'required|numeric|min:0',
+
         ];
     }
 }

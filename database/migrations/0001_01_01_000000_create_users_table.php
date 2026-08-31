@@ -26,6 +26,8 @@ return new class extends Migration
             $table->string('legal_accepted_ip', 45)->nullable();
             $table->rememberToken();
             $table->timestamps();
+
+            $table->index(['company_id', 'role']);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

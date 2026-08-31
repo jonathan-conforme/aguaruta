@@ -157,19 +157,6 @@ export default function Create({ users, products, routes, onClose, initialData }
                         {errors.seller_id && <Typography variant="small" color="red" className="mt-1">{errors.seller_id}</Typography>}
                     </div>
 
-                    <div>
-                        <Select label="Ayudante 1" color="indigo" value={data.helper_1_id} onChange={(val) => setData('helper_1_id', val)} disabled={isReadOnly}>
-                            <Option value="">Ninguno</Option>
-                            {users.map(user => <Option key={`h1-${user.id}`} value={String(user.id)}>{user.name}</Option>)}
-                        </Select>
-                    </div>
-
-                    <div>
-                        <Select label="Ayudante 2" color="indigo" value={data.helper_2_id} onChange={(val) => setData('helper_2_id', val)} disabled={isReadOnly}>
-                            <Option value="">Ninguno</Option>
-                            {users.map(user => <Option key={`h2-${user.id}`} value={String(user.id)}>{user.name}</Option>)}
-                        </Select>
-                    </div>
                 </div>
             </Card>
 

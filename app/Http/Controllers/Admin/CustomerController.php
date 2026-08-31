@@ -20,12 +20,22 @@ class CustomerController extends Controller
         private PlanService $planService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->get('search');
+
         return Inertia::render('Admin/Customers/Index', [
-            'customers' => $this->customerService->getAllCustomers(),
+            'customers' => $this->customerService->getAllCustomers($search),
             'categories' => CustomerCategory::all(),
-            'routes' => DeliveryRoute::all()
+            'routes' => DeliveryRoute::all(),
+            'filters' => request()->only(['search']),
+            'stats' => [
+            'total' => Customer::count(),
+
+            'with_debt' => Customer::where('bottle_debt', '>', 0)->count(),
+
+            'bottle_debt' => Customer::sum('bottle_debt'),
+        ],
         ]);
     }
 

@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained('users');
-            
+
             $table->timestamp('opened_at');
             $table->timestamp('closed_at')->nullable();
-        
+
             $table->decimal('initial_cash', 10 , 2)->default(0);
             $table->decimal('final_cash', 10, 2)->nullable();
 
@@ -28,6 +28,7 @@ return new class extends Migration
 
             $table->index(['company_id', 'user_id']);
             $table->index(['company_id', 'status']);
+            $table->index(['user_id', 'opened_at']);
         });
     }
 

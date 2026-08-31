@@ -29,7 +29,9 @@ class TripController extends Controller
     public function index()
 {
     $trip = $this->tripService->getAllTrips();
-   $users = User::where('company_id', auth()->user()->company_id)->get();
+    $users = User::where('company_id', auth()->user()->company_id)
+            ->whereNotIn('role', ['admin', 'administrador'])
+            ->get();
     $products = Product::where('is_active', true)->get();
     $routes = DeliveryRoute::where('is_active', true)->get();
 

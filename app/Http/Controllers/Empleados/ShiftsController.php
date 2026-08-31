@@ -7,7 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Services\ShiftService;
 use Illuminate\Http\Request;
 use App\Models\Shift;
+use Carbon\Carbon;
 use Inertia\Inertia;
+use App\Notifications\CierreCajaNotification;
+use Illuminate\Support\Facades\Notification;
+use App\Models\User;
 
 class ShiftsController extends Controller
 {
@@ -25,14 +29,34 @@ class ShiftsController extends Controller
     /**
      * Display a listing of the resource.
      */
-        public function index()
-        {
+       public function index(Request $request)
+    {
+        $startDate = $request->query('start_date');
+        $endDate   = $request->query('end_date');
 
-            return Inertia::render('Admin/Shifts/Index', [
-                'shifts' => $this->shiftService->getEmployeeShifts(),
+        if ($startDate && $endDate) {
+            $start = Carbon::parse($startDate);
+            $end   = Carbon::parse($endDate);
 
-            ]);
+            if ($start->diffInDays($end) > 31) {
+                $endDate = $start->copy()->addDays(31)->format('Y-m-d');
+            }
         }
+
+        // Pasamos el rango de fechas al servicio del empleado
+        $data = $this->shiftService->getShiftsData($startDate, $endDate);
+
+
+       return Inertia::render('Admin/Shifts/Index', [ // Revisa que sea la ruta correcta de tu vista JS
+        'shifts'  => $data['shifts'],
+        'userRole' => auth()->user()->role,
+        'totals'  => $data['totals'],
+        'filters' => [
+            'start_date' => $startDate ?? '',
+            'end_date'   => $endDate ?? '',
+        ],
+        ]);
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -47,8 +71,8 @@ class ShiftsController extends Controller
 
         // Si ya tiene una, lo mandamos a sus rutas
         if ($activeShift) {
-            return redirect()->route('repartidor.dashboard')
-                ->with('info', 'Ya  aqui esta el problemaa caja abierta.');
+            return redirect()->route('repartidor.trips.index')
+                ->with('info', 'Ya tienes una caja abierta.');
         }
 
         // Si no tiene, mostramos la pantalla de Inertia para abrir caja
@@ -113,12 +137,16 @@ class ShiftsController extends Controller
         ]);
     }
     public function exportPdf(Request $request)
-    {
-        // Usa EXACTAMENTE el mismo servicio
-        $pdf = $this->shiftService->generatePdfReport($request->date);
+{
+    // Capturamos las variables de fecha enviadas en la URL
+    $startDate = $request->query('start_date');
+    $endDate   = $request->query('end_date');
 
-        return $pdf->download('Mis_Cajas_' . now()->format('Y-m-d') . '.pdf');
-    }
+    // Enviamos ambas fechas al servicio
+    $pdf = $this->shiftService->generatePdfReport($startDate, $endDate);
+
+    return $pdf->download('Mis_Cajas_' . now()->format('Y-m-d') . '.pdf');
+}
 
     /**
      * Show the form for editing the specified resource.
@@ -164,7 +192,14 @@ class ShiftsController extends Controller
 
         // Cerramos el turno
         $this->closureService->closeShift($activeShift, $request->final_cash);
+// Notificar a los administradores de la empresa
+$admins = User::where('company_id', $activeShift->company_id)
+    ->where('role', 'admin')
+    ->get();
 
+if ($admins->isNotEmpty()) {
+    Notification::send($admins, new CierreCajaNotification($activeShift));
+}
         return redirect()->route('repartidor.dashboard')
         ->with('success', 'Turno cerrado exitosamente. Diferencia en caja: $' . number_format($difference, 2));
     }

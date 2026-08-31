@@ -28,7 +28,7 @@ return new class extends Migration
 
             // Índice para búsquedas rápidas por apellido (muy común al buscar personal).
             $table->index('last_name');
-            $table->index('identification');
+           
         });
     }
 

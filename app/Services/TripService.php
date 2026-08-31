@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\DB;
 
 class TripService
 {
-    public function getAllTrips()
+    public function getAllTrips($perPage = 15)
     {
         // Traemos los viajes con sus relaciones para no hacer consultas de más (Eager Loading)
-        return Trip::with(['driver', 'seller', 'helper1', 'helper2', 'products', 'route'])->latest()->get();
+        return Trip::with(['driver', 'seller', 'helper1', 'helper2', 'products', 'route'])->latest()->paginate($perPage)->withQueryString();;
     }
 
     public function createTrip(array $data)

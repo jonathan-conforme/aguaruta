@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, useForm, Link, router } from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react';
 import {
     Card, Typography, Button, CardBody, IconButton, Dialog, DialogHeader, DialogBody, DialogFooter, Input, Switch, Chip
 } from "@material-tailwind/react";
@@ -87,7 +87,7 @@ export default function Index({ product, categories }) {
             <Head title="Productos" />
 
             <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-3 sm:py-0">
-                <Card className="h-full w-full shadow-sm border border-gray-200/80 rounded-2xl overflow-hidden">
+                <Card className="h-full w-full shadow-sm border border-gray-200/80 rounded-2xl overflow-hidden bg-slate-50/50">
                     {/* Header Principal */}
                     <div className="p-4 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white">
                         <div>
@@ -109,7 +109,7 @@ export default function Index({ product, categories }) {
                     </div>
 
                     {/* VISTA ESCRITORIO (Tabla) */}
-                    <CardBody className="hidden md:block overflow-x-auto px-0 pt-0 pb-2">
+                    <CardBody className="hidden md:block overflow-x-auto px-0 pt-0 pb-2 bg-white">
                         <table className="w-full min-w-max table-auto text-left">
                             <thead>
                                 <tr>
@@ -167,66 +167,51 @@ export default function Index({ product, categories }) {
                         </table>
                     </CardBody>
 
-                    {/* VISTA MÓVIL (Tarjetas UX limpia) */}
-                    <div className="block md:hidden p-3 divide-y divide-gray-100">
+                    {/* VISTA MÓVIL (Con Llenos y Vacíos SIEMPRE visibles) */}
+                    <div className="block md:hidden p-3 space-y-3">
                         {productList.map((prod) => (
-                            <div key={prod.id} className="py-3.5 first:pt-0 last:pb-0 flex flex-col gap-2.5">
-                                <div className="flex items-start justify-between gap-2">
-                                    <div className="flex items-center gap-2">
-                                        <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl shrink-0">
-                                            <CubeIcon className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <Typography variant="small" color="blue-gray" className="font-bold text-base leading-tight">
-                                                {prod.name}
-                                            </Typography>
-                                            <span className="text-xs text-gray-500 font-medium">
-                                                {prod.units_per_package > 1 ? `Paca x${prod.units_per_package}` : 'Unidad suelta'}
+                            <div
+                                key={prod.id}
+                                onClick={() => openModal(prod)}
+                                className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80 flex items-center justify-between cursor-pointer hover:border-blue-300 transition-all active:scale-[0.99]"
+                            >
+                                <div className="flex items-center gap-3.5">
+                                    <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-900 flex items-center justify-center shrink-0">
+                                        <CubeIcon className="h-6 w-6" />
+                                    </div>
+
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-slate-800 text-[15px] leading-tight">
+                                            {prod.name}
+                                        </span>
+                                        <span className="text-xs text-slate-400 font-normal mt-0.5">
+                                            {prod.units_per_package > 1 ? `Paca x${prod.units_per_package}` : 'Unidad suelta'}
+                                            {prod.requires_return ? ' • Retornable' : ' • No retornable'}
+                                        </span>
+
+                                        {/* Muestra Llenos y Vacíos de manera incondicional */}
+                                        <div className="mt-1 flex items-center gap-1.5 text-[13px]">
+                                            <span className="font-extrabold text-blue-600">${parseFloat(prod.price).toFixed(2)}</span>
+                                            <span className="text-slate-300">•</span>
+                                            <span className="font-medium text-slate-600">
+                                                Llenos: <strong className="text-slate-900">{prod.current_stock}</strong>
+                                            </span>
+                                            <span className="text-slate-300">•</span>
+                                            <span className="font-medium text-slate-600">
+                                                Vacíos: <strong className="text-slate-900">{prod.empty_stock}</strong>
                                             </span>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-1">
-                                        <Typography variant="small" className="font-extrabold text-emerald-600 text-base mr-1">
-                                            ${prod.price}
-                                        </Typography>
-                                        <IconButton variant="text" color="blue" size="sm" onClick={() => openModal(prod)} className="rounded-lg">
-                                            <PencilIcon className="h-4 w-4" />
-                                        </IconButton>
-                                    </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-2 bg-gray-50/80 p-2.5 rounded-xl border border-gray-100 text-xs">
-                                    <div className="flex items-center justify-between px-1">
-                                        <span className="text-gray-500">Llenos:</span>
-                                        <span className={`font-bold ${prod.current_stock <= 5 ? 'text-red-600' : 'text-gray-800'}`}>
-                                            {prod.current_stock}
-                                        </span>
-                                    </div>
-                                    <div className="flex items-center justify-between px-1">
-                                        <span className="text-gray-500">Vacíos:</span>
-                                        <span className={`font-bold ${prod.empty_stock <= 5 ? 'text-red-600' : 'text-gray-800'}`}>
-                                            {prod.empty_stock}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between text-xs pt-0.5">
-                                    <div className="flex items-center gap-1.5">
-                                        {prod.requires_return && (
-                                            <span className="bg-amber-50 text-amber-700 font-medium px-2 py-0.5 rounded-md text-[10px]">
-                                                Retornable
-                                            </span>
-                                        )}
-                                    </div>
-                                    <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold ${prod.is_active ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
-                                        {prod.is_active ? 'Activo' : 'Inactivo'}
-                                    </span>
-                                </div>
+                                <IconButton variant="text" color="blue" size="sm" onClick={(e) => { e.stopPropagation(); openModal(prod); }} className="rounded-full shrink-0">
+                                    <PencilIcon className="h-4 w-4 text-slate-400" />
+                                </IconButton>
                             </div>
                         ))}
 
                         {productList.length === 0 && (
-                            <div className="p-6 text-center text-gray-500 text-sm">
+                            <div className="p-6 text-center text-gray-500 text-sm bg-white rounded-2xl">
                                 No hay productos registrados.
                             </div>
                         )}
@@ -289,13 +274,13 @@ export default function Index({ product, categories }) {
                             <div>
                                 {editingProduct ? (
                                     <div>
-                                        <Input type="number" label={`Stock Actual (${data.units_per_package})`} value={data.current_stock} disabled color="gray" icon={<LockClosedIcon className="h-4 w-4 text-gray-400" />} />
+                                        <Input type="number" label={`Stock Llenos (${data.units_per_package})`} value={data.current_stock} disabled color="gray" icon={<LockClosedIcon className="h-4 w-4 text-gray-400" />} />
                                         <Typography variant="small" color="blue-gray" className="mt-1 text-[10px] opacity-70">
                                             Modifica el stock desde Historial.
                                         </Typography>
                                     </div>
                                 ) : (
-                                    <Input disabled type="number" label={`Stock Inicial (${data.units_per_package})`} value={data.current_stock} onChange={(e) => setData('current_stock', e.target.value)} error={!!errors.current_stock} color="indigo" />
+                                    <Input disabled type="number" label={`Stock Llenos (${data.units_per_package})`} value={data.current_stock} onChange={(e) => setData('current_stock', e.target.value)} error={!!errors.current_stock} color="indigo" />
                                 )}
                             </div>
                         </div>

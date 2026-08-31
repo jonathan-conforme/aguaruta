@@ -37,7 +37,7 @@ class CustomerCategoryController extends Controller
 
         $category = $this->categoryService->createCategory($validated);
 
-        return back()->with('success', 'Categoría creada con éxito');
+        return back()->with('success', 'La Categoría ha sido creada con éxito');
     }
 
     public function update(Request $request, CustomerCategory $customerCategory)
@@ -49,13 +49,13 @@ class CustomerCategoryController extends Controller
 
         $updatedCategory = $this->categoryService->updateCategory($customerCategory, $validated);
 
-       return back()->with('success', 'Categoría actualizada con éxito');
+       return back()->with('info', 'La Categoría ha sido actualizada con éxito');
     }
 
     public function destroy(CustomerCategory $customerCategory)
     {
         $this->categoryService->deleteCategory($customerCategory);
 
-       return back()->with('success', 'Categoría eliminada con éxito');
+       return back()->with('error', 'La Categoría ha sido eliminada con éxito');
     }
 }

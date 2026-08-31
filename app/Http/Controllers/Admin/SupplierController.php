@@ -50,7 +50,7 @@ class SupplierController extends Controller
 
         $this->supplierService->create($validated);
 
-        return redirect()->back()->with('success', 'Proveedor registrado exitosamente.');
+        return redirect()->back()->with('success', 'El Proveedor ha sido registrado exitosamente.');
     }
 
     /**
@@ -85,7 +85,7 @@ class SupplierController extends Controller
 
         $this->supplierService->update($supplier, $validated);
 
-        return redirect()->back()->with('success', 'Proveedor actualizado exitosamente.');
+        return redirect()->back()->with('info', 'El Proveedor ha sido actualizado exitosamente.');
 
     }
 
@@ -96,6 +96,6 @@ class SupplierController extends Controller
     {
        $this->supplierService->delete($supplier);
 
-        return redirect()->back()->with('success', 'Proveedor eliminado exitosamente.');
+        return redirect()->back()->with('error', 'El Proveedor ha sido eliminado exitosamente.');
     }
 }

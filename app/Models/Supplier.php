@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\BelongsToCompany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Supplier extends Model
 {
-   use BelongsToCompany;
+   use BelongsToCompany, SoftDeletes;
 
    protected $fillable = [
         'company_id',

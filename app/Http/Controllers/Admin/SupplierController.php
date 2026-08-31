@@ -93,9 +93,13 @@ class SupplierController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(Supplier $supplier)
-    {
-       $this->supplierService->delete($supplier);
 
-        return redirect()->back()->with('error', 'El Proveedor ha sido eliminado exitosamente.');
+    {
+        try {
+        $this->supplierService->delete($supplier);
+
+        return redirect()->back()->with('success', 'El proveedor ha sido eliminado exitosamente.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'No se pudo eliminar el proveedor. Ocurrió un problema en el sistema.');
     }
 }

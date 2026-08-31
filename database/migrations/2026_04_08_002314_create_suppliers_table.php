@@ -15,15 +15,16 @@ return new class extends Migration
          $table->id();
             // Multitenant: Relación con la empresa
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
-            $table->string('name'); 
-            $table->string('contact_name')->nullable(); 
+            $table->string('name');
+            $table->string('contact_name')->nullable();
             $table->string('phone')->nullable();
             $table->string('email')->nullable();
             $table->text('address')->nullable();
-            $table->string('ruc_or_id')->nullable(); 
-            
+            $table->string('ruc_or_id')->nullable();
+            $table->softDeletes();
+
             $table->timestamps();
-            
+
             // Índice para acelerar búsquedas por empresa
             $table->index(['company_id', 'name']);
         });

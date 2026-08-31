@@ -103,3 +103,4 @@ class SupplierController extends Controller
         return redirect()->back()->with('error', 'No se pudo eliminar el proveedor. Ocurrió un problema en el sistema.');
     }
 }
+}

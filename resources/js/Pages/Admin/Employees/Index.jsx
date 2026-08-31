@@ -17,13 +17,13 @@ import {
     Option,
     Switch
 } from "@material-tailwind/react";
-import { ArrowPathIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, PlusIcon } from "@heroicons/react/24/outline";
 
 export default function Index({ auth, employees, categories, flash }) {
     const [open, setOpen] = useState(false);
     const handleOpen = () => {
         setOpen(!open);
-        if (!open) reset(); // Resetea el formulario al abrir/cerrar
+        if (!open) reset();
     };
 
     const toggleStatus = (id) => {
@@ -48,7 +48,6 @@ export default function Index({ auth, employees, categories, flash }) {
         }
     }, [flash?.error]);
 
-    // 🌟 Añadido 'create_user_account' al formulario
     const { data, setData, post, processing, errors, reset } = useForm({
         identification: '',
         first_name: '',
@@ -78,7 +77,7 @@ export default function Index({ auth, employees, categories, flash }) {
         >
             <Head title="Empleados" />
 
-            <div className="py-12 bg-gray-50/50 min-h-screen">
+            <div className="py-6 sm:py-12 bg-gray-50/50 min-h-screen">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
                     {/* Alerta de Error de Límites de Plan */}
@@ -89,31 +88,139 @@ export default function Index({ auth, employees, categories, flash }) {
                         </div>
                     )}
 
-                    <Card className="h-full w-full border border-blue-gray-50 shadow-sm">
-                        <CardHeader floated={false} shadow={false} className="rounded-none p-4">
-                            <div className="flex items-center justify-between gap-8">
+                    <Card className="h-full w-full border border-blue-gray-50 shadow-sm overflow-hidden">
+                        <CardHeader floated={false} shadow={false} className="rounded-none p-4 m-0 border-b border-gray-100">
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                 <div>
-                                    <Typography variant="h5" color="blue-gray">
+                                    <Typography variant="h5" color="blue-gray" className="font-bold">
                                         Personal de la Empresa
                                     </Typography>
                                     <Typography color="gray" className="mt-1 font-normal text-sm">
                                         Lista de los trabajadores registrados en tu planta purificadora.
                                     </Typography>
                                 </div>
-                                <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
-                                    <Button
-                                        className="flex items-center gap-3"
-                                        color="indigo"
-                                        size="sm"
-                                        onClick={handleOpen}
-                                    >
-                                        + Registrar Empleado
-                                    </Button>
-                                </div>
+                                <Button
+                                    className="flex items-center justify-center gap-2 w-full sm:w-auto"
+                                    color="indigo"
+                                    size="sm"
+                                    onClick={handleOpen}
+                                >
+                                    <PlusIcon className="h-4 w-4 stroke-2" />
+                                    Registrar Empleado
+                                </Button>
                             </div>
                         </CardHeader>
 
-                        <CardBody className="overflow-scroll px-0 py-0">
+                        {/*  VISTA MÓVIL ESTILO TARJETAS (DATOS VISIBLES SIN TRUNCAR) */}
+                        <div className="block md:hidden p-3 space-y-3 bg-gray-50/30">
+                            {employees.map(({ id, identification, first_name, last_name, category, email, phone, is_active, user }) => (
+                                <div
+                                    key={id}
+                                    className="bg-white border border-gray-200/80 rounded-2xl p-4 shadow-sm space-y-3"
+                                >
+                                    {/* CABECERA DE LA TARJETA */}
+                                    <div className="flex justify-between items-start gap-2">
+                                        <div className="space-y-0.5 max-w-[70%]">
+                                            <span className="text-[10px] font-medium text-gray-400 block uppercase tracking-wider">
+                                                Empleado
+                                            </span>
+                                            <Typography variant="h6" color="blue-gray" className="font-bold leading-tight break-words">
+                                                {first_name} {last_name}
+                                            </Typography>
+
+                                            {/* BADGE DE ACCESO */}
+                                            {user ? (
+                                                <div className="flex items-center pt-1">
+                                                    <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1.5 animate-pulse shrink-0"></span>
+                                                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
+                                                        Acceso App Campo
+                                                    </span>
+                                                </div>
+                                            ) : (
+                                                <span className="text-[10px] font-medium text-gray-400 italic block">
+                                                    Solo Ficha Interna
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <Chip
+                                            variant="ghost"
+                                            size="sm"
+                                            value={category?.name || 'Sin categoría'}
+                                            color="blue-gray"
+                                            className="text-[10px] font-bold capitalize shrink-0"
+                                        />
+                                    </div>
+
+                                    {/* GRID ADAPTATIVO 2x2 PARA EVITAR TRUNCAMIENTO */}
+                                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100 text-left">
+                                        {/* COLUMNA 1: CÉDULA / RUC */}
+                                        <div className="space-y-0.5">
+                                            <span className="text-[10px] text-gray-400 block font-medium">Cédula / RUC</span>
+                                            <span className="text-xs font-bold text-gray-800 font-mono block break-all">
+                                                {identification || 'Sin registrar'}
+                                            </span>
+                                        </div>
+
+                                        {/* COLUMNA 2: CONTACTO */}
+                                        <div className="space-y-0.5">
+                                            <span className="text-[10px] text-gray-400 block font-medium">Contacto</span>
+                                            <span className="text-xs font-bold text-gray-800 block break-all">{phone || 'Sin telf.'}</span>
+                                            <span className="text-[10px] text-gray-500 block break-all leading-tight">{email || 'Sin correo'}</span>
+                                        </div>
+
+                                        {/* COLUMNA 3: ESTADO */}
+                                        <div className="space-y-0.5 pt-1">
+                                            <span className="text-[10px] text-gray-400 block font-medium">Estado</span>
+                                            <div className="flex items-center gap-2 pt-0.5">
+                                                <Switch
+                                                    id={`toggle-mobile-${id}`}
+                                                    ripple={false}
+                                                    color="green"
+                                                    checked={Boolean(is_active)}
+                                                    onChange={() => toggleStatus(id)}
+                                                    className="checked:bg-green-500"
+                                                    containerProps={{
+                                                        className: "p-0 cursor-pointer scale-90 origin-left",
+                                                    }}
+                                                />
+                                                <span className={`text-xs font-bold ${is_active ? 'text-green-600' : 'text-red-500'}`}>
+                                                    {is_active ? 'Activo' : 'Inactivo'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        {/* COLUMNA 4: ACCIONES */}
+                                        <div className="space-y-0.5 pt-1">
+                                            <span className="text-[10px] text-gray-400 block font-medium">Acción</span>
+                                            <div className="pt-0.5">
+                                                {user ? (
+                                                    <button
+                                                        onClick={() => resetPasswordToCedula(id, `${first_name} ${last_name}`)}
+                                                        className="flex items-center gap-1.5 text-amber-800 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-200/60 transition-colors text-xs font-semibold"
+                                                        title="Reset Clave"
+                                                    >
+                                                        <ArrowPathIcon className="h-3.5 w-3.5" />
+                                                        <span>Reset Clave</span>
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-[10px] text-gray-400 italic">Sin acciones</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {employees.length === 0 && (
+                                <div className="p-6 text-center text-gray-500 bg-white rounded-2xl border border-gray-100 text-sm">
+                                    Aún no has registrado empleados en tu empresa.
+                                </div>
+                            )}
+                        </div>
+
+                        {/* VISTA ESCRITORIO (TABLA TRADICIONAL) */}
+                        <CardBody className="hidden md:block overflow-x-auto px-0 py-0">
                             <table className="w-full min-w-max table-auto text-left">
                                 <thead>
                                     <tr>
@@ -127,116 +234,115 @@ export default function Index({ auth, employees, categories, flash }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                   {employees.map(({ id, identification, first_name, last_name, category, email, phone, is_active, user }, index) => {
-    const isLast = index === employees.length - 1;
-    const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
+                                    {employees.map(({ id, identification, first_name, last_name, category, email, phone, is_active, user }, index) => {
+                                        const isLast = index === employees.length - 1;
+                                        const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
 
-    return (
-        <tr key={id} className="hover:bg-blue-gray-50/50 transition-colors">
-            <td className={classes}>
-                <Typography variant="small" color="blue-gray" className="font-mono text-sm">
-                    {identification || 'Sin cédula/RUC'}
-                </Typography>
-            </td>
+                                        return (
+                                            <tr key={id} className="hover:bg-blue-gray-50/50 transition-colors">
+                                                <td className={classes}>
+                                                    <Typography variant="small" color="blue-gray" className="font-mono text-sm">
+                                                        {identification || 'Sin cédula/RUC'}
+                                                    </Typography>
+                                                </td>
 
-            {/* COLUMNA NOMBRE: Aquí añadimos el indicador de acceso */}
-            <td className={classes}>
-                <div className="flex flex-col gap-1">
-                    <Typography variant="small" color="blue-gray" className="font-bold">
-                        {first_name} {last_name}
-                    </Typography>
-                    {user ? (
-                        <div className="flex items-center">
-                            <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1.5 animate-pulse"></span>
-                            <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
-                                Acceso App de Campo
-                            </span>
-                        </div>
-                    ) : (
-                        <span className="text-[10px] font-medium text-gray-400 italic">
-                            Solo Ficha Interna
-                        </span>
-                    )}
-                </div>
-            </td>
+                                                <td className={classes}>
+                                                    <div className="flex flex-col gap-1">
+                                                        <Typography variant="small" color="blue-gray" className="font-bold">
+                                                            {first_name} {last_name}
+                                                        </Typography>
+                                                        {user ? (
+                                                            <div className="flex items-center">
+                                                                <span className="inline-block w-2 h-2 rounded-full bg-indigo-500 mr-1.5 animate-pulse"></span>
+                                                                <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">
+                                                                    Acceso App de Campo
+                                                                </span>
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-[10px] font-medium text-gray-400 italic">
+                                                                Solo Ficha Interna
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
 
-            <td className={classes}>
-                <Chip
-                    variant="ghost"
-                    size="sm"
-                    value={category?.name || 'Sin categoría'}
-                    color="blue-gray"
-                />
-            </td>
-            <td className={classes}>
-                <div className="flex flex-col">
-                    <Typography variant="small" color="blue-gray" className="font-normal text-xs">
-                        {email || 'Sin correo'}
-                    </Typography>
-                    <Typography variant="small" color="gray" className="font-normal text-xs">
-                        {phone || 'Sin teléfono'}
-                    </Typography>
-                </div>
-            </td>
-            <td className={classes}>
-                <div className="flex items-center gap-3">
-                    <Switch
-                        id={`toggle-${id}`}
-                        ripple={false}
-                        color="green"
-                        checked={Boolean(is_active)}
-                        onChange={() => toggleStatus(id)}
-                        className="checked:bg-green-500"
-                        containerProps={{
-                            className: "p-0 cursor-pointer",
-                        }}
-                    />
-                    <Chip
-                        variant="ghost"
-                        size="sm"
-                        value={is_active ? "Activo" : "Inactivo"}
-                        color={is_active ? "green" : "red"}
-                        className="rounded-full"
-                    />
-                </div>
-            </td>
+                                                <td className={classes}>
+                                                    <Chip
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        value={category?.name || 'Sin categoría'}
+                                                        color="blue-gray"
+                                                    />
+                                                </td>
+                                                <td className={classes}>
+                                                    <div className="flex flex-col">
+                                                        <Typography variant="small" color="blue-gray" className="font-normal text-xs">
+                                                            {email || 'Sin correo'}
+                                                        </Typography>
+                                                        <Typography variant="small" color="gray" className="font-normal text-xs">
+                                                            {phone || 'Sin teléfono'}
+                                                        </Typography>
+                                                    </div>
+                                                </td>
+                                                <td className={classes}>
+                                                    <div className="flex items-center gap-3">
+                                                        <Switch
+                                                            id={`toggle-${id}`}
+                                                            ripple={false}
+                                                            color="green"
+                                                            checked={Boolean(is_active)}
+                                                            onChange={() => toggleStatus(id)}
+                                                            className="checked:bg-green-500"
+                                                            containerProps={{
+                                                                className: "p-0 cursor-pointer",
+                                                            }}
+                                                        />
+                                                        <Chip
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            value={is_active ? "Activo" : "Inactivo"}
+                                                            color={is_active ? "green" : "red"}
+                                                            className="rounded-full"
+                                                        />
+                                                    </div>
+                                                </td>
 
-            {/* COLUMNA ACCIONES: Corregida para validar el objeto 'user' */}
-            <td className={classes}>
-                <div className="flex items-center gap-2">
-                    {user ? (
-                        <Button
-                            size="sm"
-                            color="amber"
-                            variant="text"
-                            className="flex items-center gap-1 normal-case px-2 py-1"
-                            onClick={() => resetPasswordToCedula(id, `${first_name} ${last_name}`)}
-                            title="Restablecer clave a su Cédula"
-                        >
-                            <ArrowPathIcon className="h-4 w-4" />
-                            <span className="hidden sm:inline text-xs font-semibold">Reset Clave</span>
-                        </Button>
-                    ) : (
-                        <span className="text-xs text-gray-400 italic px-2">Sin acciones</span>
-                    )}
-                </div>
-            </td>
-        </tr>
-    );
+                                                <td className={classes}>
+                                                    <div className="flex items-center gap-2">
+                                                        {user ? (
+                                                            <Button
+                                                                size="sm"
+                                                                color="amber"
+                                                                variant="text"
+                                                                className="flex items-center gap-1 normal-case px-2 py-1"
+                                                                onClick={() => resetPasswordToCedula(id, `${first_name} ${last_name}`)}
+                                                                title="Restablecer clave a su Cédula"
+                                                            >
+                                                                <ArrowPathIcon className="h-4 w-4" />
+                                                                <span className="hidden sm:inline text-xs font-semibold">Reset Clave</span>
+                                                            </Button>
+                                                        ) : (
+                                                            <span className="text-xs text-gray-400 italic px-2">Sin acciones</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
 
+                                    {employees.length === 0 && (
                                         <tr>
-                                            <td colSpan={5} className="p-4 text-center">
+                                            <td colSpan={6} className="p-4 text-center">
                                                 <Typography color="gray" className="font-normal text-sm">
                                                     Aún no has registrado empleados en tu empresa.
                                                 </Typography>
                                             </td>
                                         </tr>
-                                    })}
+                                    )}
                                 </tbody>
                             </table>
                         </CardBody>
                     </Card>
-
 
                     {/* MODAL DE CREACIÓN DE EMPLEADO */}
                     <Dialog open={open} handler={handleOpen} size="md">
@@ -306,7 +412,7 @@ export default function Index({ auth, employees, categories, flash }) {
                                     )}
                                 </div>
 
-                                {/* Correo Electrónico (Ficha / MVP 2 Roles de Pago) */}
+                                {/* Correo Electrónico */}
                                 <div>
                                     <Input
                                         label="Correo Electrónico (Opcional)"

@@ -72,7 +72,7 @@ class ProductsController extends Controller
        $validated['requires_return'] = $request->boolean('requires_return');
         $this->productsService->createProduct($validated);
 
-        return back()->with('success', 'Producto creado con éxito');
+        return back()->with('success', 'El Producto ha sido creado con éxito');
     }
 
 
@@ -116,7 +116,7 @@ class ProductsController extends Controller
 
         $this->productsService->updateProduct($product, $validated);
 
-        return back()->with('success', 'Producto actualizado con éxito');
+        return back()->with('info', 'El Producto ha sido actualizado con éxito');
     }
 
   public function destroy(Product $product)

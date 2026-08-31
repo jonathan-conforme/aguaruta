@@ -1,7 +1,7 @@
 <?php
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\Company;
+use App\Http\Controllers\Controller;
 use App\Services\PlanService;
 use Inertia\Inertia;
 
@@ -18,5 +18,5 @@ class CompanyController extends Controller
         ]);
     }
 
-    
+
 }

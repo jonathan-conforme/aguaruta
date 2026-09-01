@@ -3,147 +3,70 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import CreateTrip from './Create';
 import {
-    Card, Typography, Button, CardHeader, CardBody, Chip,
+    Card, Typography, Button, CardBody, Chip,
     Dialog, DialogHeader, DialogBody, IconButton,
-    Alert, Spinner, Tooltip, Menu, MenuHandler, MenuList, MenuItem
+    Spinner, Tooltip
 } from "@material-tailwind/react";
 import {
     CheckCircleIcon,
     TruckIcon,
     ArchiveBoxIcon,
+    PencilIcon,
+    PlusIcon,
+    MagnifyingGlassIcon,
+    MapPinIcon,
+    UserIcon
+} from "@heroicons/react/24/solid";
 
-} from "@heroicons/react/24/outline";
-
-// --- FUNCIONES AUXILIARES ---
+// --- HELPERS Y COMPONENTES AUXILIARES ---
 const getInitials = (name) => {
     if (!name) return '';
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
 };
 
-// Componente de acciones mejorado con tooltips
-const ActionMenu = ({ tripId, onEdit, onDelete }) => {
-    const [isDeleting, setIsDeleting] = useState(false);
-
-    const handleDelete = async () => {
-        if (window.confirm('¿Estás seguro de que deseas eliminar este viaje? Esta acción no se puede deshacer.')) {
-            setIsDeleting(true);
-            try {
-                await router.delete(`/trips/${tripId}`);
-                // Mostrar feedback de éxito (implementar con toast/alert)
-            } catch (error) {
-                console.error('Error deleting trip:', error);
-            } finally {
-                setIsDeleting(false);
-            }
-        }
-    };
-
-    return (
-        <div className="flex items-center gap-1">
-            <Tooltip content="Ver detalles">
-                <IconButton
-                    variant="text"
-                    size="sm"
-                    color="blue"
-                    onClick={() => router.visit(`/trips/${tripId}`)}
-                    aria-label="Ver detalles del viaje"
-                >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                </IconButton>
-            </Tooltip>
-
-            <Tooltip content="Editar viaje">
-                <IconButton
-                    variant="text"
-                    size="sm"
-                    color="amber"
-                    onClick={() => onEdit(tripId)}
-                    aria-label="Editar viaje"
-                >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                </IconButton>
-            </Tooltip>
-
-            <Tooltip content="Eliminar viaje">
-                <IconButton
-                    variant="text"
-                    size="sm"
-                    color="red"
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    aria-label="Eliminar viaje"
-                >
-                    {isDeleting ? (
-                        <Spinner className="w-4 h-4" />
-                    ) : (
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    )}
-                </IconButton>
-            </Tooltip>
-        </div>
-    );
-};
-
-// Componente de productos mejorado con límite y expandir
 const ProductsList = ({ products }) => {
     const [expanded, setExpanded] = useState(false);
     const MAX_VISIBLE = 2;
     const hasManyProducts = products?.length > MAX_VISIBLE;
     const visibleProducts = expanded ? products : products?.slice(0, MAX_VISIBLE);
 
-    if (!products?.length) return <span className="text-gray-400 text-sm">—</span>;
+    if (!products?.length) return <span className="text-gray-400 text-xs">—</span>;
 
     return (
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
             {visibleProducts.map(p => (
-                <div key={p.id} className="flex items-center bg-gray-50 border border-gray-200 rounded px-2 py-1 gap-1.5 w-max">
-                    <span className="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 rounded-sm">
-                         {p.pivot.initial_quantity}/{p.pivot.quantity}
+                <div key={p.id} className="flex items-center bg-gray-50 border border-gray-200/80 rounded-lg px-2 py-0.5 gap-1.5 w-max">
+                    <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-1.5 rounded">
+                        {p.pivot.initial_quantity}/{p.pivot.quantity}
                     </span>
-                    <Typography variant="small" color="gray" className="text-xs font-medium truncate max-w-[120px]" title={p.name}>
+                    <Typography variant="small" color="blue-gray" className="text-xs font-medium truncate max-w-[130px]" title={p.name}>
                         {p.name}
                     </Typography>
                 </div>
             ))}
             {hasManyProducts && (
-                <Button
-                    variant="text"
-                    size="sm"
-                    className="text-xs w-max"
-                    onClick={() => setExpanded(!expanded)}
+                <button
+                    type="button"
+                    className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 text-left mt-0.5"
+                    onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
                 >
-                    {expanded ? 'Ver menos' : `Ver ${products.length - MAX_VISIBLE} más productos`}
-                </Button>
+                    {expanded ? 'Ver menos' : `+${products.length - MAX_VISIBLE} más`}
+                </button>
             )}
         </div>
     );
 };
 
-// Componente de empleado mejorado con tooltip
-const EmployeeBadge = ({ user, color = "blue", role }) => {
-    if (!user) return <span className="text-gray-400 text-sm">—</span>;
-
-    const colorClasses = {
-        blue: "bg-blue-50 text-blue-900 border-blue-100",
-        purple: "bg-purple-50 text-purple-900 border-purple-100",
-        teal: "bg-teal-50 text-teal-900 border-teal-100",
-        green: "bg-green-50 text-green-900 border-green-100",
-    };
+const EmployeeBadge = ({ user, role }) => {
+    if (!user) return <span className="text-gray-400 text-xs">—</span>;
 
     return (
         <Tooltip content={`${role || 'Empleado'}: ${user.name}`}>
             <div className="flex items-center gap-2">
-                <div className={`w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-bold ${colorClasses[color]}`}>
+                <div className="w-7 h-7 rounded-full bg-indigo-50 text-indigo-900 border border-indigo-100 flex items-center justify-center text-[10px] font-bold shrink-0">
                     {getInitials(user.name)}
                 </div>
-                <Typography variant="small" color="blue-gray" className="font-normal truncate max-w-[120px]" title={user.name}>
+                <Typography variant="small" color="blue-gray" className="font-medium text-xs truncate max-w-[130px]">
                     {user.name}
                 </Typography>
             </div>
@@ -151,45 +74,21 @@ const EmployeeBadge = ({ user, color = "blue", role }) => {
     );
 };
 
-
-// Componente de estado con Heroicons ANIMADOS
 const StatusBadge = ({ status }) => {
-
-    // El camión trabajando (Vibración)
-    const truckIcon = (
-        <TruckIcon
-            className={`h-4 w-4 ${status === 'active' ? 'animate-motor' : ''}`}
-        />
-    );
-
-    // El latido de éxito (Escala)
-    const checkIcon = (
-        <CheckCircleIcon
-            className={`h-4 w-4 ${status === 'completed' ? 'animate-exito' : ''}`}
-        />
-    );
-
-    // La cajita esperando (Flote) - Usa 'animate-flotar', 'animate-tictac' o 'animate-pulse'
-    const boxIcon = (
-        <ArchiveBoxIcon
-            className={`h-4 w-4 ${status === 'pending' ? 'animate-flotar' : ''}`}
-        />
-    );
-
     const config = {
         completed: {
             color: "green",
-            icon: checkIcon,
+            icon: <CheckCircleIcon className="h-3.5 w-3.5" />,
             label: "Completado"
         },
         active: {
-            color: "blue",
-            icon: truckIcon,
+            color: "indigo",
+            icon: <TruckIcon className="h-3.5 w-3.5" />,
             label: "En Ruta"
         },
         pending: {
             color: "amber",
-            icon: boxIcon, // <-- Usamos el icono con la animación de espera
+            icon: <ArchiveBoxIcon className="h-3.5 w-3.5" />,
             label: "En Bodega"
         }
     };
@@ -202,25 +101,23 @@ const StatusBadge = ({ status }) => {
             color={current.color}
             size="sm"
             value={
-                <span className="flex items-center gap-1.5 font-medium">
+                <span className="flex items-center gap-1 font-semibold text-[11px]">
                     {current.icon}
                     {current.label}
                 </span>
             }
-            className="rounded-full w-max"
+            className="rounded-lg w-max"
         />
     );
 };
-
-
 
 // --- COMPONENTE PRINCIPAL ---
 export default function Index({ auth, trips, users, products, routes }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedTrip, setSelectedTrip] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+
     const allTrips = Array.isArray(trips) ? trips : (trips?.data || []);
 
     const toggleModal = () => {
@@ -233,257 +130,270 @@ export default function Index({ auth, trips, users, products, routes }) {
         setIsModalOpen(true);
     };
 
-    // Filtrar viajes
- const filteredTrips = allTrips.filter(trip => {
+    const filteredTrips = allTrips.filter(trip => {
         const matchesSearch = searchTerm === '' ||
             trip.route?.route_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            trip.driver?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+            trip.seller?.name?.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'all' || trip.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
 
-    const TABLE_HEAD = ["Fecha", "Vendedor", "Estado", "Carga Inicial / Carga Actual", "Ruta", "Acciones"];
+    const TABLE_HEAD = ["Fecha", "Vendedor", "Estado", "Carga Inicial / Actual", "Ruta", "Acciones"];
 
     return (
-        <AuthenticatedLayout user={auth.user} header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Gestión de Despachos</h2>}>
-            <Head title="Historial de Viajes" />
+        <AuthenticatedLayout
+            user={auth.user}
+            header={
+                <Typography variant="h5" color="blue-gray" className="flex items-center gap-2 font-bold">
+                    <TruckIcon className="h-6 w-6 text-indigo-500" /> Despachos
+                </Typography>
+            }
+        >
+            <Head title="Historial de Despachos" />
 
-            <div className="py-12 bg-gray-50/50 min-h-screen">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-3 sm:py-0">
+                <Card className="h-full w-full shadow-sm border border-gray-200/80 rounded-2xl overflow-hidden bg-slate-50/50">
 
-                    {/* Feedback de carga */}
-                    {isLoading && (
-                        <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-                            <Card className="p-6 flex items-center gap-3">
-                                <Spinner className="h-8 w-8" />
-                                <Typography>Cargando viajes...</Typography>
-                            </Card>
+                    {/* Header Principal */}
+                    <div className="p-4 sm:p-6 border-b border-gray-100 flex flex-col gap-4 bg-white">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                            <div>
+                                <Typography variant="h5" color="blue-gray" className="font-bold text-lg sm:text-xl">
+                                    Historial de Despachos
+                                </Typography>
+                                <Typography color="gray" className="mt-0.5 text-xs sm:text-sm font-normal">
+                                    Control de rutas, vendedores y stock asignado ({filteredTrips.length} viajes).
+                                </Typography>
+                            </div>
+
+                            <Button
+                                onClick={toggleModal}
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-100"
+                                size="sm"
+                            >
+                                <PlusIcon strokeWidth={2.5} className="h-4 w-4" /> Nuevo Viaje
+                            </Button>
                         </div>
-                    )}
 
-                    <Card className="h-full w-full border border-blue-gray-50 shadow-sm">
-                        <CardHeader floated={false} shadow={false} className="rounded-none p-4">
-                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                                <div>
-                                    <Typography variant="h5" color="blue-gray">Historial de Despachos</Typography>
-                                    <Typography color="gray" className="mt-1 font-normal text-sm">
-                                        Control de rutas, choferes y cargas.
-                                        <span className="font-medium text-blue-600"> {filteredTrips.length}</span> viajes encontrados
-                                    </Typography>
-                                </div>
+                        {/* Filtros */}
+                        <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2 border-t border-gray-100">
+                            <div className="relative w-full sm:w-64">
+                                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por ruta o vendedor..."
+                                    className="w-full pl-9 pr-3 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
 
-                                {/* Barra de herramientas */}
-                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                                    <div className="relative">
-                                        <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                        <input
-                                            type="text"
-                                            placeholder="Buscar por ruta o chofer..."
-                                            className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            aria-label="Buscar viajes"
-                                        />
+                            <select
+                                className="w-full sm:w-48 px-3 py-1.5 border border-gray-300 rounded-xl text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                            >
+                                <option value="all">Todos los estados</option>
+                                <option value="pending">En Bodega</option>
+                                <option value="active">En Ruta</option>
+                                <option value="completed">Completado</option>
+                            </select>
+
+                            {(searchTerm || statusFilter !== 'all') && (
+                                <Button
+                                    variant="text"
+                                    color="gray"
+                                    size="sm"
+                                    onClick={() => { setSearchTerm(''); setStatusFilter('all'); }}
+                                    className="text-xs rounded-xl py-1.5"
+                                >
+                                    Limpiar
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* VISTA ESCRITORIO (Tabla) */}
+                    <CardBody className="hidden md:block overflow-x-auto px-0 pt-0 pb-2 bg-white">
+                        <table className="w-full min-w-max table-auto text-left">
+                            <thead>
+                                <tr>
+                                    {TABLE_HEAD.map((head, idx) => (
+                                        <th key={head} className={`border-b border-gray-100 bg-gray-50/70 p-4 ${idx === 5 ? 'text-right' : ''}`}>
+                                            <Typography variant="small" className="font-bold text-gray-600 text-xs uppercase tracking-wider">
+                                                {head}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {filteredTrips.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" className="p-8 text-center text-gray-500 text-sm">
+                                            No se encontraron despachos registrados.
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    filteredTrips.map((trip) => (
+                                        <tr key={trip.id} className="hover:bg-indigo-50/30 transition-colors">
+                                            <td className="p-4">
+                                                <Typography variant="small" color="blue-gray" className="font-bold text-xs">
+                                                    {new Date(trip.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <EmployeeBadge user={trip.seller} role="Vendedor" />
+                                            </td>
+                                            <td className="p-4">
+                                                <StatusBadge status={trip.status} />
+                                            </td>
+                                            <td className="p-4">
+                                                <ProductsList products={trip.products} />
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="flex items-center gap-1 text-slate-700">
+                                                    <MapPinIcon className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                                    <Typography variant="small" className="font-medium text-xs truncate max-w-[140px]">
+                                                        {trip.route?.route_name || '—'}
+                                                    </Typography>
+                                                </div>
+                                            </td>
+                                            <td className="p-4 text-right">
+                                                <IconButton
+                                                    variant="text"
+                                                    color="blue"
+                                                    onClick={() => handleEdit(trip)}
+                                                    className="rounded-lg hover:bg-blue-50"
+                                                >
+                                                    <PencilIcon className="h-4 w-4" />
+                                                </IconButton>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </CardBody>
+
+                    {/* VISTA MÓVIL (Tarjetas limpias y táctiles) */}
+                    <div className="block md:hidden p-3 space-y-3">
+                        {filteredTrips.map((trip) => (
+                            <div
+                                key={trip.id}
+                                onClick={() => handleEdit(trip)}
+                                className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80 flex flex-col gap-3 cursor-pointer hover:border-blue-300 transition-all active:scale-[0.99]"
+                            >
+                                <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                                            <TruckIcon className="h-4 w-4" />
+                                        </div>
+                                        <div>
+                                            <span className="font-bold text-slate-800 text-xs block leading-tight">
+                                                {new Date(trip.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </span>
+                                            <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                                                <MapPinIcon className="h-3 w-3 text-slate-400" />
+                                                {trip.route?.route_name || 'Sin Ruta'}
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <select
-                                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                        value={statusFilter}
-                                        onChange={(e) => setStatusFilter(e.target.value)}
-                                        aria-label="Filtrar por estado"
-                                    >
-                                        <option value="all">Todos los estados</option>
-                                        <option value="pending">En Bodega</option>
-                                        <option value="active">En Ruta</option>
-                                        <option value="completed">Completado</option>
-                                    </select>
+                                    <div className="flex items-center gap-1">
+                                        <StatusBadge status={trip.status} />
+                                        <IconButton
+                                            variant="text"
+                                            color="blue"
+                                            size="sm"
+                                            onClick={(e) => { e.stopPropagation(); handleEdit(trip); }}
+                                            className="rounded-full shrink-0"
+                                        >
+                                            <PencilIcon className="h-4 w-4 text-slate-400" />
+                                        </IconButton>
+                                    </div>
+                                </div>
 
-                                    <Button className="flex items-center gap-2" color="indigo" size="sm" onClick={toggleModal} aria-label="Crear nuevo viaje">
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                                        </svg>
-                                        Nuevo Viaje
-                                    </Button>
+                                <div className="flex items-start justify-between gap-2">
+                                    <div>
+                                        <span className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Vendedor</span>
+                                        <EmployeeBadge user={trip.seller} role="Vendedor" />
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-[10px] text-slate-400 uppercase font-bold block mb-1">Carga</span>
+                                        <ProductsList products={trip.products} />
+                                    </div>
                                 </div>
                             </div>
-                        </CardHeader>
+                        ))}
 
-                        <CardBody className="overflow-x-auto px-0 py-0">
-                            <div className="min-w-[800px] lg:min-w-full">
-                                <table className="w-full table-auto text-left" role="table">
-                                    <thead>
-                                        <tr role="row">
-                                            {TABLE_HEAD.map((head) => (
-                                                <th key={head} className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4">
-                                                    <Typography variant="small" color="blue-gray" className="font-bold leading-none opacity-70">
-                                                        {head}
-                                                    </Typography>
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredTrips.length > 0 ? (
-                                            filteredTrips.map((trip, index) => {
-                                                const classes = index === filteredTrips.length - 1 ? "p-4" : "p-4 border-b border-blue-gray-50 tex-center";
-                                                return (
-                                                    <tr key={trip.id} className="hover:bg-blue-gray-50/50 transition-colors group" role="row">
-                                                        <td className={classes}>
-                                                            <Typography variant="small" color="blue-gray" className="font-medium">
-                                                                {new Date(trip.date).toLocaleDateString('es-ES', {
-                                                                    day: '2-digit',
-                                                                    month: 'short',
-                                                                    year: 'numeric'
-                                                                })}
-                                                            </Typography>
-                                                        </td>
-
-                                                        {/* Chofer
-                                                        <td className={classes}>
-                                                            <EmployeeBadge user={trip.driver} color="blue" role="Chofer" />
-                                                        </td>
-
-                                                        */}
-                                                        <td className={classes}>
-                                                            <EmployeeBadge user={trip.seller} color="purple" role="Vendedor" />
-                                                        </td>
-
-
-                                                         {/* ayudantes
-                                                        <td className={classes}>
-                                                            <div className="flex flex-col gap-1.5">
-                                                                {trip.helper1 && <EmployeeBadge user={trip.helper1} color="teal" role="Ayudante" />}
-                                                                {trip.helper2 && <EmployeeBadge user={trip.helper2} color="green" role="Ayudante" />}
-                                                                {!trip.helper1 && !trip.helper2 && <span className="text-gray-400 text-sm">Ninguno</span>}
-                                                            </div>
-                                                        </td>*/}
-                                                        <td className={classes}>
-                                                            <StatusBadge status={trip.status} />
-                                                        </td>
-                                                        <td className={classes }>
-
-                                                            <ProductsList products={trip.products} />
-
-                                                        </td>
-                                                        <td className={classes}>
-                                                            <div className="flex items-center gap-1.5">
-                                                                <svg className="w-4 h-4 text-gray-400 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                                </svg>
-                                                                <Typography variant="small" color="blue-gray" className="font-medium truncate max-w-[150px]" title={trip.route?.route_name}>
-                                                                    {trip.route?.route_name || <span className="text-gray-400">—</span>}
-                                                                </Typography>
-                                                            </div>
-                                                        </td>
-                                                        <td className={classes}>
-                                                            <ActionMenu tripId={trip.id} trip={trip} onEdit={() => handleEdit(trip)} />
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={8} className="p-8 text-center">
-                                                    <div className="flex flex-col items-center justify-center gap-3">
-                                                        <svg className="w-16 h-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                                        </svg>
-                                                        <Typography color="blue-gray" className="font-medium text-lg">
-                                                            {searchTerm || statusFilter !== 'all' ? 'No se encontraron viajes' : 'Sin despachos'}
-                                                        </Typography>
-                                                        <Typography color="gray" className="font-normal text-sm max-w-md text-center">
-                                                            {searchTerm || statusFilter !== 'all'
-                                                                ? 'No hay viajes que coincidan con los filtros seleccionados. Prueba con otros criterios.'
-                                                                : 'Aún no se han registrado viajes. Haz clic en "Nuevo Viaje" para empezar.'}
-                                                        </Typography>
-                                                        {(searchTerm || statusFilter !== 'all') && (
-                                                            <Button variant="outlined" size="sm" onClick={() => {
-                                                                setSearchTerm('');
-                                                                setStatusFilter('all');
-                                                            }}>
-                                                                Limpiar filtros
-                                                            </Button>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                        {filteredTrips.length === 0 && (
+                            <div className="p-6 text-center text-gray-500 text-sm bg-white rounded-2xl">
+                                No se encontraron despachos.
                             </div>
-                        </CardBody>
+                        )}
+                    </div>
 
-{/* Paginación */}
-{trips.last_page > 1 && (
-    <div className="flex justify-center items-center gap-2 p-4 border-t border-blue-gray-100">
-        {/* Ir a página anterior */}
-        {trips.current_page > 1 && (
-            <Button
-                variant="outlined"
-                size="sm"
-                onClick={() => router.visit(trips.links[0].url)}
-            >
-                ← Anterior
-            </Button>
-        )}
-
-        {/* Números de página */}
-        <div className="flex gap-1">
-            {trips.links.slice(1, -1).map((link) => (
-                <Button
-                    key={link.label}
-                    variant={link.active ? "filled" : "outlined"}
-                    size="sm"
-                    color={link.active ? "indigo" : "gray"}
-                    onClick={() => router.visit(link.url)}
-                >
-                    {link.label}
-                </Button>
-            ))}
-        </div>
-
-        {/* Ir a página siguiente */}
-        {trips.current_page < trips.last_page && (
-            <Button
-                variant="outlined"
-                size="sm"
-                onClick={() => router.visit(trips.links[trips.links.length - 1].url)}
-            >
-                Siguiente →
-            </Button>
-        )}
-    </div>
-)}
-                    </Card>
-
-                    {/* MODAL MEJORADO */}
-                    <Dialog open={isModalOpen} handler={toggleModal} size="lg" className="p-4" aria-label="Formulario de viaje">
-                        <DialogHeader className="flex flex-col items-start pb-0">
-                            <Typography variant="h5" color="blue-gray">
-                                {selectedTrip ? 'Editar Viaje' : 'Planificar Nuevo Viaje'}
+                    {/* PAGINACIÓN */}
+                    {trips.last_page > 1 && (
+                        <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 p-4 gap-3 bg-white">
+                            <Typography variant="small" color="gray" className="font-normal text-xs text-center sm:text-left">
+                                Página <strong className="text-blue-gray-900">{trips.current_page}</strong> de{" "}
+                                <strong className="text-blue-gray-900">{trips.last_page}</strong>
                             </Typography>
-                            <Typography color="gray" className="mt-1 font-normal text-sm">
-                                {selectedTrip
-                                    ? 'Modifica los datos del viaje seleccionado'
-                                    : 'Asigna el equipo de trabajo y la carga para el nuevo despacho'}
-                            </Typography>
-                        </DialogHeader>
 
-                        <DialogBody className="max-h-[75vh] overflow-y-auto">
-                            <CreateTrip
-                                users={users}
-                                products={products}
-                                routes={routes}
-                                onClose={toggleModal}
-                                initialData={selectedTrip}
-                            />
-                        </DialogBody>
-                    </Dialog>
-                </div>
+                            <div className="flex gap-1">
+                                {trips.links?.slice(1, -1).map((link) => (
+                                    <Button
+                                        key={link.label}
+                                        variant={link.active ? "filled" : "outlined"}
+                                        size="sm"
+                                        color={link.active ? "indigo" : "gray"}
+                                        className="rounded-xl text-xs px-3 py-1.5"
+                                        onClick={() => router.visit(link.url)}
+                                    >
+                                        {link.label}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </Card>
             </div>
+
+            {/* MODAL EDITAR / CREAR */}
+            <Dialog
+                open={isModalOpen}
+                handler={toggleModal}
+                size="lg"
+                className="w-[95%] sm:w-full max-w-2xl mx-auto rounded-2xl p-0 overflow-hidden shadow-2xl"
+            >
+                <DialogHeader className="border-b border-gray-100 px-5 py-4 flex items-center justify-between bg-gray-50/50">
+                    <div>
+                        <Typography variant="h6" color="blue-gray" className="font-bold">
+                            {selectedTrip ? 'Editar Despacho' : 'Planificar Nuevo Despacho'}
+                        </Typography>
+                        <Typography color="gray" className="font-normal text-xs mt-0.5">
+                            {selectedTrip ? 'Modifica la información del despacho' : 'Asigna vendedor, ruta y productos'}
+                        </Typography>
+                    </div>
+                    <IconButton variant="text" color="blue-gray" size="sm" onClick={toggleModal} className="rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </IconButton>
+                </DialogHeader>
+
+                <DialogBody className="p-5 max-h-[75vh] overflow-y-auto">
+                    <CreateTrip
+                        users={users}
+                        products={products}
+                        routes={routes}
+                        onClose={toggleModal}
+                        initialData={selectedTrip}
+                    />
+                </DialogBody>
+            </Dialog>
         </AuthenticatedLayout>
     );
 }

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
-import { Typography, Button, Input, Select, Option, IconButton, Card } from "@material-tailwind/react";
-import { TrashIcon, PlusCircleIcon, LockClosedIcon } from "@heroicons/react/24/outline";
+import { Typography, Button, Input, Select, Option, IconButton } from "@material-tailwind/react";
+import { TrashIcon, PlusCircleIcon, LockClosedIcon, TruckIcon, UserGroupIcon, CubeIcon } from "@heroicons/react/24/outline";
 
 export default function Create({ users, products, routes, onClose, initialData }) {
     const { data, setData, post, put, processing, errors, reset } = useForm({
@@ -80,30 +80,35 @@ export default function Create({ users, products, routes, onClose, initialData }
     };
 
     return (
-        <form onSubmit={submit} className="space-y-6">
+        <form onSubmit={submit} className="space-y-5">
 
             {/* AVISO SI ESTÁ BLOQUEADO */}
             {isReadOnly && (
-               <div className="bg-orange-100 p-4 rounded-lg text-orange-900 border border-orange-200 mb-6">
-    <div className="flex items-center gap-2 mb-1">
-        <LockClosedIcon className="h-5 w-5" strokeWidth={2} />
-        <Typography variant="small" className="font-bold">
-            Viaje Bloqueado
-        </Typography>
-    </div>
-    <Typography variant="small">
-        Este viaje está marcado como {initialData.status === 'active' ? 'Activo (En Ruta)' : 'Completado'}. Solo puedes ver los detalles, no editarlos.
-    </Typography>
-</div>
+                <div className="bg-amber-50/80 p-4 rounded-xl text-amber-900 border border-amber-200/80 shadow-sm flex items-start gap-3">
+                    <div className="p-2 bg-amber-100/80 rounded-lg text-amber-700 shrink-0 mt-0.5">
+                        <LockClosedIcon className="h-5 w-5" strokeWidth={2} />
+                    </div>
+                    <div>
+                        <Typography variant="small" className="font-bold text-amber-900 text-sm">
+                            Viaje Bloqueado
+                        </Typography>
+                        <Typography variant="small" className="text-amber-800 text-xs mt-0.5">
+                            Este viaje está marcado como {initialData.status === 'active' ? 'Activo (En Ruta)' : 'Completado'}. Solo puedes consultar la información pero no realizar modificaciones.
+                        </Typography>
+                    </div>
+                </div>
             )}
 
             {/* SECCIÓN 1: DATOS DEL VIAJE */}
-            <Card className="p-6 border border-gray-200 shadow-sm">
-                <Typography variant="h6" color="blue-gray" className="mb-6">
-                    Detalles y Personal {initialData ? (isReadOnly ? "(Solo Lectura)" : "(Editando)") : ""}
-                </Typography>
+            <div className="bg-slate-50/60 p-4 sm:p-5 rounded-2xl border border-slate-200/70 space-y-4">
+                <div className="flex items-center gap-2 border-b border-slate-200/60 pb-3">
+                    <UserGroupIcon className="h-5 w-5 text-indigo-500" />
+                    <Typography variant="h6" color="blue-gray" className="font-bold text-sm sm:text-base">
+                        Detalles y Personal {initialData ? (isReadOnly ? "(Solo Lectura)" : "(Editando)") : ""}
+                    </Typography>
+                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                         <Input
                             type="date"
@@ -113,12 +118,13 @@ export default function Create({ users, products, routes, onClose, initialData }
                             onChange={e => setData('date', e.target.value)}
                             error={!!errors.date}
                             disabled={isReadOnly}
+                            className="bg-white rounded-xl"
                         />
-                        {errors.date && <Typography variant="small" color="red" className="mt-1">{errors.date}</Typography>}
+                        {errors.date && <Typography variant="small" color="red" className="mt-1 text-xs">{errors.date}</Typography>}
                     </div>
 
                     <div>
-                        <Select label="Estado" color="indigo" value={data.status} onChange={(val) => setData('status', val)} disabled={isReadOnly}>
+                        <Select label="Estado" color="indigo" value={data.status} onChange={(val) => setData('status', val)} disabled={isReadOnly} className="bg-white rounded-xl">
                             <Option value="pending">Pendiente (En Bodega)</Option>
                             <Option disabled value="active">Activo (En Ruta)</Option>
                             <Option disabled value="completed">Completado</Option>
@@ -133,6 +139,7 @@ export default function Create({ users, products, routes, onClose, initialData }
                             onChange={(val) => setData('delivery_route_id', val)}
                             error={!!errors.delivery_route_id}
                             disabled={isReadOnly}
+                            className="bg-white rounded-xl"
                         >
                             {routes.map(route => (
                                 <Option key={route.id} value={String(route.id)}>
@@ -140,112 +147,131 @@ export default function Create({ users, products, routes, onClose, initialData }
                                 </Option>
                             ))}
                         </Select>
-                        {errors.delivery_route_id && <Typography variant="small" color="red" className="mt-1">{errors.delivery_route_id}</Typography>}
+                        {errors.delivery_route_id && <Typography variant="small" color="red" className="mt-1 text-xs">{errors.delivery_route_id}</Typography>}
                     </div>
 
                     <div>
-                        <Select label="Chofer *" color="indigo" value={data.driver_id} onChange={(val) => setData('driver_id', val)} error={!!errors.driver_id} disabled={isReadOnly}>
+                        <Select label="Chofer *" color="indigo" value={data.driver_id} onChange={(val) => setData('driver_id', val)} error={!!errors.driver_id} disabled={isReadOnly} className="bg-white rounded-xl">
                             {users.map(user => <Option key={user.id} value={String(user.id)}>{user.name}</Option>)}
                         </Select>
-                        {errors.driver_id && <Typography variant="small" color="red" className="mt-1">{errors.driver_id}</Typography>}
+                        {errors.driver_id && <Typography variant="small" color="red" className="mt-1 text-xs">{errors.driver_id}</Typography>}
                     </div>
 
                     <div>
-                        <Select label="Vendedor *" color="indigo" value={data.seller_id} onChange={(val) => setData('seller_id', val)} error={!!errors.seller_id} disabled={isReadOnly}>
+                        <Select label="Vendedor *" color="indigo" value={data.seller_id} onChange={(val) => setData('seller_id', val)} error={!!errors.seller_id} disabled={isReadOnly} className="bg-white rounded-xl">
                             {users.map(user => <Option key={user.id} value={String(user.id)}>{user.name}</Option>)}
                         </Select>
-                        {errors.seller_id && <Typography variant="small" color="red" className="mt-1">{errors.seller_id}</Typography>}
+                        {errors.seller_id && <Typography variant="small" color="red" className="mt-1 text-xs">{errors.seller_id}</Typography>}
                     </div>
-
                 </div>
-            </Card>
+            </div>
 
             {/* SECCIÓN 2: CARGA */}
-            <Card className="p-6 border border-gray-200 shadow-sm">
-                <Typography variant="h6" color="blue-gray" className="mb-4">
-                    Carga del Camión
-                </Typography>
+            <div className="bg-slate-50/60 p-4 sm:p-5 rounded-2xl border border-slate-200/70 space-y-4">
+                <div className="flex items-center gap-2 border-b border-slate-200/60 pb-3">
+                    <CubeIcon className="h-5 w-5 text-indigo-500" />
+                    <Typography variant="h6" color="blue-gray" className="font-bold text-sm sm:text-base">
+                        Carga del Camión
+                    </Typography>
+                </div>
 
-                {data.products.map((item, index) => (
-                    <div key={index} className="flex gap-4 items-center mb-4">
-                        <div className="flex-1">
-                            <Select
-                                label="Producto"
-                                color="indigo"
-                                value={String(item.product_id)}
-                                onChange={(val) => handleProductChange(index, 'product_id', val)}
-                                error={!!errors[`products.${index}.product_id`]}
-                                disabled={isReadOnly}
-                            >
-                                {products.map((p) => (
-                                    <Option key={p.id} value={String(p.id)}>
-                                        {p.name} -
-                                        ({p.units_per_package > 1
-                                            ? `Paca x${p.units_per_package}`
-                                            : 'Unidad'
-                                        })
-                                        - Stock: {p.current_stock}
-                                    </Option>
-                                ))}
-                            </Select>
-                            {errors[`products.${index}.product_id`] && (
-                                <Typography variant="small" color="red" className="mt-1">
-                                    {errors[`products.${index}.product_id`]}
-                                </Typography>
-                            )}
+                <div className="space-y-3">
+                    {data.products.map((item, index) => (
+                        <div key={index} className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center bg-white p-3 rounded-xl border border-slate-200/70 shadow-sm">
+                            <div className="flex-1">
+                                <Select
+                                    label="Producto"
+                                    color="indigo"
+                                    value={String(item.product_id)}
+                                    onChange={(val) => handleProductChange(index, 'product_id', val)}
+                                    error={!!errors[`products.${index}.product_id`]}
+                                    disabled={isReadOnly}
+                                >
+                                    {products.map((p) => (
+                                        <Option key={p.id} value={String(p.id)}>
+                                            {p.name} - ({p.units_per_package > 1 ? `Paca x${p.units_per_package}` : 'Unidad'}) - Stock: {p.current_stock}
+                                        </Option>
+                                    ))}
+                                </Select>
+                                {errors[`products.${index}.product_id`] && (
+                                    <Typography variant="small" color="red" className="mt-1 text-xs">
+                                        {errors[`products.${index}.product_id`]}
+                                    </Typography>
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2 w-full sm:w-32 justify-between sm:justify-end">
+                                <div className="w-full sm:w-28">
+                                    <Input
+                                        type="number"
+                                        label="Cant."
+                                        color="indigo"
+                                        min="1"
+                                        value={item.quantity}
+                                        onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
+                                        error={!!errors[`products.${index}.quantity`]}
+                                        disabled={isReadOnly}
+                                    />
+                                </div>
+                                {!isReadOnly && (
+                                    <IconButton
+                                        variant="text"
+                                        color="red"
+                                        onClick={() => removeProductRow(index)}
+                                        disabled={data.products.length === 1}
+                                        className="rounded-xl shrink-0"
+                                    >
+                                        <TrashIcon className="h-5 w-5" />
+                                    </IconButton>
+                                )}
+                            </div>
                         </div>
-                        <div className="w-24">
-                            <Input
-                                type="number"
-                                label="Cant."
-                                color="indigo"
-                                min="1"
-                                value={item.quantity}
-                                onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
-                                error={!!errors[`products.${index}.quantity`]}
-                                disabled={isReadOnly}
-                            />
-                        </div>
-                        {!isReadOnly && (
-                            <IconButton variant="text" color="red" onClick={() => removeProductRow(index)} disabled={data.products.length === 1}>
-                                <TrashIcon className="h-5 w-5" />
-                            </IconButton>
-                        )}
-                    </div>
-                ))}
+                    ))}
+                </div>
 
                 {!isReadOnly && (
-                    <div className="flex items-center mt-4 border-t pt-4">
-                        <Button variant="text" color="indigo" onClick={addProductRow} className="flex items-center gap-2">
-                            <PlusCircleIcon className="h-5 w-5" /> Agregar Producto
+                    <div className="pt-2">
+                        <Button
+                            variant="outlined"
+                            color="indigo"
+                            size="sm"
+                            onClick={addProductRow}
+                            className="flex items-center gap-2 rounded-xl bg-white hover:bg-indigo-50/50"
+                        >
+                            <PlusCircleIcon className="h-4 w-4" /> Agregar Producto
                         </Button>
                     </div>
                 )}
 
                 {errors.products && (
-                    <Typography variant="small" color="red" className="mt-2 font-medium">
+                    <Typography variant="small" color="red" className="mt-1 font-medium text-xs">
                         {errors.products}
                     </Typography>
                 )}
-            </Card>
+            </div>
 
             {/* BOTONES */}
-            <div className="flex items-center justify-end gap-4">
-                <Button variant="text" color={isReadOnly ? "blue-gray" : "red"} onClick={onClose} disabled={processing}>
+            <div className="flex items-center justify-end gap-3 pt-2">
+                <Button variant="text" color={isReadOnly ? "blue-gray" : "gray"} onClick={onClose} disabled={processing} className="rounded-xl">
                     {isReadOnly ? 'Cerrar' : 'Cancelar'}
                 </Button>
 
                 {!isReadOnly && (
-                    <Button color="indigo" type="submit" disabled={processing || data.products.length === 0}>
+                    <Button
+                        color="indigo"
+                        type="submit"
+                        disabled={processing || data.products.length === 0}
+                        className="rounded-xl shadow-md shadow-indigo-100 flex items-center gap-2"
+                    >
+                        <TruckIcon className="h-4 w-4" />
                         {processing ? 'Guardando...' : (initialData ? 'Actualizar Despacho' : 'Guardar Despacho')}
                     </Button>
                 )}
             </div>
 
             {Object.keys(errors).length > 0 && (
-                <div className="bg-red-100 p-4 rounded text-red-800 text-xs mb-4 mt-4">
-                    <p className="font-bold">Errores ocultos detectados:</p>
-                    <pre>{JSON.stringify(errors, null, 2)}</pre>
+                <div className="bg-red-50 p-4 rounded-xl border border-red-200 text-red-800 text-xs mt-4">
+                    <p className="font-bold mb-1">Errores en el formulario:</p>
+                    <pre className="overflow-x-auto">{JSON.stringify(errors, null, 2)}</pre>
                 </div>
             )}
         </form>

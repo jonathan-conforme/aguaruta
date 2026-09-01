@@ -1,20 +1,16 @@
 import React from 'react';
-import StatCard from "@/Components/UI/StatCard";
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Card, Typography, Button } from "@material-tailwind/react";
+import { Typography } from "@material-tailwind/react";
 import {
-    MapIcon,
-    CurrencyDollarIcon,
-    ExclamationCircleIcon,
+    ShoppingCartIcon,
+    WrenchScrewdriverIcon,
     ClockIcon,
     DocumentTextIcon,
     ShoppingBagIcon,
-    WrenchScrewdriverIcon,
     ArrowPathIcon,
-    TruckIcon,
     QrCodeIcon,
-    BanknotesIcon
+    ChevronRightIcon
 } from "@heroicons/react/24/outline";
 
 export default function EmployeeDashboard({ auth, stats }) {
@@ -29,7 +25,6 @@ export default function EmployeeDashboard({ auth, stats }) {
         }).format(numericValue);
     };
 
-    // Mapeo seguro de métricas con valores por defecto
     const data = {
         totalProductsSold: stats?.totalProductsSold ?? 0,
         recoveredBottles: stats?.recoveredBottles ?? 0,
@@ -42,223 +37,182 @@ export default function EmployeeDashboard({ auth, stats }) {
         activeTripId: stats?.activeTripId ?? 1,
     };
 
-    // Cálculo del porcentaje de avance de ruta
-    const completionPercentage = data.totalDeliveries > 0
-        ? Math.round((data.completedDeliveries / data.totalDeliveries) * 100)
-        : 0;
-
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<span className="text-lg font-bold text-gray-800 tracking-tight">Panel de Operaciones</span>}
+            header={<span className="text-lg font-bold text-gray-800 tracking-tight">Modo Repartidor</span>}
         >
-            <Head title="Mi Ruta" />
+            <Head title="Mi Jornada en Vivo" />
 
-            <div className="max-w-7xl mx-auto space-y-6">
+            <div className="max-w-7xl mx-auto space-y-6 pb-8">
 
-                {/* BANNER DE BIENVENIDA OPERATIVO */}
-               <Card className="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <div className="flex items-center gap-4">
-        <div className="p-3.5 bg-indigo-50 text-indigo-600 rounded-2xl shrink-0 hidden sm:block">
-            <TruckIcon className="w-6 h-6 stroke-[2]" />
-        </div>
-        <div>
-            <div className="flex items-center gap-2">
-                <Typography variant="h4" className="text-xl font-bold text-gray-900 tracking-tight">
-                    ¡Hola, {auth.user.name.split(' ')[0]}! 👋
-                </Typography>
+                {/* BLOQUE SUPERIOR */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
-                {/* BADGE MEJORADO: Verde Esmeralda con borde visible y fondo sólido */}
-                <span className="text-xs font-bold text-emerald-800 bg-emerald-100/90 px-3 py-1 rounded-full flex items-center gap-1.5 border border-emerald-300 shadow-xs">
-                    <span className="w-2 h-2 bg-emerald-600 rounded-full animate-pulse"></span> Turno Activo
-                </span>
-            </div>
-            <Typography className="text-xs text-gray-500 mt-0.5">
-                Revisa el avance de tu ruta, registra cobros y cuadra tu caja en tiempo real.
-            </Typography>
-        </div>
-    </div>
-    <div className="flex gap-2 w-full sm:w-auto">
-        <Link href={route('repartidor.trips.index')} className="w-full sm:w-auto">
-            <Button size="sm" className="w-full flex items-center justify-center gap-2 rounded-xl normal-case bg-indigo-600 hover:bg-indigo-700 text-white shadow-none hover:shadow-none text-xs py-2.5 font-bold">
-                <MapIcon className="w-4 h-4 stroke-[2.5]" /> Ver Mapa de Ruta
-            </Button>
-        </Link>
-    </div>
-</Card>
+                    {/* 1. TARJETA DE TURNO ASIGNADO & ACCESO AL POS */}
+                    <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col justify-between space-y-6">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Turno Asignado Activo</span>
+                            </div>
+                            <span className="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-100 font-bold">
+                                Repartidor: {auth.user.name.split(' ')[0]}
+                            </span>
+                        </div>
 
-                {/* BLOQUE 1: RECAUDO Y CAJA DE HOY */}
-                <div className="space-y-3">
-                    <Typography className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                        Recaudo y Cuadre de Caja
-                    </Typography>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                        <StatCard
-                            title="Efectivo Neto en Mano"
-                            value={formatCurrency(data.collectedCash)}
-                            icon={BanknotesIcon}
-                            colorTheme="green"
-                            description="Cobros en físico menos gastos"
-                        />
-                        <StatCard
-                            title="Cobros por Transferencia"
-                            value={formatCurrency(data.collectedTransfer)}
-                            icon={QrCodeIcon}
-                            colorTheme="blue"
-                            description="Depositado directamente a cuenta"
-                        />
-                        <StatCard
-                            title="Gastos Registrados"
-                            value={formatCurrency(data.totalExpenses)}
-                            icon={WrenchScrewdriverIcon}
-                            colorTheme="amber"
-                            description="Viáticos y combustible abonados"
-                        />
+                        {/* BOTÓN PRINCIPAL AL TURNO ASIGNADO / POS */}
+                        <Link href={route('repartidor.trips.index')} className="block group">
+                            <div className="bg-indigo-600 group-hover:bg-indigo-700 active:scale-[0.99] transition-all rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-md">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-white/15 rounded-xl shrink-0">
+                                        <ShoppingCartIcon className="w-7 h-7 text-white stroke-[2]" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-base sm:text-lg font-bold text-white leading-tight">Ir al Turno Asignado / Registrar Ventas (POS)</h3>
+                                        <p className="text-xs text-indigo-100 mt-0.5">Ingresar al punto de venta y registrar cobranzas</p>
+                                    </div>
+                                </div>
+                                <ChevronRightIcon className="w-6 h-6 text-white stroke-[2.5] group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </Link>
+
+                        {/* RESUMEN RÁPIDO DE VENTAS DEL TURNO */}
+                        <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600 font-semibold">
+                            <span>Estado de Operación</span>
+                            <span className="text-indigo-600 font-bold">Listo para registrar pedidos en ruta</span>
+                        </div>
                     </div>
+
+                    {/* 2. EFECTIVO EN MANO Y GASTOS */}
+                    <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm flex flex-col justify-between space-y-4">
+                        <div className="flex justify-between items-start border-b border-gray-100 pb-4">
+                            <div>
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Efectivo Neto en Mano</span>
+                                <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mt-1">
+                                    {formatCurrency(data.collectedCash)}
+                                </h2>
+                            </div>
+                            <span className="text-xs bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-full border border-indigo-100 shrink-0">
+                                Cobrado Físico
+                            </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-gray-50 p-3.5 rounded-2xl border border-gray-100">
+                                <div className="flex items-center gap-1.5 text-blue-600 mb-1">
+                                    <QrCodeIcon className="w-4 h-4 stroke-[2.5]" />
+                                    <span className="text-xs font-bold">Transferencias</span>
+                                </div>
+                                <span className="text-base sm:text-lg font-extrabold text-gray-800 block">{formatCurrency(data.collectedTransfer)}</span>
+                            </div>
+
+                            <div className="bg-gray-50 p-3.5 rounded-2xl border border-gray-100">
+                                <div className="flex items-center gap-1.5 text-amber-600 mb-1">
+                                    <WrenchScrewdriverIcon className="w-4 h-4 stroke-[2.5]" />
+                                    <span className="text-xs font-bold">Gastos / Viáticos</span>
+                                </div>
+                                <span className="text-base sm:text-lg font-extrabold text-gray-800 block">{formatCurrency(data.totalExpenses)}</span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 pt-1">
+                            <Link href={route('repartidor.expenses.create', data.activeTripId)} className="block">
+                                <button className="w-full bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-gray-950 font-bold text-xs py-3 px-3 rounded-2xl shadow-sm transition-all flex items-center justify-center gap-2">
+                                    <WrenchScrewdriverIcon className="w-4 h-4 stroke-[2.5]" />
+                                    Registrar Gasto
+                                </button>
+                            </Link>
+
+                            <Link href={route('repartidor.shifts.close')} className="block">
+                                <button className="w-full bg-gray-100 hover:bg-gray-200 hover:border-indigo-100 active:scale-[0.98] text-gray-800 font-bold text-xs py-3 px-3 rounded-2xl transition-all flex items-center justify-center gap-2 border border-gray-200">
+                                    <ClockIcon className="w-4 h-4 stroke-[2.5]" />
+                                    Cerrar Jornada
+                                </button>
+                            </Link>
+                        </div>
+                    </div>
+
                 </div>
 
-                {/* BLOQUE 2: OPERACIONES Y ENTREGAS */}
-                <div className="space-y-3">
-                    <Typography className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                        Rendimiento Operativo
-                    </Typography>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-4">
-                        <StatCard
-                            title="Productos Vendidos / Entregados"
-                            value={`${data.totalProductsSold} pzas`}
-                            icon={ShoppingBagIcon}
-                            colorTheme="purple"
-                            description="Unidades entregadas en la jornada"
-                        />
-                        <StatCard
-                            title="Envases Recuperados"
-                            value={`${data.recoveredBottles} pzas`}
-                            icon={ArrowPathIcon}
-                            colorTheme="indigo"
-                            description="Botellones retornados a cabina"
-                        />
-                    </div>
-                </div>
-
-                {/* BLOQUE 3: ESTADO DE LA RUTA Y ACCIONES RÁPIDAS */}
+                {/* BLOQUE INFERIOR */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                    {/* PROGRESO DE LA RUTA */}
-                    <Card className="lg:col-span-5 p-6 bg-white shadow-sm border border-gray-100 rounded-2xl flex flex-col justify-between">
-                        <div>
-                            <div className="flex items-center justify-between mb-2">
+                    {/* RESUMEN DE INVENTARIO */}
+                    <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-4">
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Resumen de Envases e Inventario</span>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex items-center gap-3.5 p-4 bg-purple-50/60 rounded-2xl border border-purple-100/50">
+                                <div className="p-3 bg-purple-100 text-purple-700 rounded-xl shrink-0">
+                                    <ShoppingBagIcon className="w-6 h-6 stroke-[2]" />
+                                </div>
                                 <div>
-                                    <Typography className="text-sm font-bold text-slate-800">Avance de Entregas</Typography>
-                                    <Typography className="text-[11px] text-slate-400">Progreso del viaje en curso</Typography>
+                                    <span className="text-xl font-bold text-gray-800 block leading-tight">{data.totalProductsSold} u.</span>
+                                    <span className="text-xs text-gray-500 font-medium">Vendidas hoy</span>
                                 </div>
-                                <span className="text-xs font-extrabold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg">
-                                    {completionPercentage}%
-                                </span>
                             </div>
 
-                            <div className="my-6 space-y-2">
-                                <div className="w-full bg-slate-100 rounded-full h-3.5 p-0.5">
-                                    <div
-                                        className="bg-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out"
-                                        style={{ width: `${completionPercentage}%` }}
-                                    ></div>
+                            <div className="flex items-center gap-3.5 p-4 bg-emerald-50/60 rounded-2xl border border-emerald-100/50">
+                                <div className="p-3 bg-emerald-100 text-emerald-700 rounded-xl shrink-0">
+                                    <ArrowPathIcon className="w-6 h-6 stroke-[2]" />
                                 </div>
-                                <div className="flex justify-between text-[11px] font-semibold text-slate-500 pt-1">
-                                    <span>{data.completedDeliveries} Completadas</span>
-                                    <span>{data.pendingDeliveries} Pendientes</span>
+                                <div>
+                                    <span className="text-xl font-bold text-gray-800 block leading-tight">{data.recoveredBottles} u.</span>
+                                    <span className="text-xs text-gray-500 font-medium">Retornadas</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <Link href={route('repartidor.trips.index')} className="w-full">
-                            <Button className="w-full rounded-xl normal-case shadow-none hover:shadow-none flex justify-center items-center gap-2 text-xs py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
-                                <MapIcon className="w-4 h-4 stroke-[2]" /> Continuar Recorrido
-                            </Button>
-                        </Link>
-                    </Card>
+                    {/* CONSULTAS RÁPIDAS */}
+                    <div className="lg:col-span-7 bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-4 flex flex-col justify-between">
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Consultas Rápidas</span>
 
-                    {/* CIERRE Y GESTIÓN DE GASTOS */}
-                    <Card className="lg:col-span-7 p-6 bg-white shadow-sm border border-gray-100 rounded-2xl flex flex-col justify-between space-y-4">
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                                <Typography className="text-sm font-bold text-slate-800">Cierre de Turno y Viáticos</Typography>
-                                <span className="p-1 bg-amber-50 text-amber-600 rounded-lg">
-                                    <ExclamationCircleIcon className="w-4 h-4 stroke-[2.5]" />
-                                </span>
-                            </div>
-                            <Typography className="text-xs text-slate-500 leading-relaxed">
-                                Reporta combustible o Imprevistos mecánicos antes de liquidar tu caja física. Al finalizar el turno, entrega el efectivo neto acumulado.
-                            </Typography>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Link href={route('repartidor.sales.index')} className="block group">
+                                <div className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 group-hover:border-indigo-200 group-hover:bg-indigo-50/30 transition-all">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2.5 bg-gray-50 group-hover:bg-indigo-600 text-gray-500 group-hover:text-white rounded-xl transition-all">
+                                            <DocumentTextIcon className="w-5 h-5 stroke-[2]" />
+                                        </div>
+                                        <div>
+                                            <div className="text-xs font-bold text-gray-800 group-hover:text-indigo-600">Historial de Ventas</div>
+                                            <div className="text-[10px] text-gray-400">Ver comprobantes emitidos</div>
+                                        </div>
+                                    </div>
+                                    <ChevronRightIcon className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </Link>
+
+                            <Link href={route('repartidor.shifts.index')} className="block group">
+                                <div className="flex items-center justify-between p-4 rounded-2xl border border-gray-100 group-hover:border-purple-200 group-hover:bg-purple-50/30 transition-all">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2.5 bg-gray-50 group-hover:bg-purple-600 text-slate-500 group-hover:text-white rounded-xl transition-all">
+                                            <ClockIcon className="w-5 h-5 stroke-[2]" />
+                                        </div>
+                                        <div>
+                                            <div className="text-xs font-bold text-gray-800 group-hover:text-purple-600">Historial de Turnos</div>
+                                            <div className="text-[10px] text-gray-400">Consultar cierres pasados</div>
+                                        </div>
+                                    </div>
+                                    <ChevronRightIcon className="w-4 h-4 text-gray-400 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </Link>
                         </div>
-<div className="flex flex-col sm:flex-row gap-3 pt-2">
 
-    {/* Registrar Gasto con variante Outlined/Filled de Material Tailwind */}
-    <Link href={route('repartidor.expenses.create', data.activeTripId)} className="flex-1 ">
-        <Button
-            color="indigo"
-            variant="outlined"
-            className="w-full rounded-xl normal-case text-xs py-3 font-bold flex items-center justify-center gap-2 bg-slate-100 border-slate-300 text-slate-800"
-        >
-            <WrenchScrewdriverIcon className="w-4 h-4 stroke-[2] text-amber-600" />
-            Registrar Gasto
-        </Button>
-    </Link>
-
-    {/* Terminar Jornada */}
-    <Link href={route('repartidor.shifts.close')} className="flex-1">
-        <Button
-            color="amber"
-            className="w-full rounded-xl normal-case shadow-none text-xs py-3 text-slate-900 font-bold flex items-center justify-center gap-2"
-        >
-            <ClockIcon className="w-4 h-4 stroke-[2]" />
-            Terminar Jornada
-        </Button>
-    </Link>
-
-</div>
-                    </Card>
+                        <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+                            <span>AquaRutaTech Operaciones</span>
+                            <span className="font-semibold text-gray-600">v2.1 Stable</span>
+                        </div>
+                    </div>
 
                 </div>
 
-                {/* ACCESOS DIRECTOS */}
-                <Card className="p-6 bg-white shadow-sm border border-gray-100 rounded-2xl">
-                    <Typography className="text-sm font-bold text-slate-800 mb-1">Consultas y Accesos Rápidos</Typography>
-                    <Typography className="text-xs text-slate-400 mb-4">Revisión de comprobantes e historial de movimientos</Typography>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Link href={route('repartidor.sales.index')} className="w-full">
-                            <div className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/20 transition group">
-                                <div className="p-2.5 bg-slate-50 group-hover:bg-blue-50 text-slate-500 group-hover:text-blue-600 rounded-lg transition-colors">
-                                    <DocumentTextIcon className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <div className="text-xs font-bold text-slate-800">Historial de Ventas</div>
-                                    <div className="text-[10px] text-slate-400">Ver tickets y cobros del día</div>
-                                </div>
-                            </div>
-                        </Link>
-
-                        <Link href={route('repartidor.shifts.index')} className="w-full">
-                            <div className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/20 transition group">
-                                <div className="p-2.5 bg-slate-50 group-hover:bg-amber-50 text-slate-500 group-hover:text-amber-600 rounded-lg transition-colors">
-                                    <ClockIcon className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <div className="text-xs font-bold text-slate-800">Historial de Turnos</div>
-                                    <div className="text-[10px] text-slate-400">Consultar cierres y horas trabajadas</div>
-                                </div>
-                            </div>
-                        </Link>
-                    </div>
-                </Card>
-
                 {/* FOOTER */}
-                <div className="text-center pt-2 flex flex-col items-center justify-center gap-0.5 pb-4">
+                <div className="text-center pt-2">
                     <Typography className="text-[10px] text-gray-400 font-medium tracking-wide">
-                        &copy; {new Date().getFullYear()} AguaRutaTech. Todos los derechos reservados.
-                    </Typography>
-                    <Typography className="text-[9px] text-indigo-500/80 font-bold tracking-widest uppercase">
-                        Production Stable • v2.1
+                        &copy; {new Date().getFullYear()} Aqua<span className="text-blue-500">RutaTech</span>. Todos los derechos reservados.
                     </Typography>
                 </div>
 

@@ -108,10 +108,10 @@ const MENU_CATEGORIES = [
              { label: "Historial Ventas", routeName: "repartidor.sales.index", pattern: "repartidor.sales.*", icon: ClipboardDocumentListIcon, roles: ['empleado'], colorBg: "bg-pink-50", colorText: "text-pink-600" },
 
             { label: "Historial Cierres", routeName: "admin.shifts.index", pattern: "admin.shifts.*", icon: ClockIcon, roles: ['admin'], colorBg: "bg-blue-50", colorText: "text-blue-600" },
-            { label: "Cuentas por Cobrar", routeName: "admin.receivables.index", pattern: "admin.receivables.index", icon: BanknotesIcon, roles: ['admin'], colorBg: "bg-emerald-50", colorText: "text-emerald-600" },
+            { label: "Cuentas por Cobrar", routeName: "admin.receivables.index", pattern: "admin.receivables.index", icon: BanknotesIcon, roles: ['admin'], colorBg: "bg-green-50", colorText: "text-green-600" },
             { label: "Auditoría Cobros", routeName: "admin.receivables.history", pattern: "admin.receivables.history", icon: BanknotesIcon, roles: ['admin'], colorBg: "bg-purple-50", colorText: "text-purple-600" },
             { label: "Historial Cierres", routeName: "repartidor.shifts.index", pattern: "repartidor.shifts.index", icon: ClockIcon, roles: ['empleado'], colorBg: "bg-blue-50", colorText: "text-blue-600" },
-            { label: "Por Cobrar", routeName: "repartidor.receivables.index", pattern: "repartidor.receivables.index", icon: BanknotesIcon, roles: ['empleado'], colorBg: "bg-emerald-50", colorText: "text-emerald-600" },
+            { label: "Por Cobrar", routeName: "repartidor.receivables.index", pattern: "repartidor.receivables.index", icon: BanknotesIcon, roles: ['empleado'], colorBg: "bg-green-50", colorText: "text-green-600" },
             { label: "Historial Cobros", routeName: "repartidor.receivables.history", pattern: "repartidor.receivables.history", icon: ClockIcon, roles: ['empleado'], colorBg: "bg-indigo-50", colorText: "text-indigo-600" },
         ]
     },
@@ -358,9 +358,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     Ajustes y Cuenta:
                                 </Typography>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <GridCard href={route('profile.edit')} onClick={() => setIsMobileMenuOpen(false)} icon={UserCircleIcon} label="Mi Perfil" iconColor="text-gray-700" iconBg="bg-gray-100" />
-                                    <GridCard href="#" onClick={() => setIsMobileMenuOpen(false)} icon={InboxIcon} label="Mensajes" iconColor="text-indigo-600" iconBg="bg-indigo-50" badge="14" />
-                                    <GridCard href="#" onClick={() => setIsMobileMenuOpen(false)} icon={Cog6ToothIcon} label="Ajustes" iconColor="text-slate-600" iconBg="bg-slate-100" />
+                                    <GridCard href={route('profile.edit')} onClick={() => setIsMobileMenuOpen(false)} icon={UserCircleIcon} label="Mi Perfil" iconColor="text-indigo-700" iconBg="bg-indigo-50" />
 
                                     <Link href={route('logout')} method="post" as="button" className="col-span-2 flex items-center justify-center p-4 bg-white rounded-2xl gap-3 shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-red-100 active:scale-95">
                                         <div className="w-10 h-10 rounded-full flex items-center justify-center bg-red-50 text-red-500">

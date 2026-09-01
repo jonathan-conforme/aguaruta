@@ -190,7 +190,7 @@ const handleActivateRoute = (tripId) => {
 
 
                     <div className="space-y-2 text-sm text-gray-700">
-                        <div>✓ No podrás registrar más ventas.</div>
+                        <div>✓ No podrás registrar más ventas de este viaje.</div>
                         <div>✓ El viaje quedará marcado como completado.</div>
                         <div>✓ Podrás continuar con el cierre de caja.</div>
                     </div>

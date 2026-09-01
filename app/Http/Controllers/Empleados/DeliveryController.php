@@ -69,7 +69,7 @@ class DeliveryController extends Controller
     // 4. Redirigir directamente al POS / Formulario de Ventas
     return redirect()
         ->route('repartidor.sales.create', $trip->id)
-        ->with('success', '¡Ruta iniciada correctamente!');
+        ->with('success', '¡la Ruta se ha iniciado correctamente!');
 }
     /**
      * Cambia el estado del viaje a "completed" (Cerrar viaje)
@@ -88,7 +88,7 @@ class DeliveryController extends Controller
             $trip->update(['status' => 'completed']); // Asegúrate de que 'completed' sea el estado correcto en tu BD
         }
 
-        return back()->with('success', '¡Viaje cerrado correctamente!');
+        return back()->with('success', '¡El Viaje fue cerrado correctamente!');
     }
 
 }

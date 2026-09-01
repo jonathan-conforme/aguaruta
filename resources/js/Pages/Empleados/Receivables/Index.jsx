@@ -229,8 +229,8 @@ export default function Index({ auth, sales, stats, filters }) {
 
                                             <Button
                                                 size="sm"
-                                                color="emerald"
-                                                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 shadow-md shadow-emerald-100"
+                                                color="green"
+                                                className="w-full flex items-center justify-center gap-2 rounded-xl py-2.5 shadow-md shadow-green-100"
                                                 onClick={() => openModal(sale)}
                                             >
                                                 <BanknotesIcon className="h-4 w-4" />
@@ -306,8 +306,8 @@ export default function Index({ auth, sales, stats, filters }) {
                                                     <td className="p-4 text-right">
                                                         <Button
                                                             size="sm"
-                                                            color="emerald"
-                                                            className="inline-flex items-center gap-1.5 rounded-xl text-xs py-1.5 px-3 shadow-md shadow-emerald-100"
+                                                            color="green"
+                                                            className="inline-flex items-center gap-1.5 rounded-xl text-xs py-1.5 px-3 shadow-md shadow-green-100"
                                                             onClick={() => openModal(sale)}
                                                         >
                                                             <BanknotesIcon className="h-4 w-4" />
@@ -453,7 +453,7 @@ export default function Index({ auth, sales, stats, filters }) {
                         <Button variant="text" color="gray" onClick={closeModal} className="rounded-xl">
                             Cancelar
                         </Button>
-                        <Button type="submit" color="emerald" disabled={processing} className="rounded-xl shadow-md shadow-emerald-100">
+                        <Button type="submit" color="green" disabled={processing} className="rounded-xl shadow-md shadow-green-100">
                             {processing ? 'Guardando...' : 'Registrar Abono'}
                         </Button>
                     </DialogFooter>

@@ -27,7 +27,9 @@ import {
     ExclamationTriangleIcon,
     ArrowDownTrayIcon,
     UserIcon,
-    ChatBubbleBottomCenterTextIcon
+    ChatBubbleBottomCenterTextIcon,
+    CalendarIcon,
+    XMarkIcon
 } from "@heroicons/react/24/solid";
 
 export default function History({ auth, payments, stats, filters }) {
@@ -144,7 +146,7 @@ export default function History({ auth, payments, stats, filters }) {
     return (
         <AuthenticatedLayout
             header={
-                <Typography variant="h5" className="flex items-center gap-2">
+                <Typography variant="h5" color="blue-gray" className="flex items-center gap-2 font-bold">
                     <DocumentCheckIcon className="h-6 w-6 text-indigo-500" />
                     Historial de Abonos y Cobranzas
                 </Typography>
@@ -152,10 +154,10 @@ export default function History({ auth, payments, stats, filters }) {
         >
             <Head title="Historial de Abonos" />
 
-            <div className="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+            <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-3 sm:py-0 space-y-4 sm:space-y-6">
 
                 {/* MÉTRICAS DE COBRANZA (RECAUDACIÓN DE CARTERA) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                     <StatCard
                         title="Total Recuperado"
                         value={formatCurrency(stats?.total_collected)}
@@ -180,23 +182,27 @@ export default function History({ auth, payments, stats, filters }) {
                 </div>
 
                 {/* FILTROS Y CONTROLES */}
-                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col gap-4">
+                <Card className="p-4 sm:p-5 shadow-sm border border-gray-200/80 rounded-2xl bg-white">
                     <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-                        
+
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
                             <div className="w-full sm:w-64">
                                 <Input
                                     label="Buscar cliente, cobrador o ref."
+                                    color="indigo"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     icon={<MagnifyingGlassIcon className="h-4 w-4 text-gray-400" />}
+                                    className="bg-white rounded-xl"
                                 />
                             </div>
                             <div className="w-full sm:w-48">
                                 <Select
                                     label="Método de Pago"
+                                    color="indigo"
                                     value={paymentMethod}
                                     onChange={(val) => setPaymentMethod(val || '')}
+                                    className="bg-white rounded-xl"
                                 >
                                     <Option value="">Todos los métodos</Option>
                                     <Option value="cash">Efectivo</Option>
@@ -205,126 +211,100 @@ export default function History({ auth, payments, stats, filters }) {
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-end">
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                                <FunnelIcon className="h-4 w-4 text-indigo-500 hidden sm:inline" />
-                                <span>Desde:</span>
+                        <div className="flex flex-wrap items-center gap-2.5 w-full lg:w-auto justify-start sm:justify-end">
+                            <div className="flex items-center gap-1.5 text-xs text-gray-500 bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1.5">
+                                <CalendarIcon className="h-4 w-4 text-indigo-500 shrink-0" />
+                                <span className="font-medium text-slate-600">Desde:</span>
                                 <input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => handleDateChange(e.target.value, endDate)}
-                                    className="text-xs font-medium text-gray-700 bg-gray-50 border border-gray-300 rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    className="text-xs font-semibold text-slate-800 bg-transparent border-0 p-0 focus:ring-0 cursor-pointer"
                                 />
                             </div>
 
-                            <div className="flex items-center gap-1 text-xs text-gray-500">
-                                <span>Hasta:</span>
+                            <div className="flex items-center gap-1.5 text-xs text-gray-500 bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1.5">
+                                <span className="font-medium text-slate-600">Hasta:</span>
                                 <input
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => handleDateChange(startDate, e.target.value)}
-                                    className="text-xs font-medium text-gray-700 bg-gray-50 border border-gray-300 rounded-lg p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                                    className="text-xs font-semibold text-slate-800 bg-transparent border-0 p-0 focus:ring-0 cursor-pointer"
                                 />
                             </div>
 
                             {(search || paymentMethod || startDate || endDate) && (
-                                <button
+                                <Button
+                                    variant="text"
+                                    color="indigo"
+                                    size="sm"
                                     onClick={clearFilters}
-                                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold underline whitespace-nowrap"
+                                    className="text-xs rounded-xl py-2 px-3 flex items-center gap-1"
                                 >
-                                    Limpiar
-                                </button>
+                                    <XMarkIcon className="h-3.5 w-3.5" /> Limpiar
+                                </Button>
                             )}
-
-                            {/* DESCARGA PDF 
-                            {isInvalidRange ? (
-                                <button
-                                    type="button"
-                                    disabled
-                                    className="inline-flex items-center gap-2 rounded-lg bg-gray-300 px-3 py-2 text-xs font-medium text-gray-500 cursor-not-allowed"
-                                >
-                                    <ArrowDownTrayIcon className="h-4 w-4" />
-                                    PDF
-                                </button>
-                            ) : (
-                                <a
-                                    href={route(
-                                        isAdmin ? "admin.receivables.export.pdf" : "repartidor.receivables.export.pdf",
-                                        {
-                                            ...(search && { search }),
-                                            ...(paymentMethod && { payment_method: paymentMethod }),
-                                            ...(startDate && { start_date: startDate }),
-                                            ...(endDate && { end_date: endDate }),
-                                        }
-                                    )}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-medium text-white shadow-md hover:bg-indigo-700 transition-all cursor-pointer"
-                                >
-                                    <ArrowDownTrayIcon className="h-4 w-4" />
-                                    PDF
-                                </a>
-                            )}*/}
                         </div>
                     </div>
-                </div>
+                </Card>
 
                 {/* TABLA / TARJETAS MÓVILES */}
-                <Card className="shadow-sm border border-gray-200">
-                    <CardBody className="px-0 py-0">
+                <Card className="shadow-sm border border-gray-200/80 rounded-2xl overflow-hidden bg-slate-50/50">
+                    <CardBody className="px-0 py-0 bg-white">
                         {paymentsList.length > 0 ? (
                             <>
                                 {/* VISTA MÓVIL */}
-                                <div className="grid grid-cols-1 gap-4 p-4 md:hidden">
+                                <div className="grid grid-cols-1 gap-3 p-3 md:hidden bg-slate-50/50">
                                     {paymentsList.map((payment) => (
                                         <div
                                             key={payment.id}
-                                            className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm flex flex-col gap-2.5"
+                                            className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm flex flex-col gap-3"
                                         >
-                                            <div className="flex justify-between items-center border-b border-gray-100 pb-2">
+                                            <div className="flex justify-between items-center border-b border-slate-100 pb-2.5">
                                                 <div>
-                                                    <span className="text-xs font-bold text-gray-800">
-                                                        {new Date(payment.created_at).toLocaleDateString('es-EC')}
+                                                    <span className="text-xs font-bold text-slate-800 block">
+                                                        {new Date(payment.created_at).toLocaleDateString('es-EC', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                     </span>
-                                                    <span className="text-[11px] text-gray-400 block">
+                                                    <span className="text-[11px] text-slate-400 block font-medium">
                                                         {new Date(payment.created_at).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                 </div>
-                                                <Typography variant="h6" className="font-bold text-green-600">
+                                                <Typography variant="h6" className="font-extrabold text-emerald-600 text-base">
                                                     +{formatCurrency(payment.amount)}
                                                 </Typography>
                                             </div>
 
-                                            <div className="flex flex-col text-xs gap-1">
-                                                <span className="text-gray-400 font-medium flex items-center gap-1">
-                                                    <UserIcon className="h-3 w-3 text-gray-400" /> Cliente:
+                                            <div className="flex flex-col text-xs gap-0.5">
+                                                <span className="text-slate-400 font-medium text-[10px] uppercase tracking-wider flex items-center gap-1">
+                                                    <UserIcon className="h-3 w-3 text-slate-400" /> Cliente
                                                 </span>
-                                                <span className="font-semibold text-gray-800">
+                                                <span className="font-bold text-slate-800 text-xs">
                                                     {payment.sale?.customer?.name || 'Cliente general'}
                                                 </span>
                                             </div>
 
-                                            <div className="flex justify-between items-center text-xs bg-gray-50 p-2 rounded-lg">
-                                                <span className="text-indigo-600 font-semibold">Venta #{payment.sale_id}</span>
-                                                <span className="text-gray-600">Cobró: <strong>{payment.shift?.user?.name || 'Admin/Sistema'}</strong></span>
+                                            <div className="flex justify-between items-center text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                                <span className="text-indigo-600 font-bold">Venta #{payment.sale_id}</span>
+                                                <span className="text-slate-600 text-[11px]">Cobró: <strong className="text-slate-800">{payment.shift?.user?.name || 'Admin/Sistema'}</strong></span>
                                             </div>
 
                                             {payment.notes && (
-                                                <div className="text-[11px] text-gray-600 bg-amber-50/60 p-2 rounded border border-amber-100 flex items-start gap-1">
-                                                    <ChatBubbleBottomCenterTextIcon className="h-3.5 w-3.5 text-amber-600 shrink-0 mt-0.5" />
-                                                    <span>{payment.notes}</span>
+                                                <div className="text-[11px] text-amber-900 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200/60 flex items-start gap-1.5">
+                                                    <ChatBubbleBottomCenterTextIcon className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                                                    <span className="font-medium">{payment.notes}</span>
                                                 </div>
                                             )}
 
-                                            <div className="flex justify-between items-center pt-1 border-t border-gray-100">
+                                            <div className="flex justify-between items-center pt-2 border-t border-slate-100">
                                                 <Chip
+                                                    variant="ghost"
                                                     size="sm"
                                                     color={payment.payment_method === 'cash' ? 'green' : 'purple'}
                                                     value={payment.payment_method === 'cash' ? 'Efectivo' : 'Transferencia'}
-                                                    className="w-max"
+                                                    className="rounded-lg font-bold text-[10px]"
                                                 />
-                                                <span className="text-[11px] font-mono text-gray-500">
-                                                    Ref: {payment.reference_number || 'Sin ref.'}
+                                                <span className="text-[11px] font-mono text-slate-500 font-medium">
+                                                    {payment.reference_number ? `Ref: ${payment.reference_number}` : 'Sin ref.'}
                                                 </span>
                                             </div>
                                         </div>
@@ -333,97 +313,93 @@ export default function History({ auth, payments, stats, filters }) {
 
                                 {/* VISTA ESCRITORIO */}
                                 <div className="hidden md:block overflow-x-auto">
-                                    <table className="w-full text-left">
+                                    <table className="w-full text-left min-w-max table-auto">
                                         <thead>
                                             <tr>
                                                 {TABLE_HEAD.map((head) => (
-                                                    <th key={head} className="p-4 bg-gray-50 border-b border-gray-200">
-                                                        <Typography variant="small" className="font-bold text-gray-700">
+                                                    <th key={head} className="p-4 bg-gray-50/70 border-b border-gray-100">
+                                                        <Typography variant="small" className="font-bold text-gray-600 text-xs uppercase tracking-wider">
                                                             {head}
                                                         </Typography>
                                                     </th>
                                                 ))}
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            {paymentsList.map((payment, index) => {
-                                                const isLast = index === paymentsList.length - 1;
-                                                const classes = isLast ? "p-4" : "p-4 border-b border-gray-100";
+                                        <tbody className="divide-y divide-gray-100">
+                                            {paymentsList.map((payment) => (
+                                                <tr key={payment.id} className="hover:bg-indigo-50/30 transition-colors">
+                                                    <td className="p-4">
+                                                        <Typography className="font-bold text-gray-800 text-xs">
+                                                            {new Date(payment.created_at).toLocaleDateString('es-EC')}
+                                                        </Typography>
+                                                        <Typography variant="small" className="text-gray-400 text-[11px]">
+                                                            {new Date(payment.created_at).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })}
+                                                        </Typography>
+                                                    </td>
 
-                                                return (
-                                                    <tr key={payment.id} className="hover:bg-gray-50/80 transition-colors">
-                                                        <td className={classes}>
-                                                            <Typography className="font-medium text-gray-800 text-sm">
-                                                                {new Date(payment.created_at).toLocaleDateString('es-EC')}
-                                                            </Typography>
-                                                            <Typography variant="small" className="text-gray-400 text-xs">
-                                                                {new Date(payment.created_at).toLocaleTimeString('es-EC', { hour: '2-digit', minute: '2-digit' })}
-                                                            </Typography>
-                                                        </td>
+                                                    <td className="p-4">
+                                                        <Typography className="font-bold text-gray-800 text-xs">
+                                                            {payment.sale?.customer?.name || 'Cliente general'}
+                                                        </Typography>
+                                                        <Typography variant="small" className="text-gray-400 text-[11px]">
+                                                            {payment.sale?.customer?.identification || 'Sin CI/RUC'}
+                                                        </Typography>
+                                                    </td>
 
-                                                        <td className={classes}>
-                                                            <Typography className="font-semibold text-gray-800 text-sm">
-                                                                {payment.sale?.customer?.name || 'Cliente general'}
-                                                            </Typography>
-                                                            <Typography variant="small" className="text-gray-400 text-xs">
-                                                                {payment.sale?.customer?.identification || 'Sin identificación'}
-                                                            </Typography>
-                                                        </td>
+                                                    <td className="p-4">
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100">
+                                                            Venta #{payment.sale_id}
+                                                        </span>
+                                                    </td>
 
-                                                        <td className={classes}>
-                                                            <Typography className="font-semibold text-indigo-600 text-sm">
-                                                                Venta #{payment.sale_id}
-                                                            </Typography>
-                                                        </td>
+                                                    <td className="p-4">
+                                                        <Typography className="font-medium text-gray-700 text-xs">
+                                                            {payment.shift?.user?.name || 'Sistema / Admin'}
+                                                        </Typography>
+                                                    </td>
 
-                                                        <td className={classes}>
-                                                            <Typography className="font-medium text-gray-800 text-sm">
-                                                                {payment.shift?.user?.name || 'Sistema / Admin'}
-                                                            </Typography>
-                                                        </td>
+                                                    <td className="p-4">
+                                                        <Chip
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            color={payment.payment_method === 'cash' ? 'green' : 'purple'}
+                                                            value={payment.payment_method === 'cash' ? 'Efectivo' : 'Transferencia'}
+                                                            className="rounded-lg w-max font-bold text-[10px]"
+                                                        />
+                                                    </td>
 
-                                                        <td className={classes}>
-                                                            <Chip
-                                                                size="sm"
-                                                                color={payment.payment_method === 'cash' ? 'green' : 'purple'}
-                                                                value={payment.payment_method === 'cash' ? 'Efectivo' : 'Transferencia'}
-                                                                className="w-max"
-                                                            />
-                                                        </td>
+                                                    <td className="p-4">
+                                                        <Typography className="font-extrabold text-emerald-600 text-xs">
+                                                            +{formatCurrency(payment.amount)}
+                                                        </Typography>
+                                                    </td>
 
-                                                        <td className={classes}>
-                                                            <Typography className="font-bold text-green-600 text-sm">
-                                                                +{formatCurrency(payment.amount)}
+                                                    <td className="p-4">
+                                                        <Typography className="text-xs font-mono text-gray-700 font-semibold">
+                                                            {payment.reference_number ? `Ref: ${payment.reference_number}` : 'Sin N° ref.'}
+                                                        </Typography>
+                                                        {payment.notes && (
+                                                            <Typography variant="small" className="text-gray-500 text-[11px] italic truncate max-w-xs block mt-0.5">
+                                                                "{payment.notes}"
                                                             </Typography>
-                                                        </td>
-
-                                                        <td className={classes}>
-                                                            <Typography className="text-xs font-mono text-gray-700">
-                                                                {payment.reference_number ? `Ref: ${payment.reference_number}` : 'Sin N° ref.'}
-                                                            </Typography>
-                                                            {payment.notes && (
-                                                                <Typography variant="small" className="text-gray-500 text-xs italic truncate max-w-xs block">
-                                                                    "{payment.notes}"
-                                                                </Typography>
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })}
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
                                         </tbody>
                                     </table>
                                 </div>
                             </>
                         ) : (
-                            <div className="p-8 text-center text-gray-500">
+                            <div className="p-8 text-center text-gray-500 text-sm">
                                 No se encontraron registros de abonos para la búsqueda seleccionada.
                             </div>
                         )}
 
                         {/* PAGINACIÓN */}
                         {payments?.current_page && (
-                            <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 p-4 gap-4">
-                                <Typography variant="small" color="gray" className="font-normal text-center sm:text-left">
+                            <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 p-4 gap-3 bg-white">
+                                <Typography variant="small" color="gray" className="font-normal text-xs text-center sm:text-left">
                                     Página <strong className="text-gray-900">{payments.current_page}</strong> de{" "}
                                     <strong className="text-gray-900">{payments.last_page}</strong>
                                 </Typography>
@@ -433,23 +409,23 @@ export default function History({ auth, payments, stats, filters }) {
                                         variant="outlined"
                                         color="blue-gray"
                                         size="sm"
-                                        className="flex items-center gap-1"
+                                        className="flex items-center gap-1 rounded-xl text-xs py-1.5 px-3"
                                         onClick={() => handlePageChange(payments.prev_page_url)}
                                         disabled={!payments.prev_page_url}
                                     >
                                         <ArrowLeftIcon strokeWidth={2} className="h-3 w-3" />
-                                        <span className="hidden sm:inline">Anterior</span>
+                                        <span>Anterior</span>
                                     </Button>
 
                                     <Button
                                         variant="outlined"
                                         color="blue-gray"
                                         size="sm"
-                                        className="flex items-center gap-1"
+                                        className="flex items-center gap-1 rounded-xl text-xs py-1.5 px-3"
                                         onClick={() => handlePageChange(payments.next_page_url)}
                                         disabled={!payments.next_page_url}
                                     >
-                                        <span className="hidden sm:inline">Siguiente</span>
+                                        <span>Siguiente</span>
                                         <ArrowRightIcon strokeWidth={2} className="h-3 w-3" />
                                     </Button>
                                 </div>
@@ -469,20 +445,21 @@ export default function History({ auth, payments, stats, filters }) {
                     <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 mb-4">
                         <ExclamationTriangleIcon className="h-6 w-6 text-amber-600" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    <h3 className="text-lg font-bold text-gray-900 mb-1">
                         Rango de fechas no permitido
                     </h3>
-                    <p className="text-sm text-gray-500 mb-6">
+                    <p className="text-xs text-gray-500 mb-6">
                         {modalError}
                     </p>
                     <div className="flex justify-center">
-                        <button
-                            type="button"
+                        <Button
+                            color="indigo"
+                            size="sm"
                             onClick={() => setShowModal(false)}
-                            className="inline-flex justify-center rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500"
+                            className="rounded-xl px-5"
                         >
                             Entendido
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </Modal>

@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
-import { Card, Typography, Button } from "@material-tailwind/react";
+import { Typography } from "@material-tailwind/react";
 import {
-    CurrencyDollarIcon,
     TruckIcon,
     CubeIcon,
     MapIcon,
     PlusIcon,
     ShoppingCartIcon,
     ArrowPathIcon,
-    ArrowUpIcon,
-    ArrowDownIcon,
     ArrowTrendingUpIcon,
     ArrowTrendingDownIcon,
-    EllipsisHorizontalIcon
+    ChevronUpIcon,
+    BanknotesIcon,
+    ArrowDownLeftIcon,
+    ArrowUpRightIcon,
+    WalletIcon
 } from "@heroicons/react/24/outline";
 
 export default function AdminDashboard({
@@ -40,7 +41,7 @@ export default function AdminDashboard({
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD',
-        }).format(value);
+        }).format(value || 0);
     };
 
     const totalTrips = activeTrips + pendingTrips + completedTrips;
@@ -77,12 +78,11 @@ export default function AdminDashboard({
 
             <div className="max-w-7xl mx-auto space-y-6 pb-6">
 
-                {/* 1. SECCIÓN HERO: SALUDO & TARJETA PRINCIPAL (ESTILO FINTECH) */}
+                {/* 1. SECCIÓN HERO: SALUDO & TARJETA PRINCIPAL */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
-                    {/* TARJETA HERO VIOLETA (Inspirado en el Balance de la imagen) */}
+                    {/* TARJETA HERO BALANCE */}
                     <div className="lg:col-span-7 bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 rounded-3xl p-6 text-white shadow-xl shadow-indigo-200/50 flex flex-col justify-between relative overflow-hidden">
-                        {/* Decoración gráfica de fondo */}
                         <div className="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
 
                         <div className="flex justify-between items-start z-10">
@@ -110,7 +110,6 @@ export default function AdminDashboard({
                             </span>
                         </div>
 
-                        {/* SUB-MÉTRICAS INTEGRADAS (Sin crear cards separadas) */}
                         <div className="grid grid-cols-2 gap-4 mt-8 pt-6 border-t border-white/15 z-10">
                             <div>
                                 <span className="text-indigo-200 text-[11px] block font-medium">Ventas Acumuladas</span>
@@ -123,7 +122,7 @@ export default function AdminDashboard({
                         </div>
                     </div>
 
-                    {/* BOTONES DE ACCIÓN RÁPIDA (Estilo 'Send, Receive, Top Up' de la imagen) */}
+                    {/* ACCESOS RÁPIDOS */}
                     <div className="lg:col-span-5 bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
                         <div>
                             <div className="flex justify-between items-center mb-4">
@@ -136,7 +135,6 @@ export default function AdminDashboard({
                                 </span>
                             </div>
 
-                            {/* Fila de Accesos Redondos */}
                             <div className="grid grid-cols-3 gap-3 my-2">
                                 <Link href={route('trips.index')} className="flex flex-col items-center gap-2 group">
                                     <div className="w-12 h-12 rounded-2xl bg-indigo-50 group-hover:bg-indigo-600 text-indigo-600 group-hover:text-white flex items-center justify-center transition-all duration-200 shadow-sm">
@@ -161,7 +159,6 @@ export default function AdminDashboard({
                             </div>
                         </div>
 
-                        {/* Alerta rápida de Stock */}
                         {lowStockProducts > 0 && (
                             <div className="bg-rose-50 border border-rose-100 rounded-2xl p-3 flex items-center justify-between text-xs mt-4">
                                 <div className="flex items-center gap-2 text-rose-700 font-medium">
@@ -177,7 +174,7 @@ export default function AdminDashboard({
 
                 </div>
 
-                {/* 2. RESUMEN DE OPERACIONES (ESTILO LISTA LIMPIA DE TRANSACCIONES) */}
+                {/* 2. RESUMEN DE OPERACIONES */}
                 <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Métricas de Campo Hoy</h3>
@@ -185,7 +182,6 @@ export default function AdminDashboard({
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
-                        {/* Ítem 1 */}
                         <div className="flex items-center gap-4 pt-3 sm:pt-0 sm:px-2">
                             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
                                 <TruckIcon className="w-5 h-5" />
@@ -199,7 +195,6 @@ export default function AdminDashboard({
                             </div>
                         </div>
 
-                        {/* Ítem 2 */}
                         <div className="flex items-center gap-4 pt-3 sm:pt-0 sm:px-6">
                             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                                 <ShoppingCartIcon className="w-5 h-5" />
@@ -210,7 +205,6 @@ export default function AdminDashboard({
                             </div>
                         </div>
 
-                        {/* Ítem 3 */}
                         <div className="flex items-center gap-4 pt-3 sm:pt-0 sm:px-6">
                             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                                 <ArrowPathIcon className="w-5 h-5" />
@@ -223,10 +217,10 @@ export default function AdminDashboard({
                     </div>
                 </div>
 
-                {/* 3. GRÁFICOS Y ANALÍTICA */}
+                {/* 3. GRÁFICOS */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                    {/* GRÁFICO CIRCULAR DE ESTADO DE VIAJES */}
+                    {/* ESTADO DE VIAJES */}
                     <div className="lg:col-span-5 bg-white p-6 shadow-sm border border-slate-100 rounded-3xl flex flex-col justify-between">
                         <div className="flex items-center justify-between">
                             <div>
@@ -270,7 +264,7 @@ export default function AdminDashboard({
                         </div>
                     </div>
 
-                    {/* GRÁFICO DE FLUJO DE VENTAS */}
+                    {/* GRÁFICO FLUJO DE VENTAS */}
                     <div className="lg:col-span-7 bg-white p-6 shadow-sm border border-slate-100 rounded-3xl flex flex-col justify-between">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                             <div>
@@ -368,10 +362,94 @@ export default function AdminDashboard({
 
                 </div>
 
+                {/* 4. CARDS EN 2 EN 2: FLUJO DE DINERO MÁS IMPORTANTE */}
+                <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-bold text-slate-800">Flujo de Dinero Clave</h3>
+                        <span className="text-[11px] text-slate-400 font-medium">Indicadores financieros</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Card 1: Ingresos de Hoy */}
+                        <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-200 transition-all">
+                            <div className="flex justify-between items-start">
+                                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                    <ArrowDownLeftIcon className="w-5 h-5 stroke-[2.5]" />
+                                </div>
+                                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                                    <ChevronUpIcon className="w-3 h-3 stroke-[3]" /> Ingreso
+                                </span>
+                            </div>
+                            <div className="mt-4">
+                                <span className="text-slate-400 text-xs font-medium block">Ventas de Hoy</span>
+                                <h4 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-0.5">
+                                    {formatCurrency(todaySales)}
+                                </h4>
+                            </div>
+                        </div>
+
+                        {/* Card 2: Ventas del Mes */}
+                        <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-indigo-200 transition-all">
+                            <div className="flex justify-between items-start">
+                                <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                    <BanknotesIcon className="w-5 h-5 stroke-[2]" />
+                                </div>
+                                <span className="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                                    Mensual
+                                </span>
+                            </div>
+                            <div className="mt-4">
+                                <span className="text-slate-400 text-xs font-medium block">Ingresos Totales (Mes)</span>
+                                <h4 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-0.5">
+                                    {formatCurrency(monthSales)}
+                                </h4>
+                            </div>
+                        </div>
+
+                        {/* Card 3: Egresos del Mes */}
+                        <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-purple-200 transition-all">
+                            <div className="flex justify-between items-start">
+                                <div className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                                    <ArrowUpRightIcon className="w-5 h-5 stroke-[2.5]" />
+                                </div>
+                                <span className="text-[11px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
+                                    Egresos
+                                </span>
+                            </div>
+                            <div className="mt-4">
+                                <span className="text-slate-400 text-xs font-medium block">Compras e Insumos</span>
+                                <h4 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-0.5">
+                                    {formatCurrency(monthPurchases)}
+                                </h4>
+                            </div>
+                        </div>
+
+                        {/* Card 4: Utilidad Neta */}
+                        <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-blue-200 transition-all">
+                            <div className="flex justify-between items-start">
+                                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                                    <WalletIcon className="w-5 h-5 stroke-[2]" />
+                                </div>
+                                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                                    utilidades >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                                }`}>
+                                    Utilidad
+                                </span>
+                            </div>
+                            <div className="mt-4">
+                                <span className="text-slate-400 text-xs font-medium block">Ganancia Neta</span>
+                                <h4 className="text-xl sm:text-2xl font-extrabold text-slate-800 mt-0.5">
+                                    {formatCurrency(utilidades)}
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* FOOTER */}
                 <div className="text-center pt-4 flex flex-col items-center justify-center gap-0.5">
                     <Typography className="text-[10px] text-slate-400 font-medium tracking-wide">
-                        &copy; {new Date().getFullYear()} AguaRutaTech. Todos los derechos reservados.
+                        &copy; {new Date().getFullYear()} Aqua<span className="text-blue-500">RutaTech</span>. Todos los derechos reservados.
                     </Typography>
                 </div>
 

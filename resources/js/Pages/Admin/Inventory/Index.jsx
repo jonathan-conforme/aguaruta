@@ -2,19 +2,17 @@ import React, { useState } from 'react';
 import { Head, useForm, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
-    Typography, Button, Input, Chip,
-    Dialog, DialogHeader, DialogBody, DialogFooter, IconButton,
+    Card, Typography, Button, CardBody, IconButton, Dialog, DialogHeader, DialogBody, DialogFooter, Input, Chip
 } from "@material-tailwind/react";
 import {
     ArrowLeftIcon,
     ArrowRightIcon,
-    ArrowDownLeftIcon, // Entrada
-    ArrowUpRightIcon,  // Salida
-    ArrowPathIcon,      // Envasado
-    ChevronDownIcon
+    ArrowPathIcon,
+    ArrowsRightLeftIcon,
+    PlusIcon,
 } from "@heroicons/react/24/solid";
 
-// 1. Helper para humanizar la acción en la tabla
+// 1. Helper para humanizar la acción
 const getMovementAction = (mov) => {
     const cantidad = mov.quantity;
     const producto = mov.product?.name?.toLowerCase() || 'productos';
@@ -30,56 +28,41 @@ const getMovementAction = (mov) => {
             return 'Movimiento registrado';
     }
 };
-// 2. Helper para renderizar los Chips con colores dinámicos (Diferenciando Ediciones)
+
+// 2. Helper para renderizar los Chips
 const renderMovementChip = (mov) => {
     const isEdit = mov.description?.toLowerCase().includes('edición');
 
-    // --- ÍCONOS ---
-    const inIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>;
-    const outIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>;
-    const syncIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
+    const inIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>;
+    const outIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>;
+    const syncIcon = <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>;
 
-    // --- LÓGICA DE EDICIÓN ---
     if (isEdit) {
-        if (mov.type === 'in') {
-            // Devolución al inventario por edición (Azul)
-            return <Chip variant="ghost" color="blue" size="sm" value={`+ ${mov.quantity}`} icon={syncIcon} />;
-        }
-        if (mov.type === 'out') {
-            // Salida del inventario por edición (Morado)
-            return <Chip variant="ghost" color="purple" size="sm" value={`- ${mov.quantity}`} icon={syncIcon} />;
-        }
+        if (mov.type === 'in') return <Chip variant="ghost" color="blue" size="sm" value={`+ ${mov.quantity}`} icon={syncIcon} className="rounded-lg" />;
+        if (mov.type === 'out') return <Chip variant="ghost" color="purple" size="sm" value={`- ${mov.quantity}`} icon={syncIcon} className="rounded-lg" />;
     }
 
-    // --- LÓGICA NORMAL (Física) ---
-    if (mov.type === 'in') {
-        return <Chip variant="ghost" color="green" size="sm" value={`+ ${mov.quantity}`} icon={inIcon} />;
-    }
-    if (mov.type === 'out') {
-        return <Chip variant="ghost" color="red" size="sm" value={`- ${mov.quantity}`} icon={outIcon} />;
-    }
-    if (mov.type === 'packaging') {
-        return <Chip variant="ghost" color="indigo" size="sm" value={` ${mov.quantity}`} icon={syncIcon} />;
-    }
+    if (mov.type === 'in') return <Chip variant="ghost" color="green" size="sm" value={`+ ${mov.quantity}`} icon={inIcon} className="rounded-lg" />;
+    if (mov.type === 'out') return <Chip variant="ghost" color="red" size="sm" value={`- ${mov.quantity}`} icon={outIcon} className="rounded-lg" />;
+    if (mov.type === 'packaging') return <Chip variant="ghost" color="indigo" size="sm" value={`${mov.quantity}`} icon={syncIcon} className="rounded-lg" />;
 
     return null;
 };
 
 export default function Index({ movements, products }) {
-    // Estado para el Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isOpen, setIsOpen] = React.useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        reset('quantity', 'description', 'type', 'product_id'); // Reseteamos todo
+        reset('quantity', 'description', 'type', 'product_id');
         clearErrors();
     };
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm({
         product_id: '',
-        type: 'packaging', // 'in', 'out', 'packaging'
+        type: 'packaging',
         quantity: '',
         description: '',
     });
@@ -94,22 +77,13 @@ export default function Index({ movements, products }) {
         });
     };
 
-    // paginación
     const movementsList = movements?.data || [];
     const handlePageChange = (url) => {
         if (url) {
-            router.get(
-                url,
-                {},
-                {
-                    preserveState: true,
-                    preserveScroll: true,
-                }
-            );
+            router.get(url, {}, { preserveState: true, preserveScroll: true });
         }
     };
 
-    // 3. Lógica para el cálculo dinámico del texto de ayuda
     const selectedProduct = products.find(p => p.id === parseInt(data.product_id));
 
     const getDynamicHelpText = () => {
@@ -137,7 +111,7 @@ export default function Index({ movements, products }) {
         }
 
         if (isPackage) {
-            return `Nota: 1 Paca de este producto equivale a ${selectedProduct.units_per_package} unidades.`;
+            return `Nota: 1 Paca equivale a ${selectedProduct.units_per_package} unidades.`;
         }
 
         return data.type === 'in'
@@ -145,69 +119,68 @@ export default function Index({ movements, products }) {
             : "Se restará esta cantidad del inventario.";
     };
 
+    const TABLE_HEAD = ["Fecha", "Producto", "Presentación", "Movimiento", "Motivo / Descripción"];
+
     return (
-        <AuthenticatedLayout>
-            <Head title="Movimientos de Inventario" />
+        <AuthenticatedLayout
+            header={
+                <Typography variant="h5" color="blue-gray" className="flex items-center gap-2 font-bold">
+                    <ArrowsRightLeftIcon className="h-6 w-6 text-indigo-500" /> Movimientos de Inventario
+                </Typography>
+            }
+        >
+            <Head title="Historial de Movimientos" />
 
-            <div className="p-6 max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-3 sm:py-0">
+                <Card className="h-full w-full shadow-sm border border-gray-200/80 rounded-2xl overflow-hidden bg-slate-50/50">
 
-                {/* ENCABEZADO DE LA PÁGINA */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-                    <div>
-                        <Typography variant="h4" color="blue-gray" className="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8 text-indigo-500">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
-                            </svg>
-                            Historial de Inventario
-                        </Typography>
-                        <Typography color="gray" className="mt-1 font-normal">
-                            Monitorea las entradas por abastecimiento, salidas por mermas y procesos de envasado.
-                        </Typography>
+                    {/* Header Principal estilo Productos */}
+                    <div className="p-4 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white">
+                        <div>
+                            <Typography variant="h5" color="blue-gray" className="font-bold text-lg sm:text-xl">
+                                Historial de Inventario
+                            </Typography>
+                            <Typography color="gray" className="mt-0.5 text-xs sm:text-sm font-normal">
+                                Monitorea las entradas por abastecimiento, salidas por mermas y envasados.
+                            </Typography>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Button
+                                onClick={handleOpenModal}
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-100"
+                                size="sm"
+                            >
+                                <PlusIcon strokeWidth={2.5} className="h-4 w-4" /> Registrar Movimiento
+                            </Button>
+                        </div>
                     </div>
 
-                    {/* BOTÓN PARA ABRIR MODAL */}
-                    <Button
-                        color="indigo"
-                        className="flex items-center gap-2 w-full sm:w-auto justify-center shadow-md"
-                        onClick={handleOpenModal}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Registrar Movimiento
-                    </Button>
-                </div>
-
-                {/* TABLA DE MOVIMIENTOS */}
-                <div className="bg-white rounded-xl shadow-sm border border-blue-gray-50 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50/50">
+                    {/* VISTA ESCRITORIO (Tabla) */}
+                    <CardBody className="hidden md:block overflow-x-auto px-0 pt-0 pb-2 bg-white">
+                        <table className="w-full min-w-max table-auto text-left">
+                            <thead>
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fecha</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Producto</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Presentación</th>
-                                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Movimiento</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Motivo / Descripción</th>
+                                    {TABLE_HEAD.map((head, idx) => (
+                                        <th key={head} className={`border-b border-gray-100 bg-gray-50/70 p-4 ${idx === 3 ? 'text-center' : ''}`}>
+                                            <Typography variant="small" className="font-bold text-gray-600 text-xs uppercase tracking-wider">
+                                                {head}
+                                            </Typography>
+                                        </th>
+                                    ))}
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100">
                                 {movementsList.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-16 text-center">
-                                            <div className="flex flex-col items-center justify-center text-gray-400">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 mb-4 text-gray-300">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-                                                </svg>
-                                                <Typography variant="h5" color="blue-gray">Aún no hay movimientos</Typography>
-                                                <Typography variant="small" className="font-normal mt-1">Registra la primera entrada o salida de tus productos.</Typography>
-                                            </div>
+                                        <td colSpan="5" className="p-8 text-center text-gray-500 text-sm">
+                                            Aún no hay movimientos registrados.
                                         </td>
                                     </tr>
                                 ) : (
-                                    movementsList.map(mov => (
-                                        <tr key={mov.id} className="hover:bg-blue-gray-50/30 transition-colors">
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                    movementsList.map((mov) => (
+                                        <tr key={mov.id} className="hover:bg-indigo-50/30 transition-colors">
+                                            <td className="p-4">
                                                 <Typography variant="small" color="gray" className="font-medium">
                                                     {new Date(mov.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                 </Typography>
@@ -215,38 +188,36 @@ export default function Index({ movements, products }) {
                                                     {new Date(mov.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                                                 </Typography>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            <td className="p-4">
                                                 <Typography variant="small" color="blue-gray" className="font-bold">
                                                     {mov.product?.name}
                                                 </Typography>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <Typography variant="small" color="gray" className="font-medium">
-                                                    {mov.product?.units_per_package > 1 ? `Paca x${mov.product.units_per_package}` : 'Unidad'}
-                                                </Typography>
+                                            <td className="p-4">
+                                                <Chip
+                                                    size="sm"
+                                                    variant="outlined"
+                                                    value={mov.product?.units_per_package > 1 ? `Paca x${mov.product.units_per_package}` : 'Unidad'}
+                                                    color="indigo"
+                                                    className="inline-block rounded-lg"
+                                                />
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                                            <td className="p-4 text-center">
                                                 <div className="flex justify-center">
-                                                    {/* Usamos nuestro nuevo helper para renderizar el Chip correspondiente */}
                                                     {renderMovementChip(mov)}
                                                 </div>
                                             </td>
-
-                                            {/* Columna de Descripción Humanizada */}
-                                            <td className="px-6 py-4 whitespace-normal min-w-[250px]">
-                                                <div className="flex flex-col gap-1">
-                                                    <Typography variant="small" color="blue-gray" className="font-semibold leading-tight">
+                                            <td className="p-4 max-w-xs">
+                                                <div className="flex flex-col gap-0.5">
+                                                    <Typography variant="small" color="blue-gray" className="font-semibold text-xs leading-tight">
                                                         {getMovementAction(mov)}
                                                     </Typography>
                                                     {mov.description ? (
-                                                        <Typography variant="small" color="gray" className="text-xs flex items-start gap-1 mt-0.5">
-                                                            <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 text-gray-400 mt-[1.5px] shrink-0">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                                                            </svg>
-                                                            <span>{mov.description}</span>
+                                                        <Typography variant="small" color="gray" className="text-[11px] flex items-start gap-1">
+                                                            <span className="italic">{mov.description}</span>
                                                         </Typography>
                                                     ) : (
-                                                        <Typography variant="small" className="text-xs text-gray-400 italic">
+                                                        <Typography variant="small" className="text-[10px] text-gray-400 italic">
                                                             Origen automático
                                                         </Typography>
                                                     )}
@@ -257,159 +228,198 @@ export default function Index({ movements, products }) {
                                 )}
                             </tbody>
                         </table>
+                    </CardBody>
 
+                    {/* VISTA MÓVIL (Con tarjetas interactivas) */}
+                    <div className="block md:hidden p-3 space-y-3">
+                        {movementsList.map((mov) => (
+                            <div
+                                key={mov.id}
+                                className="bg-white rounded-2xl p-3.5 shadow-sm border border-slate-200/80 flex flex-col gap-2.5"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                                            <ArrowsRightLeftIcon className="h-5 w-5" />
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-slate-800 text-[14px] leading-tight">
+                                                {mov.product?.name}
+                                            </span>
+                                            <span className="text-xs text-slate-400 font-normal mt-0.5">
+                                                {mov.product?.units_per_package > 1 ? `Paca x${mov.product.units_per_package}` : 'Unidad suelta'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="shrink-0">
+                                        {renderMovementChip(mov)}
+                                    </div>
+                                </div>
 
-                        {/* BARRA DE PAGINACIÓN */}
-                        <div className="flex flex-col sm:flex-row items-center justify-between border-t border-blue-gray-50 p-4 gap-4">
-                            <Typography variant="small" color="gray" className="font-normal text-center sm:text-left">
-                                Página <strong className="text-blue-gray-900">{movements.current_page}</strong> de{" "}
-                                <strong className="text-blue-gray-900">{movements.last_page}</strong>
-                            </Typography>
+                                <div className="bg-slate-50 p-2.5 rounded-xl text-xs">
+                                    <span className="font-semibold text-slate-700 block">
+                                        {getMovementAction(mov)}
+                                    </span>
+                                    {mov.description ? (
+                                        <span className="text-slate-500 italic mt-0.5 block text-[11px]">
+                                            "{mov.description}"
+                                        </span>
+                                    ) : (
+                                        <span className="text-slate-400 italic text-[10px] block mt-0.5">
+                                            Origen automático
+                                        </span>
+                                    )}
+                                </div>
 
-                            <div className="flex gap-2">
-                                <Button
-                                    variant="outlined"
-                                    color="blue-gray"
-                                    size="sm"
-                                    className="flex items-center gap-1"
-                                    onClick={() => handlePageChange(movements.prev_page_url)}
-                                    disabled={!movements.prev_page_url}
-                                >
-                                    <ArrowLeftIcon strokeWidth={2} className="h-3 w-3" /> <span className="hidden sm:inline">Anterior</span>
-                                </Button>
-
-                                <Button
-                                    variant="outlined"
-                                    color="blue-gray"
-                                    size="sm"
-                                    className="flex items-center gap-1"
-                                    onClick={() => handlePageChange(movements.next_page_url)}
-                                    disabled={!movements.next_page_url}
-                                >
-                                    <span className="hidden sm:inline">Siguiente</span> <ArrowRightIcon strokeWidth={2} className="h-3 w-3" />
-                                </Button>
+                                <div className="flex justify-end pt-1 border-t border-slate-100 text-[11px] text-slate-400 font-medium">
+                                    {new Date(mov.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })} • {new Date(mov.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                                </div>
                             </div>
+                        ))}
+
+                        {movementsList.length === 0 && (
+                            <div className="p-6 text-center text-gray-500 text-sm bg-white rounded-2xl">
+                                No hay movimientos registrados.
+                            </div>
+                        )}
+                    </div>
+
+                    {/* PAGINACIÓN ESTILO PRODUCTOS */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 p-4 gap-3 bg-white">
+                        <Typography variant="small" color="gray" className="font-normal text-xs sm:text-sm text-center sm:text-left">
+                            Página <strong className="text-blue-gray-900">{movements.current_page}</strong> de{" "}
+                            <strong className="text-blue-gray-900">{movements.last_page}</strong>
+                        </Typography>
+
+                        <div className="flex gap-2 w-full sm:w-auto justify-center">
+                            <Button
+                                variant="outlined"
+                                color="indigo"
+                                size="sm"
+                                className="flex items-center justify-center gap-1 rounded-xl flex-1 sm:flex-initial"
+                                onClick={() => handlePageChange(movements.prev_page_url)}
+                                disabled={!movements.prev_page_url}
+                            >
+                                <ArrowLeftIcon strokeWidth={2} className="h-3 w-3" />
+                                <span>Anterior</span>
+                            </Button>
+
+                            <Button
+                                variant="outlined"
+                                color="indigo"
+                                size="sm"
+                                className="flex items-center justify-center gap-1 rounded-xl flex-1 sm:flex-initial"
+                                onClick={() => handlePageChange(movements.next_page_url)}
+                                disabled={!movements.next_page_url}
+                            >
+                                <span>Siguiente</span>
+                                <ArrowRightIcon strokeWidth={2} className="h-3 w-3" />
+                            </Button>
                         </div>
                     </div>
-                </div>
+                </Card>
             </div>
 
-            {/* MODAL DE REGISTRO */}
+            {/* MODAL MODERNO ESTILO PRODUCTOS */}
             <Dialog
                 open={isModalOpen}
                 handler={handleCloseModal}
                 size="sm"
-                animate={{
-                    mount: { scale: 1, y: 0 },
-                    unmount: { scale: 0.9, y: -100 },
-                }}
+                className="w-[95%] sm:w-full max-w-lg mx-auto rounded-2xl p-0 overflow-hidden shadow-2xl"
             >
-                <div className="flex items-center justify-between pe-4">
-                    <DialogHeader className="flex items-center gap-3">
-                        <div className="p-2 bg-indigo-50 text-indigo-500 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <Typography variant="h5" color="blue-gray">
+                <form onSubmit={handleSubmit}>
+                    <DialogHeader className="border-b border-gray-100 px-5 py-4 flex items-center justify-between bg-gray-50/50">
+                        <Typography variant="h6" color="blue-gray" className="font-bold">
                             Registrar Movimiento
                         </Typography>
+                        <IconButton variant="text" color="blue-gray" size="sm" onClick={handleCloseModal} className="rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </IconButton>
                     </DialogHeader>
-                    <IconButton variant="text" color="blue-gray" onClick={handleCloseModal}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </IconButton>
-                </div>
 
-                <form onSubmit={handleSubmit}>
-                    <DialogBody divider className="flex flex-col gap-5">
+                    <DialogBody className="grid gap-4 p-5 overflow-y-auto max-h-[75vh]">
 
                         {/* SELECT PRODUCTO */}
                         <div>
-                            <label className="block text-sm font-medium text-blue-gray-700 mb-1">Producto *</label>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">Producto *</label>
                             <div className="relative">
                                 <select
-                                    className="w-full border-blue-gray-200 text-blue-gray-700 rounded-md focus:border-indigo-500 focus:ring-indigo-500 text-sm shadow-sm py-2.5 pl-3 pr-10 appearance-none bg-white"
+                                    className="w-full border border-gray-300 text-blue-gray-700 rounded-xl focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2.5 pl-3 pr-10 appearance-none bg-white truncate"
                                     value={data.product_id}
                                     onChange={e => setData('product_id', e.target.value)}
                                 >
                                     <option value="" disabled>Seleccionar producto...</option>
                                     {products.map(product => (
                                         <option key={product.id} value={product.id}>
-                                            {product.name}
-                                            {product.units_per_package > 1
-                                                ? ` - Paca x${product.units_per_package}`
-                                                : ' - Unidad'}
-                                            {` (Llenos: ${product.current_stock ?? 0} | Vacíos: ${product.empty_stock ?? 0})`}
+                                            {product.name} {product.units_per_package > 1 ? `(Paca x${product.units_per_package})` : ''} (Lleno: {product.current_stock ?? 0} | Vacio: {product.empty_stock ?? 0})
                                         </option>
                                     ))}
                                 </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-gray-400">
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
                                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                                 </div>
                             </div>
-                            {errors.product_id && <Typography variant="small" color="red" className="mt-1">{errors.product_id}</Typography>}
+                            {errors.product_id && <Typography variant="small" color="red" className="mt-1 text-xs">{errors.product_id}</Typography>}
                         </div>
 
-                        {/* SELECT TIPO DE MOVIMIENTO (MODIFICADO CON ÍCONOS HEROICONS) */}
+                        {/* TIPO DE MOVIMIENTO */}
                         <div>
-                            <label className="block text-sm font-medium text-blue-gray-700 mb-1">Tipo de Movimiento</label>
+                            <label className="block text-xs font-semibold text-gray-700 mb-1">Tipo de Movimiento</label>
                             <div className="relative">
-                                {/* Botón Principal del Dropdown */}
                                 <button
                                     type="button"
                                     onClick={() => setIsOpen(!isOpen)}
-                                    className="w-full border border-blue-gray-200 text-blue-gray-700 rounded-md focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-sm shadow-sm py-2.5 pl-3 pr-10 bg-white font-medium flex items-center gap-2 text-left transition-all"
+                                    className="w-full border border-gray-300 text-blue-gray-700 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-sm py-2.5 pl-3 pr-10 bg-white font-medium flex items-center gap-2 text-left transition-all truncate"
                                 >
-                                    {data.type === 'out' && <ArrowRightIcon className="h-4 w-4 text-red-500" />}
-                                    {data.type === 'packaging' && <ArrowPathIcon className="h-4 w-4 text-blue-500" />}
-                                    {data.type === 'in' && <ArrowLeftIcon className="h-4 w-4 text-green-500" />}
+                                    {data.type === 'out' && <ArrowRightIcon className="h-4 w-4 text-red-500 shrink-0" />}
+                                    {data.type === 'packaging' && <ArrowPathIcon className="h-4 w-4 text-indigo-500 shrink-0" />}
+                                    {data.type === 'in' && <ArrowLeftIcon className="h-4 w-4 text-emerald-500 shrink-0" />}
 
-                                    <span>
+                                    <span className="truncate">
                                         {data.type === 'in' && 'ENTRADA (Aumentar Stock Lleno)'}
                                         {data.type === 'packaging' && 'ENVASADO (Vacíos a Llenos)'}
-                                        {!data.type && 'Seleccionar tipo de movimiento...'}
+                                        {!data.type && 'Seleccionar tipo...'}
                                         {data.type === 'out' && 'SALIDA (Restar Stock / Merma)'}
                                     </span>
 
-                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-gray-400">
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
                                         <svg className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </div>
                                 </button>
 
-                                {/* Lista Flotante de Opciones */}
                                 {isOpen && (
-                                    <div className="absolute z-50 mt-1 w-full rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-sm font-medium border border-blue-gray-100 overflow-hidden">
+                                    <div className="absolute z-50 mt-1 w-full rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-sm font-medium border border-gray-100 overflow-hidden">
                                         <div className="py-1">
                                             <button
                                                 type="button"
                                                 onClick={() => { setData('type', 'in'); setIsOpen(false); }}
-                                                className={`flex items-center gap-2 w-full px-4 py-2.5 text-blue-gray-700 hover:bg-gray-50 text-left ${data.type === 'in' ? 'bg-indigo-50/50 text-indigo-700' : ''}`}
+                                                className={`flex items-center gap-2 w-full px-4 py-2.5 text-blue-gray-700 hover:bg-gray-50 text-left ${data.type === 'in' ? 'bg-indigo-50 text-indigo-700' : ''}`}
                                             >
-                                                <ArrowLeftIcon className="h-4 w-4 text-green-500" />
+                                                <ArrowLeftIcon className="h-4 w-4 text-emerald-500 shrink-0" />
                                                 <span>ENTRADA (Aumentar Stock Lleno)</span>
                                             </button>
 
                                             <button
                                                 type="button"
                                                 onClick={() => { setData('type', 'packaging'); setIsOpen(false); }}
-                                                className={`flex items-center gap-2 w-full px-4 py-2.5 text-blue-gray-700 hover:bg-gray-50 text-left ${data.type === 'packaging' ? 'bg-indigo-50/50 text-indigo-700' : ''}`}
+                                                className={`flex items-center gap-2 w-full px-4 py-2.5 text-blue-gray-700 hover:bg-gray-50 text-left ${data.type === 'packaging' ? 'bg-indigo-50 text-indigo-700' : ''}`}
                                             >
-                                                <ArrowPathIcon className="h-4 w-4 text-blue-500" />
+                                                <ArrowPathIcon className="h-4 w-4 text-indigo-500 shrink-0" />
                                                 <span>ENVASADO (Vacíos a Llenos)</span>
                                             </button>
+
                                             <button
                                                 type="button"
                                                 onClick={() => { setData('type', 'out'); setIsOpen(false); }}
-                                                className={`flex items-center gap-2 w-full px-4 py-2.5 text-blue-gray-700 hover:bg-gray-50 text-left ${data.type === 'out' ? 'bg-indigo-50/50 text-indigo-700' : ''}`}
+                                                className={`flex items-center gap-2 w-full px-4 py-2.5 text-blue-gray-700 hover:bg-gray-50 text-left ${data.type === 'out' ? 'bg-indigo-50 text-indigo-700' : ''}`}
                                             >
-                                                <ArrowRightIcon className="h-4 w-4 text-red-500" />
+                                                <ArrowRightIcon className="h-4 w-4 text-red-500 shrink-0" />
                                                 <span>SALIDA (Restar Stock / Merma)</span>
                                             </button>
-
                                         </div>
                                     </div>
                                 )}
@@ -426,19 +436,14 @@ export default function Index({ movements, products }) {
                                 value={data.quantity}
                                 onChange={e => setData('quantity', e.target.value)}
                                 error={!!errors.quantity}
-                                icon={
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-gray-500">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" />
-                                    </svg>
-                                }
                             />
                             <Typography
                                 variant="small"
-                                className={`mt-1.5 text-xs font-medium transition-colors ${data.quantity ? 'text-indigo-600' : 'text-gray-500'}`}
+                                className={`mt-1 text-[11px] font-medium transition-colors ${data.quantity ? 'text-indigo-600' : 'text-gray-500'}`}
                             >
                                 {getDynamicHelpText()}
                             </Typography>
-                            {errors.quantity && <Typography variant="small" color="red" className="mt-1">{errors.quantity}</Typography>}
+                            {errors.quantity && <Typography variant="small" color="red" className="mt-1 text-xs">{errors.quantity}</Typography>}
                         </div>
 
                         {/* DESCRIPCIÓN */}
@@ -446,34 +451,21 @@ export default function Index({ movements, products }) {
                             <Input
                                 type="text"
                                 label="Motivo / Descripción"
-                                placeholder={data.type === 'packaging' ? "Ej. Envasado del turno mañana..." : "Ej. Lote recibido, envases rotos..."}
+                                placeholder={data.type === 'packaging' ? "Ej. Envasado turno mañana..." : "Ej. Lote recibido..."}
                                 color="indigo"
                                 value={data.description}
                                 onChange={e => setData('description', e.target.value)}
-                                icon={
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-gray-500">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                                    </svg>
-                                }
                             />
                         </div>
 
                     </DialogBody>
 
-                    <DialogFooter className="space-x-2 bg-gray-50/50 rounded-b-lg">
-                        <Button variant="text" color="gray" onClick={handleCloseModal}>
+                    <DialogFooter className="border-t border-gray-100 gap-3 px-5 py-4 bg-gray-50/50">
+                        <Button variant="text" color="gray" onClick={handleCloseModal} className="rounded-xl">
                             Cancelar
                         </Button>
-                        <Button type="submit" color="indigo" disabled={processing} className="flex items-center gap-2">
-                            {processing ? (
-                                <>
-                                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Procesando...
-                                </>
-                            ) : 'Guardar Movimiento'}
+                        <Button type="submit" color="indigo" disabled={processing} className="rounded-xl shadow-md shadow-indigo-100">
+                            {processing ? 'Guardando...' : 'Guardar Movimiento'}
                         </Button>
                     </DialogFooter>
                 </form>

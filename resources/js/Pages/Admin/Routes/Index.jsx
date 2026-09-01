@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useForm, Head } from '@inertiajs/react';
+import { useForm, Head, router } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import {
     Card,
@@ -13,13 +13,15 @@ import {
     DialogHeader,
     DialogBody,
     DialogFooter,
-    IconButton
+    IconButton,
+    Switch
 } from "@material-tailwind/react";
 import {
     MapIcon,
     MapPinIcon,
     PlusIcon,
-    PencilIcon
+    PencilIcon,
+    XMarkIcon
 } from "@heroicons/react/24/outline";
 
 export default function Index({ auth, routes, provinces }) {
@@ -53,26 +55,25 @@ export default function Index({ auth, routes, provinces }) {
 
     // Abrir modal para EDITAR
     const openEditModal = (routeItem) => {
-        reset();
         clearErrors();
         setEditingRoute(routeItem);
 
-        // Pre-cargar cascada de selects para la edición
-        const provId = routeItem.canton?.province?.id;
-        setSelectedProvinceId(String(provId || ''));
+        const provId = routeItem.canton?.province?.id || routeItem.canton?.province_id;
+        const provIdStr = provId ? String(provId) : '';
+        setSelectedProvinceId(provIdStr);
 
-        const province = provinces.find(p => String(p.id) === String(provId));
+        const province = provinces.find(p => String(p.id) === provIdStr);
         const cantons = province ? province.cantons : [];
         setAvailableCantons(cantons);
 
-        const cantId = routeItem.canton_id;
-        const canton = cantons.find(c => String(c.id) === String(cantId));
+        const cantIdStr = routeItem.canton_id ? String(routeItem.canton_id) : '';
+        const canton = cantons.find(c => String(c.id) === cantIdStr);
         setAvailableSectors(canton?.sectors || []);
 
         setData({
             route_name: routeItem.route_name || '',
-            canton_id: String(routeItem.canton_id || ''),
-            sector_id: String(routeItem.sector_id || '')
+            canton_id: cantIdStr,
+            sector_id: routeItem.sector_id ? String(routeItem.sector_id) : ''
         });
 
         handleOpenModal();
@@ -97,17 +98,35 @@ export default function Index({ auth, routes, provinces }) {
         setAvailableSectors(canton?.sectors || []);
     };
 
+    // Cambiar estado vía toggle() del backend
+    const handleToggleStatus = (e, routeItem) => {
+        e.stopPropagation();
+
+        router.patch(route('delivery-routes.toggle', routeItem.id), {}, {
+            preserveScroll: true,
+            preserveState: false
+        });
+    };
+
     // Enviar el formulario (Crear o Actualizar)
     const submit = (e) => {
         e.preventDefault();
 
         if (editingRoute) {
             put(route('delivery-routes.update', editingRoute.id), {
-                onSuccess: () => handleOpenModal(),
+                preserveScroll: true,
+                onSuccess: () => {
+                    handleOpenModal();
+                    reset();
+                },
             });
         } else {
             post(route('delivery-routes.store'), {
-                onSuccess: () => handleOpenModal(),
+                preserveScroll: true,
+                onSuccess: () => {
+                    handleOpenModal();
+                    reset();
+                },
             });
         }
     };
@@ -116,113 +135,223 @@ export default function Index({ auth, routes, provinces }) {
         <AuthenticatedLayout
             header={
                 <div className="flex items-center justify-between">
-                    <Typography variant="h5" className="flex items-center gap-2">
+                    <Typography variant="h5" color="blue-gray" className="flex items-center gap-2 text-lg sm:text-xl font-bold">
                         <MapIcon className="h-6 w-6 text-indigo-500" />
                         Gestión de Rutas
                     </Typography>
-
                 </div>
             }
         >
             <Head title="Rutas" />
 
-            <div className="p-6 space-y-6">
-                {/* TABLA */}
-
-                <Card className="p-6 shadow-sm border border-gray-200">
-
-                <div className="rounded-none p-6 border-b border-gray-200 flex items-center justify-between">
-                    <div>
-                        <Typography variant="h5" color="blue-white">Historial de Rutas</Typography>
+            <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+                <Card className="shadow-sm border border-gray-200 overflow-hidden">
+                    {/* CARD HEADER RESPONSIVE */}
+                    <div className="p-4 sm:p-6 border-b border-gray-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white">
+                        <div>
+                            <Typography variant="h5" color="blue-gray" className="text-lg sm:text-xl font-bold">
+                                Historial de Rutas
+                            </Typography>
+                            <Typography variant="small" color="gray" className="font-normal">
+                                Administra las rutas de entrega registradas.
+                            </Typography>
+                        </div>
+                        <Button
+                            color="indigo"
+                            size="md"
+                            className="flex items-center justify-center gap-2 w-full sm:w-auto shadow-indigo-100 hover:shadow-indigo-200 transition-all"
+                            onClick={openCreateModal}
+                        >
+                            <PlusIcon className="h-5 w-5 stroke-2" />
+                            <span>Nueva Ruta</span>
+                        </Button>
                     </div>
-                    <Button
-                        color="indigo"
-                        className="flex items-rigth gap-2"
-                        onClick={openCreateModal}
-                    >
-                        <PlusIcon className="h-5 w-5" />
-                        Nueva Ruta
-                    </Button>
-                </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full table-auto text-left">
+
+                    {/* VISTA MÓVIL: CARDS */}
+                    <div className="block md:hidden divide-y divide-gray-200">
+                        {routes.map((r) => (
+                            <div
+                                key={r.id}
+                                className={`p-4 space-y-3 bg-white transition-colors ${!r.is_active ? 'bg-gray-50/50 opacity-75' : 'hover:bg-gray-50/50'}`}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <MapPinIcon className={`h-5 w-5 ${r.is_active ? 'text-indigo-500' : 'text-gray-400'}`} />
+                                        <Typography variant="h6" color={r.is_active ? "blue-gray" : "gray"} className="font-semibold text-base">
+                                            {r.route_name}
+                                        </Typography>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Switch
+                                            id={`toggle-mobile-${r.id}`}
+                                            color="indigo"
+                                            checked={Boolean(r.is_active)}
+                                            onChange={(e) => handleToggleStatus(e, r)}
+                                            ripple={false}
+                                            containerProps={{ className: "p-0" }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                                    <div>
+                                        <span className="font-semibold text-gray-400 block uppercase text-[10px]">Provincia</span>
+                                        <span className="text-gray-800 font-medium">{r.canton?.province?.name || '—'}</span>
+                                    </div>
+                                    <div>
+                                        <span className="font-semibold text-gray-400 block uppercase text-[10px]">Cantón</span>
+                                        <span className="text-gray-800 font-medium">{r.canton?.name || '—'}</span>
+                                    </div>
+                                    <div className="col-span-2 pt-1 border-t border-gray-200/60 flex justify-between items-center">
+                                        <div>
+                                            <span className="font-semibold text-gray-400 block uppercase text-[10px]">Sector</span>
+                                            <span className="text-gray-800 font-medium">{r.sector?.name || '—'}</span>
+                                        </div>
+                                        <Chip
+                                            size="sm"
+                                            variant="ghost"
+                                            value={r.is_active ? 'Activo' : 'Inactivo'}
+                                            color={r.is_active ? 'green' : 'red'}
+                                            className="rounded-full capitalize font-medium text-[10px] px-2 py-0.5"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-1">
+                                  {/*  <Button
+                                        size="sm"
+                                        variant="text"
+                                        color="indigo"
+                                        className="flex items-center gap-1.5 px-3 py-1.5"
+                                        onClick={() => openEditModal(r)}
+                                    >
+                                        <PencilIcon className="h-4 w-4" />
+                                        <span>Editar</span>
+                                    </Button>*/}
+                                </div>
+
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* VISTA DESKTOP: TABLA */}
+                    <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50">
-                                    <th className="p-3 text-sm">Ruta</th>
-                                    <th className="p-3 text-sm">Provincia</th>
-                                    <th className="p-3 text-sm">Cantón</th>
-                                    <th className="p-3 text-sm">Sector</th>
-                                    <th className="p-3 text-sm text-center">Estado</th>
-                                    <th className="p-3 text-sm text-center">Acciones</th>
+                                <tr className="bg-gray-50/80 border-b border-gray-200 text-gray-600">
+                                    <th className="p-4 text-xs font-bold uppercase tracking-wider">Ruta</th>
+                                    <th className="p-4 text-xs font-bold uppercase tracking-wider">Provincia</th>
+                                    <th className="p-4 text-xs font-bold uppercase tracking-wider">Cantón</th>
+                                    <th className="p-4 text-xs font-bold uppercase tracking-wider">Sector</th>
+                                    <th className="p-4 text-xs font-bold uppercase tracking-wider text-center">Estado</th>
+                                    {/*<th className="p-4 text-xs font-bold uppercase tracking-wider text-center">Acciones</th>*/}
                                 </tr>
                             </thead>
 
-                            <tbody>
+                            <tbody className="divide-y divide-gray-200 bg-white">
                                 {routes.map(r => (
-                                    <tr key={r.id} className="border-b hover:bg-gray-50">
-                                        <td className="p-3 font-semibold">{r.route_name}</td>
-                                        <td className="p-3">{r.canton?.province?.name || '—'}</td>
-                                        <td className="p-3">{r.canton?.name || '—'}</td>
-                                        <td className="p-3">{r.sector?.name || '—'}</td>
-                                        <td className="p-3 text-center">
-                                            <Chip
-                                                size="sm"
-                                                value={r.is_active ? 'Activo' : 'Inactivo'}
-                                                color={r.is_active ? 'green' : 'red'}
-                                            />
+                                    <tr
+                                        key={r.id}
+                                        className={`transition-colors ${!r.is_active ? 'bg-gray-50/40 text-gray-400' : 'hover:bg-gray-50/60 text-gray-900'}`}
+                                    >
+                                        <td className="p-4 font-semibold">{r.route_name}</td>
+                                        <td className="p-4">{r.canton?.province?.name || '—'}</td>
+                                        <td className="p-4">{r.canton?.name || '—'}</td>
+                                        <td className="p-4">{r.sector?.name || '—'}</td>
+                                        <td className="p-4 text-center">
+                                            <div className="flex items-center justify-center gap-6">
+                                                <Switch
+                                                    id={`toggle-desktop-${r.id}`}
+                                                    color="indigo"
+                                                    checked={Boolean(r.is_active)}
+                                                    onChange={(e) => handleToggleStatus(e, r)}
+                                                    ripple={false}
+                                                />
+                                                <Chip
+                                                    size="sm"
+                                                    variant="ghost"
+                                                    value={r.is_active ? 'Activo' : 'Inactivo'}
+                                                    color={r.is_active ? 'green' : 'red'}
+                                                    className="rounded-full inline-block font-medium min-w-[70px] text-center"
+                                                />
+                                            </div>
                                         </td>
-                                        <td className="p-3 text-center">
+                                          {/*<td className="p-4 text-center">
                                             <IconButton
                                                 variant="text"
                                                 color="indigo"
+                                                className="rounded-full"
                                                 onClick={() => openEditModal(r)}
                                             >
                                                 <PencilIcon className="h-5 w-5" />
                                             </IconButton>
-                                        </td>
+                                        </td>*/}
                                     </tr>
                                 ))}
-
-                                {routes.length === 0 && (
-                                    <tr>
-                                        <td colSpan="6" className="text-center p-6 text-gray-500">
-                                            No hay rutas registradas
-                                        </td>
-                                    </tr>
-                                )}
                             </tbody>
                         </table>
                     </div>
+
+                    {/* EMPTY STATE */}
+                    {routes.length === 0 && (
+                        <div className="p-12 text-center flex flex-col items-center justify-center space-y-3">
+                            <div className="bg-indigo-50 p-3 rounded-full text-indigo-500">
+                                <MapIcon className="h-8 w-8" />
+                            </div>
+                            <Typography variant="h6" color="blue-gray" className="font-medium">
+                                No hay rutas registradas
+                            </Typography>
+                            <Typography variant="small" color="gray">
+                                Comienza agregando una nueva ruta para visualizarla en este panel.
+                            </Typography>
+                        </div>
+                    )}
                 </Card>
             </div>
 
             {/* MODAL FORMULARIO */}
-            <Dialog open={isModalOpen} handler={handleOpenModal} size="md">
+            <Dialog
+                open={isModalOpen}
+                handler={handleOpenModal}
+                size="xs"
+                className="p-2 sm:p-0"
+            >
                 <form onSubmit={submit}>
-                    <DialogHeader>
-                        {editingRoute ? 'Editar Ruta' : 'Crear Nueva Ruta'}
+                    <DialogHeader className="flex justify-between items-center pb-2 border-b border-gray-100">
+                        <Typography variant="h5" color="blue-gray" className="text-lg font-bold">
+                            {editingRoute ? 'Editar Ruta' : 'Crear Nueva Ruta'}
+                        </Typography>
+                        <IconButton
+                            color="blue-gray"
+                            size="sm"
+                            variant="text"
+                            onClick={handleOpenModal}
+                        >
+                            <XMarkIcon className="h-5 w-5" />
+                        </IconButton>
                     </DialogHeader>
 
-                    <DialogBody divider className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* NOMBRE (Ocupa 2 columnas enteras) */}
-                        <div className="md:col-span-2">
+                    <DialogBody className="space-y-4 pt-4 pb-2">
+                        {/* NOMBRE */}
+                        <div className="w-full">
                             <Input
                                 label="Nombre de la Ruta"
                                 color="indigo"
-                                icon={<MapPinIcon className="h-5 w-5" />}
+                                icon={<MapPinIcon className="h-5 w-5 text-gray-400" />}
                                 value={data.route_name}
                                 onChange={(e) => setData('route_name', e.target.value)}
                                 error={!!errors.route_name}
+                                containerProps={{ className: "min-w-[0]" }}
                             />
                             {errors.route_name && (
-                                <Typography variant="small" color="red" className="mt-1">
+                                <Typography variant="small" color="red" className="mt-1 text-xs font-medium flex items-center gap-1">
                                     {errors.route_name}
                                 </Typography>
                             )}
                         </div>
 
                         {/* PROVINCIA */}
-                        <div>
+                        <div className="w-full">
                             <Select
                                 label="Provincia"
                                 color="indigo"
@@ -238,7 +367,7 @@ export default function Index({ auth, routes, provinces }) {
                         </div>
 
                         {/* CANTÓN */}
-                        <div>
+                        <div className="w-full">
                             <Select
                                 key={`canton-${selectedProvinceId}`}
                                 label="Cantón"
@@ -255,14 +384,14 @@ export default function Index({ auth, routes, provinces }) {
                                 ))}
                             </Select>
                             {errors.canton_id && (
-                                <Typography variant="small" color="red" className="mt-1">
+                                <Typography variant="small" color="red" className="mt-1 text-xs font-medium flex items-center gap-1">
                                     {errors.canton_id}
                                 </Typography>
                             )}
                         </div>
 
-                        {/* SECTOR (Ocupa 2 columnas enteras) */}
-                        <div className="md:col-span-2">
+                        {/* SECTOR */}
+                        <div className="w-full">
                             <Select
                                 key={`sector-${data.canton_id}`}
                                 label="Sector (Opcional)"
@@ -280,12 +409,12 @@ export default function Index({ auth, routes, provinces }) {
                         </div>
                     </DialogBody>
 
-                    <DialogFooter>
+                    <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2 pt-4 border-t border-gray-100">
                         <Button
-                            variant="text"
+                            variant="outlined"
                             color="gray"
                             onClick={handleOpenModal}
-                            className="mr-2"
+                            className="w-full sm:w-auto"
                         >
                             Cancelar
                         </Button>
@@ -293,14 +422,13 @@ export default function Index({ auth, routes, provinces }) {
                             type="submit"
                             color="indigo"
                             disabled={processing}
-                            className="flex items-center gap-2"
+                            className="w-full sm:w-auto flex items-center justify-center gap-2"
                         >
                             {processing ? 'Guardando...' : (editingRoute ? 'Actualizar' : 'Guardar')}
                         </Button>
                     </DialogFooter>
                 </form>
             </Dialog>
-
         </AuthenticatedLayout>
     );
 }

@@ -44,7 +44,7 @@ class DeliveryRouteController extends Controller
                     return $query->where('company_id', Auth::user()->company_id);
                 })
             ],
-            'canton_id'  => 'required|exists:cantons,id', 
+            'canton_id'  => 'required|exists:cantons,id',
             'sector_id'  => 'nullable|exists:sectors,id',
         ], [
             'route_name.unique' => 'Ya existe una ruta con este nombre en tu empresa.'
@@ -52,33 +52,40 @@ class DeliveryRouteController extends Controller
 
         $this->service->create($validated);
 
-        return back()->with('success', 'Ruta creada correctamente');
+        return back()->with('success', 'La Ruta ha sido creada correctamente');
     }
 
-    public function update(Request $request, DeliveryRoute $route)
-    {
-        $validated = $request->validate([
-            'route_name' => 'required|string|max:255',
-            'canton_id'  => 'required|exists:cantons,id',
-            'sector_id'  => 'nullable|exists:sectors,id',
-        ]);
+   public function update(Request $request, DeliveryRoute $route)
+{
+    $validated = $request->validate([
+        'route_name' => [
+            'required',
+            'string',
+            'max:255',
+            Rule::unique('delivery_routes')->where(function ($query) {
+                return $query->where('company_id', Auth::user()->company_id);
+            })->ignore($route->id)
+        ],
+        'canton_id'  => 'required|exists:cantons,id',
+        'sector_id'  => 'nullable|exists:sectors,id',
+    ]);
 
-        $this->service->update($route, $validated);
+    $this->service->update($route, $validated);
 
-        return back()->with('success', 'Ruta actualizada');
-    }
+    return back()->with('info', 'La Ruta ha sido actualizada correctamente');
+}
 
     public function destroy(DeliveryRoute $route)
     {
         $this->service->delete($route);
 
-        return back()->with('success', 'Ruta eliminada');
+        return back()->with('error', 'La Ruta ha sido eliminada correctamente');
     }
 
     public function toggle(DeliveryRoute $route)
     {
         $this->service->toggle($route);
 
-        return back()->with('success', 'Estado actualizado');
+        return back()->with('info', 'El estado de la ruta se ha actualizado');
     }
 }

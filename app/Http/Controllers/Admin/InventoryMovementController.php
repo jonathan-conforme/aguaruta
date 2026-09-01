@@ -41,6 +41,6 @@ public function index(Request $request) {
 
         $this->inventoryService->createMovement($validated);
 
-        return back()->with('success', 'Movimiento registrado con exito.');
+        return back()->with('success', 'El Movimiento ha sido registrado con exito.');
     }
 }

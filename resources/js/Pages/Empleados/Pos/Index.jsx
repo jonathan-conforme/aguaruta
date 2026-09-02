@@ -67,6 +67,7 @@ export default function Index({ auth, sales = [], totalEarned = 0, salesByMethod
 
     const [modalError, setModalError] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     const checkIsInvalid = (start, end) => {
         if (!start || !end) return false;
@@ -114,20 +115,51 @@ export default function Index({ auth, sales = [], totalEarned = 0, salesByMethod
         setEndDate('');
         router.get(baseUrl || route('admin.sales.index'));
     };
-const handleDownload = () => {
-    // Determinamos la ruta según el rol del usuario
-    const routeName = isAdmin
-        ? 'admin.reports.sales.download'
-        : 'repartidor.reports.sales.download';
 
-    const url = route(routeName, {
-        ...(startDate && { start_date: startDate, date: startDate }),
-        ...(endDate && { end_date: endDate }),
-        range: reportRange
-    });
+    const handleDownload = async () => {
+        if (isDownloading) return;
 
-    window.location.href = url;
-};
+        setIsDownloading(true);
+
+        const routeName = isAdmin
+            ? 'admin.reports.sales.download'
+            : 'repartidor.reports.sales.download';
+
+        const url = route(routeName, {
+            ...(startDate && { start_date: startDate, date: startDate }),
+            ...(endDate && { end_date: endDate }),
+            range: reportRange
+        });
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/pdf',
+                },
+            });
+
+            if (!response.ok) throw new Error('Error al descargar el PDF');
+
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.setAttribute('download', `reporte_ventas_${new Date().toISOString().slice(0, 10)}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+
+            link.remove();
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error('Error durante la descarga:', error);
+            setModalError('Ocurrió un problema al descargar el reporte PDF.');
+            setShowModal(true);
+        } finally {
+            setIsDownloading(false);
+        }
+    };
 
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(value || 0);
@@ -146,7 +178,8 @@ const handleDownload = () => {
                     {/* TARJETAS DE MÉTRICAS / RESUMEN */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <StatCard
-                            title="Total Vendido"                           value={formatCurrency(totalEarned)}
+                            title="Total Vendido"
+                            value={formatCurrency(totalEarned)}
                             icon={CurrencyDollarIcon}
                             colorTheme="green"
                             description="Ventas acumuladas en el periodo"
@@ -221,7 +254,7 @@ const handleDownload = () => {
                                 <option value="month">Mensual</option>
                             </select>
 
-                            {/* BOTÓN EXPORTAR PDF CON VALIDACIÓN */}
+                            {/* BOTÓN EXPORTAR PDF CON VALIDACIÓN Y ESTADO DINÁMICO */}
                             {isInvalidRange ? (
                                 <button
                                     type="button"
@@ -234,11 +267,29 @@ const handleDownload = () => {
                                 </button>
                             ) : (
                                 <button
+                                    type="button"
                                     onClick={handleDownload}
-                                    className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-md hover:bg-indigo-700 transition-all cursor-pointer"
+                                    disabled={isDownloading}
+                                    className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white shadow-md transition-all ${
+                                        isDownloading
+                                            ? 'bg-indigo-400 cursor-wait'
+                                            : 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer active:scale-95'
+                                    }`}
                                 >
-                                    <ArrowDownTrayIcon className="h-4 w-4" />
-                                    Descargar PDF
+                                    {isDownloading ? (
+                                        <>
+                                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <span>Generando...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ArrowDownTrayIcon className="h-4 w-4" />
+                                            <span>Descargar PDF</span>
+                                        </>
+                                    )}
                                 </button>
                             )}
                         </div>

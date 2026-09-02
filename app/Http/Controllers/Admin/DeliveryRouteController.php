@@ -11,6 +11,7 @@ use Inertia\Inertia;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 
+
 class DeliveryRouteController extends Controller
 {
     protected $service;

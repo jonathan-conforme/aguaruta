@@ -2,14 +2,24 @@
 
 namespace App\Http\Controllers\Empleados;
 
+use App\Notifications\ViajeIniciadoNotification;
 use App\Http\Controllers\Controller;
+use App\Services\TripService;
 use Illuminate\Http\Request;
 Use App\Models\Shift;
 use App\Models\Trip;
+use App\Models\User;
 use Inertia\Inertia;
 
 class DeliveryController extends Controller
 {
+    protected $tripService;
+
+    public function __construct(TripService $tripService)
+    {
+        $this->tripService = $tripService;
+    }
+
     /**
      * Muestra la lista de viajes del día para el empleado (repartidor)
      */
@@ -58,13 +68,13 @@ class DeliveryController extends Controller
     }
 
     // 3. Activar el viaje y enlazar el shift_id
-    if ($trip->status === 'pending') {
-        $trip->update([
-            'status' => 'active',
-            'shift_id' => $activeShift->id,
-            'seller_id' => $trip->seller_id ?? $user->id // Asegura el seller_id si venía nulo
-        ]);
-    }
+    $this->tripService->startTrip(
+            $trip->id,
+            (float) $activeShift->initial_cash,
+            (int) $activeShift->id
+        );
+
+    return back();
 
     // 4. Redirigir directamente al POS / Formulario de Ventas
     return redirect()

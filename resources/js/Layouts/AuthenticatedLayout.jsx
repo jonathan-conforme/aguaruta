@@ -46,6 +46,7 @@ import {
     MapPinIcon,
     DocumentTextIcon,
     ClipboardDocumentListIcon,
+    ClipboardDocumentCheckIcon,
     ClockIcon,
     BanknotesIcon,
     LockClosedIcon,
@@ -224,6 +225,14 @@ export default function AuthenticatedLayout({ header, children }) {
             <span className="text-[13px] font-semibold text-gray-700 text-center leading-tight">{label}</span>
         </Link>
     );
+    // notificaciones de iconos
+    const NOTIFICATION_ICONS = {
+        TruckIcon,
+        ClipboardDocumentCheckIcon,
+        LockClosedIcon,
+        ArrowsRightLeftIcon,
+        BanknotesIcon,
+    };
 
     // MENÚ ESCRITORIO
     const renderDesktopMenu = () => (
@@ -407,21 +416,29 @@ export default function AuthenticatedLayout({ header, children }) {
 
                                         <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
                                             {notifications.length > 0 ? (
-                                                notifications.map((item) => (
-                                                    <div
-                                                        key={item.id}
-                                                        onClick={() => handleNotificationClick(item)}
-                                                        className="p-3.5 hover:bg-indigo-50/50 cursor-pointer transition-colors flex gap-3 items-start text-left"
-                                                    >
-                                                        <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl shrink-0 mt-0.5">
-                                                            <ArrowsRightLeftIcon className="h-4 w-4" />
+                                                notifications.map((item) => {
+                                                    // Selecciona el componente del icono o asigna uno por defecto
+                                                    const IconComponent = NOTIFICATION_ICONS[item.data.icon] || BellIcon;
+
+                                                    return (
+                                                        <div
+                                                            key={item.id}
+                                                            onClick={() => handleNotificationClick(item)}
+                                                            className="p-3.5 hover:bg-indigo-50/50 cursor-pointer transition-colors flex gap-3 items-start text-left"
+                                                        >
+                                                            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl shrink-0 mt-0.5">
+                                                                <IconComponent className="h-4 w-4" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <p className="text-xs font-bold text-gray-800">{item.data.title}</p>
+                                                                <p className="text-xs text-gray-600 mt-0.5 leading-snug">{item.data.message}</p>
+                                                                {item.data.time && (
+                                                                    <span className="text-[10px] text-gray-400 mt-1 block">{item.data.time}</span>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        <div className="flex-1">
-                                                            <p className="text-xs font-bold text-gray-800">{item.data.title}</p>
-                                                            <p className="text-xs text-gray-600 mt-0.5 leading-snug">{item.data.message}</p>
-                                                        </div>
-                                                    </div>
-                                                ))
+                                                    );
+                                                })
                                             ) : (
                                                 <div className="p-6 text-center text-xs text-gray-400">
                                                     No tienes notificaciones pendientes.

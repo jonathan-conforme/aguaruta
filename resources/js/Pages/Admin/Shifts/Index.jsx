@@ -21,9 +21,10 @@ export default function Index({ auth, shifts, totals, filters }) {
     const [startDate, setStartDate] = useState(filters?.start_date || '');
     const [endDate, setEndDate] = useState(filters?.end_date || '');
 
-    // === ESTADOS PARA EL MODAL DE VALIDACIÓN ===
+    // === ESTADOS PARA EL MODAL DE VALIDACIÓN Y DESCARGA ===
     const [modalError, setModalError] = useState('');
     const [showModal, setShowModal] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
 
     // Helper para verificar validez silenciosa (para el botón de PDF)
     const checkIsInvalid = (start, end) => {
@@ -98,6 +99,50 @@ export default function Index({ auth, shifts, totals, filters }) {
         setStartDate('');
         setEndDate('');
         router.get(route(isAdminRole ? 'admin.shifts.index' : 'repartidor.shifts.index'));
+    };
+
+    // DESCARGA DE PDF MEDIANTE FETCH Y BLOB
+    const handleDownload = async () => {
+        if (isDownloading) return;
+
+        setIsDownloading(true);
+
+        const url = route(
+            isAdminRole ? "admin.shifts.export.pdf" : "repartidor.shifts.export.pdf",
+            {
+                ...(startDate && { start_date: startDate }),
+                ...(endDate && { end_date: endDate }),
+            }
+        );
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/pdf',
+                },
+            });
+
+            if (!response.ok) throw new Error('Error al generar el PDF de turnos');
+
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.setAttribute('download', `historial_cajas_${new Date().toISOString().slice(0, 10)}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+
+            link.remove();
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error('Error durante la descarga:', error);
+            setModalError('Ocurrió un problema al generar o descargar el reporte en PDF.');
+            setShowModal(true);
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     const agruparPorFecha = (lista) => {
@@ -194,7 +239,7 @@ export default function Index({ auth, shifts, totals, filters }) {
                                 </button>
                             )}
 
-                            {/* BOTÓN PDF CON CONTROL DE DESACTIVACIÓN */}
+                            {/* BOTÓN PDF CON ESTADO DINÁMICO Y CONTROL DE DESACTIVACIÓN */}
                             {isInvalidRange ? (
                                 <button
                                     type="button"
@@ -206,19 +251,31 @@ export default function Index({ auth, shifts, totals, filters }) {
                                     Descargar PDF
                                 </button>
                             ) : (
-                                <a
-                                    href={route(
-                                        isAdminRole ? "admin.shifts.export.pdf" : "repartidor.shifts.export.pdf",
-                                        {
-                                            ...(startDate && { start_date: startDate }),
-                                            ...(endDate && { end_date: endDate }),
-                                        }
-                                    )}
-                                    className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-md hover:bg-indigo-700 transition-all ml-auto sm:ml-0"
+                                <button
+                                    type="button"
+                                    onClick={handleDownload}
+                                    disabled={isDownloading}
+                                    className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white shadow-md transition-all ml-auto sm:ml-0 ${
+                                        isDownloading
+                                            ? 'bg-indigo-400 cursor-wait'
+                                            : 'bg-indigo-600 hover:bg-indigo-700 cursor-pointer active:scale-95'
+                                    }`}
                                 >
-                                    <ArrowDownTrayIcon className="h-5 w-5" />
-                                    Descargar PDF
-                                </a>
+                                    {isDownloading ? (
+                                        <>
+                                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <span>Generando...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <ArrowDownTrayIcon className="h-5 w-5" />
+                                            <span>Descargar PDF</span>
+                                        </>
+                                    )}
+                                </button>
                             )}
                         </div>
                     </div>

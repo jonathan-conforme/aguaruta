@@ -36,7 +36,7 @@ export default function Login({ status, canResetPassword, error_message }) {
                 {/* Header del Login con tu nuevo Logo Circular */}
                 <div className="text-center mb-8 flex flex-col items-center">
                     <ApplicationLogo className="mb-4" />
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">AquaRutaTech</h2>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Aqua<span className="text-blue-500">RutaTech</span></h2>
                     <p className="text-sm text-gray-600">Ingresa tus credenciales para acceder al panel.</p>
                 </div>
 

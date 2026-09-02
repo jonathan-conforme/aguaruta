@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Storage;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,10 @@ class CompanyService
         // crear también al Usuario Administrador de esta empresa al mismo tiempo
         return DB::transaction(function () use ($data) {
 
+        if (isset($data['logo']) && $data['logo'] instanceof \Illuminate\Http\UploadedFile) {
+                $data['logo'] = $data['logo']->store('logos', 'public');
+            }
+
             // 1. Preparamos los datos
             $data['is_active'] = true;
             // 2. Creamos la empresa
@@ -36,7 +41,7 @@ class CompanyService
                 'role' => 'admin',
                 'is_active' => true,
                 'password_changed' => false,
-                
+
             ]);
 
             Mail::to($user->email)->send(new CuentaCreadaMail($user));
@@ -45,5 +50,25 @@ class CompanyService
 
             return $company;
         });
+    }
+    /**
+     * Actualiza la empresa y reemplaza el logo previo.
+     */
+    public function updateCompany(Company $company, array $data): Company
+    {
+        if (isset($data['logo']) && $data['logo'] instanceof \Illuminate\Http\UploadedFile) {
+            // Borrar el logo anterior si existe en disco
+            if ($company->logo) {
+                Storage::disk('public')->delete($company->logo);
+            }
+            // Guardar el nuevo logo
+            $data['logo'] = $data['logo']->store('logos', 'public');
+        } else {
+            // Evitar sobreescribir el campo 'logo' con nulo si no se subió una nueva imagen
+            unset($data['logo']);
+        }
+
+        $company->update($data);
+        return $company;
     }
 }

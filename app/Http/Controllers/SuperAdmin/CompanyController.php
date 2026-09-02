@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
@@ -59,67 +58,28 @@ class CompanyController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreCompanyRequest $request)
-    {
-
-       // 1. Obtenemos todos los datos ya validados por tu FormRequest
-        $data = $request->validated();
-
-        // 2. PROCESAMOS EL LOGO
-        // Verificamos si en la petición viene un archivo llamado 'logo'
-        if ($request->hasFile('logo')) {
-            // Guardamos el archivo físicamente en 'storage/app/public/logos'
-            $data['logo'] = $request->file('logo')->store('logos', 'public');
-        }
-
-        $data['legal_accepted_ip'] = $request->ip();
-
-        // 3. Enviamos los datos al servicio UNA SOLA VEZ
-        $this->companyService->createCompany($data);
-        // 3. Retornamos la respuesta
-        return redirect()->route('companies.index')->with('success', 'Empresa registrada correctamente.');
-    }
 
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Company $company)
-    {
-        //
-    }
+public function store(StoreCompanyRequest $request)
+{
+    $data = $request->validated();
+    $data['legal_accepted_ip'] = $request->ip();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Company $company)
-    {
-        //
-    }
+    // El servicio se encarga de subir el logo y crear la empresa
+    $this->companyService->createCompany($data);
 
-    /**
-     * Update the specified resource in storage.
-     */
+    return redirect()->route('companies.index')->with('success', 'Empresa registrada correctamente.');
+}
+
 public function update(UpdateCompanyRequest $request, Company $company)
-    {
-        // Si el código llega aquí, significa que ya pasó la validación del Request automáticamente
-        $validated = $request->validated();
+{
+    $validated = $request->validated();
 
-        // Procesar el nuevo Logo (si el usuario subió uno)
-        if ($request->hasFile('logo')) {
-            if ($company->logo) {
-                Storage::disk('public')->delete($company->logo);
-            }
-            $validated['logo'] = $request->file('logo')->store('logos', 'public');
-        } else {
-            unset($validated['logo']);
-        }
+    // El servicio maneja la eliminación del logo antiguo y la subida del nuevo
+    $this->companyService->updateCompany($company, $validated);
 
-        // Actualizar la empresa
-        $company->update($validated);
-
-        return redirect()->route('companies.index')->with('success', 'Empresa actualizada correctamente.');
-    }
+    return redirect()->route('companies.index')->with('success', 'Empresa actualizada correctamente.');
+}
 
     /**
      * Remove the specified resource from storage.
@@ -132,7 +92,7 @@ public function update(UpdateCompanyRequest $request, Company $company)
         return redirect()->route('companies.index')->with('success', 'Empresa eliminada correctamente.');
     }
 
-    
+
    public function toggleStatus(Company $company)
 {
     $company->update([

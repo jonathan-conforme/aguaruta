@@ -21,10 +21,10 @@ class StoreCompanyRequest extends FormRequest
             'whatsapp_number' => 'nullable|string|max:15',
             'email' => 'required|email|max:255|unique:companies,email|unique:users,email',
             'address' => 'nullable|string',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
             'subscription_ends_at' => 'nullable|date',
             'plan' => 'required|in:basico,premium,empresarial,vip',
-          
+
 
         ];
     }

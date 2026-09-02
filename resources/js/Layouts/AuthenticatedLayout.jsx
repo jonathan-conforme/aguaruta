@@ -105,7 +105,7 @@ const MENU_CATEGORIES = [
         roles: ['admin', 'empleado'],
         items: [
             { label: "Historial Ventas", routeName: "admin.sales.index", pattern: "admin.sales.*", icon: DocumentTextIcon, roles: ['admin'], colorBg: "bg-cyan-50", colorText: "text-cyan-600" },
-             { label: "Historial Ventas", routeName: "repartidor.sales.index", pattern: "repartidor.sales.*", icon: ClipboardDocumentListIcon, roles: ['empleado'], colorBg: "bg-pink-50", colorText: "text-pink-600" },
+            { label: "Historial Ventas", routeName: "repartidor.sales.index", pattern: "repartidor.sales.*", icon: ClipboardDocumentListIcon, roles: ['empleado'], colorBg: "bg-pink-50", colorText: "text-pink-600" },
 
             { label: "Historial Cierres", routeName: "admin.shifts.index", pattern: "admin.shifts.*", icon: ClockIcon, roles: ['admin'], colorBg: "bg-blue-50", colorText: "text-blue-600" },
             { label: "Cuentas por Cobrar", routeName: "admin.receivables.index", pattern: "admin.receivables.index", icon: BanknotesIcon, roles: ['admin'], colorBg: "bg-green-50", colorText: "text-green-600" },
@@ -236,7 +236,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 return (
                     <div key={idx} className="flex flex-col mb-4">
                         <div className="flex items-center gap-2 px-3 mb-2">
-                            <CategoryIcon className="h-4 w-4 text-indigo-400" />
+                            <CategoryIcon className="h-4 w-4 text-indigo-600" />
                             <Typography variant="small" className="uppercase tracking-wider text-blue-gray-800 text-xs font-bold">
                                 {category.title}
                             </Typography>
@@ -376,71 +376,81 @@ export default function AuthenticatedLayout({ header, children }) {
             {/* CONTENEDOR PRINCIPAL */}
             <div className="flex-1 flex flex-col w-full h-full overflow-hidden bg-gray-50/50">
                 <header className="bg-white shadow-sm border-b border-gray-200 z-10 shrink-0">
-        <div className="px-4 py-4 flex justify-between items-center lg:px-8">
-            <div className="flex items-center gap-4">
-                <div className="font-bold text-gray-800">{header}</div>
-            </div>
+                    <div className="px-4 py-4 flex justify-between items-center lg:px-8">
+                        <div className="flex items-center gap-4">
+                            <div className="font-bold text-gray-800">{header}</div>
+                        </div>
 
-            <div className="flex items-center gap-4">
-                {/* 🔔 BOTÓN Y DROPDOWN DE NOTIFICACIONES */}
-                <div className="relative">
-                    <button
-                        onClick={() => setIsNotifOpen(!isNotifOpen)}
-                        className="relative p-2 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none transition-colors"
-                    >
-                        <BellIcon className="h-6 w-6 text-gray-700" />
-                        {notifications.length > 0 && (
-                            <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center animate-pulse">
-                                {notifications.length}
-                            </span>
-                        )}
-                    </button>
+                        <div className="flex items-center gap-4">
+                            {/* BOTÓN Y DROPDOWN DE NOTIFICACIONES */}
+                            <div className="relative">
+                                <button
+                                    onClick={() => setIsNotifOpen(!isNotifOpen)}
+                                    className="relative p-2 rounded-full text-gray-600 hover:bg-gray-100 focus:outline-none transition-colors"
+                                >
+                                    <BellIcon className="h-6 w-6 text-gray-700" />
+                                    {notifications.length > 0 && (
+                                        <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center animate-pulse">
+                                            {notifications.length}
+                                        </span>
+                                    )}
+                                </button>
 
-                    {/* MENÚ DESPLEGABLE */}
-                    {isNotifOpen && (
-                        <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-                            <div className="p-3.5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                                <span className="font-bold text-xs uppercase tracking-wider text-gray-700">Notificaciones</span>
-                                <span className="text-xs text-indigo-600 font-bold">{notifications.length} sin leer</span>
-                            </div>
 
-                            <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
-                                {notifications.length > 0 ? (
-                                    notifications.map((item) => (
-                                        <div
-                                            key={item.id}
-                                            onClick={() => handleNotificationClick(item)}
-                                            className="p-3.5 hover:bg-indigo-50/50 cursor-pointer transition-colors flex gap-3 items-start text-left"
-                                        >
-                                            <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl shrink-0 mt-0.5">
-                                                <ArrowsRightLeftIcon className="h-4 w-4" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <p className="text-xs font-bold text-gray-800">{item.data.title}</p>
-                                                <p className="text-xs text-gray-600 mt-0.5 leading-snug">{item.data.message}</p>
-                                            </div>
+                                {/* MENÚ DESPLEGABLE */}
+                                {isNotifOpen && (
+                                    <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-16 sm:top-auto sm:mt-2 w-auto sm:w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[70] overflow-hidden">
+                                        <div className="p-3.5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                                            <span className="font-bold text-xs uppercase tracking-wider text-gray-700">Notificaciones</span>
+                                            <span className="text-xs text-indigo-600 font-bold">{notifications.length} sin leer</span>
                                         </div>
-                                    ))
-                                ) : (
-                                    <div className="p-6 text-center text-xs text-gray-400">
-                                        No tienes notificaciones pendientes.
+
+                                        <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                                            {notifications.length > 0 ? (
+                                                notifications.map((item) => (
+                                                    <div
+                                                        key={item.id}
+                                                        onClick={() => handleNotificationClick(item)}
+                                                        className="p-3.5 hover:bg-indigo-50/50 cursor-pointer transition-colors flex gap-3 items-start text-left"
+                                                    >
+                                                        <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl shrink-0 mt-0.5">
+                                                            <ArrowsRightLeftIcon className="h-4 w-4" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className="text-xs font-bold text-gray-800">{item.data.title}</p>
+                                                            <p className="text-xs text-gray-600 mt-0.5 leading-snug">{item.data.message}</p>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="p-6 text-center text-xs text-gray-400">
+                                                    No tienes notificaciones pendientes.
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
-                        </div>
-                    )}
-                </div>
+                            <div className="text-xs text-gray-500 capitalize">{user.role.replace('_', ' ')}</div>
 
-                <div className="text-right hidden sm:block">
-                    <div className="text-sm font-bold text-gray-800">{user.name}</div>
-                    <div className="text-xs text-gray-500 capitalize">{user.role.replace('_', ' ')}</div>
-                </div>
-                <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-indigo-100 to-blue-100 flex items-center justify-center text-indigo-700 font-bold border border-indigo-200">
-                    {user.name.charAt(0).toUpperCase()}
-                </div>
-            </div>
-        </div>
-    </header>
+                            <div className="text-right sm:block">
+
+                                <div className="text-sm font-bold text-gray-800 mr-4">{/* Reemplaza la línea 436 de tu AuthenticatedLayout.jsx por esto */}
+
+                                    {/* Renderizado seguro del logo */}
+                                    {auth?.user?.company?.logo_url ? (
+                                        <img
+                                            src={auth.user.company.logo_url}
+
+                                            className="h-9 w-auto object-contain rounded-md"
+                                        />
+                                    ) : null}</div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </header>
 
                 <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 pb-28 lg:p-8 lg:pb-8">
                     {children}
@@ -448,6 +458,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 {/* BOTTOM NAVIGATION BAR */}
                 <nav className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 shadow-[0_-10px_40px_rgba(0,0,0,0.06)] rounded-t-3xl pt-2 pb-6 px-4 z-40 flex justify-between items-end">
+
                     <Link href={route('dashboard')} className={`flex flex-col items-center justify-center gap-1 w-16 ${isActive('dashboard') ? 'text-pink-600' : 'text-gray-500 hover:text-gray-900'} transition-colors`}>
                         <HomeIcon className="h-6 w-6" strokeWidth={isActive('dashboard') ? 2 : 1.5} />
                         <span className="text-[10px] font-medium">Resumen</span>

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,6 +21,14 @@ class Company extends Model
         'plan',
         'subscription_ends_at',
     ];
+    protected $appends = ['logo_url'];
+    /**
+     * Devuelve la URL pública para la etiqueta <img> en React
+     */
+    public function getLogoUrlAttribute(): ?string
+    {
+        return $this->logo ? Storage::url($this->logo) : null;
+    }
 
     protected $casts = [
         'is_active' => 'boolean',

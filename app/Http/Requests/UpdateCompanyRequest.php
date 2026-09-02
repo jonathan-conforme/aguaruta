@@ -45,7 +45,7 @@ class UpdateCompanyRequest extends FormRequest
             'address' => 'nullable|string|max:255',
             'plan' => 'required|in:basico,premium,empresarial,vip',
             'subscription_ends_at' => 'nullable|date',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
         ];
     }
 }

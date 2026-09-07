@@ -9,7 +9,7 @@ class Trip extends Model
 {
     use BelongsToCompany;
 
-   protected $fillable = [
+    protected $fillable = [
         'company_id',
         'trip_number',
         'driver_id',
@@ -17,6 +17,7 @@ class Trip extends Model
         'helper_1_id',
         'helper_2_id',
         'delivery_route_id',
+        'vehicle_plate',
         'date',
         'status',
         'notes',
@@ -48,34 +49,47 @@ class Trip extends Model
         return $this->belongsTo(User::class, 'helper_2_id');
     }
 
-  // Relación MUCHOS A MUCHOS con Productos (A través de la tabla pivot)
+    // Relación MUCHOS A MUCHOS con Productos (A través de la tabla pivot)
     public function products()
     {
         return $this->belongsToMany(Product::class, 'trip_details', 'trip_id', 'product_id')
-                    ->using(TripDetail::class)
-                    ->withPivot('quantity', 'initial_quantity', 'returned_quantity', 'recovered_bottles', 'company_id');
+            ->using(TripDetail::class)
+            ->withPivot('quantity', 'initial_quantity', 'returned_quantity', 'recovered_bottles', 'company_id');
 
     }
+
     public function route()
     {
         return $this->belongsTo(DeliveryRoute::class, 'delivery_route_id');
     }
 
-        public function isActive()
+    public function isActive()
     {
         return $this->status === 'active';
     }
 
-        public function isPending()
-        {
-            return $this->status === 'pending';
-        }
-            public function sales() {
-            return $this->hasMany(Sale::class);
-        }
-        public function details()
-        {
-            return $this->hasMany(TripDetail::class, 'trip_id');
-        }
+    public function isPending()
+    {
+        return $this->status === 'pending';
+    }
 
+    public function sales()
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    public function details()
+    {
+        return $this->hasMany(TripDetail::class, 'trip_id');
+    }
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class);
+    }
+
+    // MVP 2: Guía de Remisión SRI
+    public function waybill()
+    {
+        return $this->morphOne(ElectronicDocument::class, 'documentable');
+    }
 }

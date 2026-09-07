@@ -23,6 +23,15 @@ return new class extends Migration
             $table->string('logo')->nullable();
             $table->enum('plan', ['basico', 'premium', 'empresarial', 'vip'])->default('basico');
             $table->date('subscription_ends_at')->nullable();
+
+            // Campos SRI (Opcionales al registrarse, configurables después)
+            $table->enum('sri_environment', ['1', '2'])->default('1')->comment('1: Pruebas, 2: Producción');
+            $table->string('sri_establishment', 3)->default('001');
+            $table->string('sri_emission_point', 3)->default('001');
+            $table->boolean('sri_accounting_obliged')->default(false);
+            $table->string('sri_rimpe_type')->nullable(); // Ej: CONTRIBUYENTE RÉGIMEN RIMPE
+            $table->string('sri_signature_path')->nullable();
+            $table->string('sri_signature_password')->nullable();
             $table->timestamps();
         });
     }

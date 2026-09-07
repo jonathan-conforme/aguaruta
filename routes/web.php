@@ -116,7 +116,11 @@ Route::middleware(['auth', 'verified', 'role:admin', 'check.company'])->group(fu
     ->name('admin.shifts.export.pdf');
 Route::get('/admin/receivables', [ReceivableController::class, 'index'])->name('admin.receivables.index');
 Route::get('/admin/receivables/history', [ReceivableController::class, 'history'])->name('admin.receivables.history');
-
+// Ruta directa a la vista cortina del SRI para el 2 MVP
+  // Ruta directa a la vista del SRI
+Route::get('/sri', function () {
+    return Inertia::render('Admin/Sri/Index'); // 👈 Se agregó "Admin/"
+})->name('sri.index');
 
 });
 

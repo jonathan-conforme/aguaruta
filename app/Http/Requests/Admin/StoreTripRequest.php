@@ -15,6 +15,7 @@ class StoreTripRequest extends FormRequest
             'seller_id' => 'required|exists:users,id',
             'helper_1_id' => 'nullable|exists:users,id',
             'helper_2_id' => 'nullable|exists:users,id',
+            'vehicle_plate' => 'nullable|string|max:10',
             'date' => 'required|date',
             'status' => 'required|in:pending,active,completed',
             'notes' => 'nullable|string',

@@ -29,7 +29,7 @@ class TripService
             $companyId = $data['company_id'] ?? Auth::user()->company_id;
             $data['company_id'] = $companyId;
 
-            // 2. 🔐 BLOQUEAR LA FILA PARA EVITAR CONDICIONES DE CARRERA (Race Conditions)
+            // 2. BLOQUEAR LA FILA PARA EVITAR CONDICIONES DE CARRERA (Race Conditions)
             // Buscamos el último número de viaje asignado a esta empresa específica.
             $lastTripNumber = DB::table('trips')
                 ->where('company_id', $companyId)

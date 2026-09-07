@@ -52,6 +52,8 @@ import {
     LockClosedIcon,
     SparklesIcon,
     HomeIcon,
+    BuildingLibraryIcon,
+    DocumentCheckIcon,
 } from "@heroicons/react/24/outline";
 
 // ESTRUCTURA DE MENÚ CENTRALIZADA CON PATRONES DE RUTA PRECISOS
@@ -123,7 +125,25 @@ const MENU_CATEGORIES = [
         items: [
             { label: "Mi Suscripción", routeName: "subscription.index", pattern: "subscription.*", icon: CreditCardIcon, roles: ['admin'], colorBg: "bg-green-50", colorText: "text-green-600" }
         ]
-    }
+    },
+    {
+    title: "Comprobantes y SRI",
+    icon: DocumentTextIcon,
+    roles: ['admin'],
+    items: [
+        {
+            label: "Facturación y SRI",
+            routeName: "sri.index",
+            pattern: "sri.*",
+            icon: BuildingLibraryIcon,
+            roles: ['admin'],
+            colorBg: "bg-amber-50",
+            colorText: "text-amber-600",
+            badge: "DEV"
+        },
+
+    ]
+}
 ];
 
 export default function AuthenticatedLayout({ header, children }) {
@@ -455,9 +475,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <div className="text-sm font-bold text-gray-800 mr-4">{/* Reemplaza la línea 436 de tu AuthenticatedLayout.jsx por esto */}
 
                                     {/* Renderizado seguro del logo */}
-                                    {auth?.user?.company?.logo_url ? (
+                                    {auth?.user?.company?.logo ? (
                                         <img
-                                            src={auth.user.company.logo_url}
+                                            src={auth.user.company.logo}
 
                                             className="h-9 w-auto object-contain rounded-md"
                                         />

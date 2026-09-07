@@ -11,6 +11,7 @@ class TripDetail extends Pivot
     use BelongsToCompany;
 
     protected $table = 'trip_details';
+    public $incrementing = true;
 
     protected $fillable = [
         'company_id',

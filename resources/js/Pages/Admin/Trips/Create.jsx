@@ -9,6 +9,7 @@ export default function Create({ users, products, routes, onClose, initialData }
         seller_id: '',
         helper_1_id: '',
         helper_2_id: '',
+        vehicle_plate: '',
         delivery_route_id: '',
         date: new Date().toISOString().split('T')[0],
         status: 'pending',
@@ -26,6 +27,7 @@ export default function Create({ users, products, routes, onClose, initialData }
                 seller_id: initialData.seller_id ? String(initialData.seller_id) : '',
                 helper_1_id: initialData.helper_1_id ? String(initialData.helper_1_id) : '',
                 helper_2_id: initialData.helper_2_id ? String(initialData.helper_2_id) : '',
+                vehicle_plate: initialData.vehicle_plate || '',
                 delivery_route_id: initialData.delivery_route_id ? String(initialData.delivery_route_id) : '',
                 date: initialData.date ? initialData.date.split('T')[0] : new Date().toISOString().split('T')[0],
                 status: initialData.status || 'pending',
@@ -162,6 +164,20 @@ export default function Create({ users, products, routes, onClose, initialData }
                             {users.map(user => <Option key={user.id} value={String(user.id)}>{user.name}</Option>)}
                         </Select>
                         {errors.seller_id && <Typography variant="small" color="red" className="mt-1 text-xs">{errors.seller_id}</Typography>}
+                    </div>
+                    <div>
+                        <Input
+                            type="text"
+                            label="Placa Vehículo"
+                            color="indigo"
+                            value={data.vehicle_plate}
+                            onChange={e => setData('vehicle_plate', e.target.value.toUpperCase())}
+                            error={!!errors.vehicle_plate}
+                            disabled={isReadOnly}
+                            className="bg-white rounded-xl uppercase"
+                            placeholder="Ej: ABC-1234"
+                        />
+                        {errors.vehicle_plate && <Typography variant="small" color="red" className="mt-1 text-xs">{errors.vehicle_plate}</Typography>}
                     </div>
                 </div>
             </div>

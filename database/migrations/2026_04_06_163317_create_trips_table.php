@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('helper_1_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('helper_2_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('delivery_route_id')->constrained()->cascadeOnDelete();
-
+            $table->string('vehicle_plate', 10)->nullable();
             $table->date('date');
             $table->enum('status', ['pending', 'active', 'completed'])->default('pending');
             $table->text('notes')->nullable();

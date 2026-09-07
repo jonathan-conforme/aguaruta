@@ -27,7 +27,7 @@ class HandleInertiaRequests extends Middleware
      *
      * @return array<string, mixed>
      */
-    
+
 
 public function share(Request $request): array
 {
@@ -44,9 +44,14 @@ public function share(Request $request): array
             'user' => $user ? array_merge($user->toArray(), [
                 'unread_notifications' => $user->unreadNotifications()->take(10)->get(),
                 'company' => $user->company ? [
-                    'id' => $user->company->id,
-                    'name' => $user->company->name,
-                    'logo_url' => $user->company->logo_url, // Viene del Accessor getLogoUrlAttribute()
+                    'id'                   => $user->company->id,
+                    'name'                 => $user->company->name,
+                    'ruc_number'           => $user->company->ruc_number ?? $user->company->ruc,
+                    'email'                => $user->company->email ?? $user->company->correo,
+                    'phone'                => $user->company->phone ?? $user->company->telefono ?? $user->company->whatsapp_number,
+                    'address'              => $user->company->address ?? $user->company->direccion,
+                   
+                    'logo'                 => $user->company->logo_url,
                 ] : null,
             ]) : null,
         ],

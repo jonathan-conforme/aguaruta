@@ -35,7 +35,7 @@ export default function UpdatePasswordRequired() {
         { label: 'Un número', test: (pwd) => /[0-9]/.test(pwd) },
         { label: 'Un carácter especial (@, $, !, etc.)', test: (pwd) => /[^A-Za-z0-9]/.test(pwd) },
         { label: 'Contraseñas iguales en ambos campos', test: (pwd) => pwd === data.password_confirmation }
-        
+
 
     ];
 
@@ -59,7 +59,7 @@ export default function UpdatePasswordRequired() {
                 {/* Cabecera */}
                 <div className="text-center mb-8">
                     <ApplicationLogo className="mb-4" />
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">AquaRuta</h2>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">AquaRutaTech</h2>
                     <p className="text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3 inline-block">
                         Actualización obligatoria de seguridad
                     </p>

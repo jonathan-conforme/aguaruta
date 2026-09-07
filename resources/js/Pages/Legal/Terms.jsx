@@ -5,7 +5,7 @@ import { Typography, Button } from "@material-tailwind/react";
 export default function Terms() {
     return (
         <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <Head title="Términos y Condiciones - AquaRuta" />
+            <Head title="Términos y Condiciones - AquaRutaTech" />
 
             <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
                 {/* Encabezado */}
@@ -26,7 +26,7 @@ export default function Terms() {
                             1. Objeto del Servicio
                         </Typography>
                         <p>
-                            El presente documento regula el acceso y uso de **AquaRuta**, una plataforma de software como servicio (SaaS) diseñada para la gestión logística, optimización de rutas de distribución y control de puntos de venta (POS) para purificadoras de agua. Al activar una cuenta, su empresa acepta estos términos en su totalidad.
+                            El presente documento regula el acceso y uso de  Aqua<span className="text-blue-500">RutaTech</span>, una plataforma de software como servicio (SaaS) diseñada para la gestión logística, optimización de rutas de distribución y control de puntos de venta (POS) para purificadoras de agua. Al activar una cuenta, su empresa acepta estos términos en su totalidad.
                         </p>
                     </section>
 
@@ -44,7 +44,7 @@ export default function Terms() {
                             3. Planes, Suscripciones y Pagos
                         </Typography>
                         <p>
-                            AquaRuta opera bajo un modelo de suscripción periódica. El acceso a las funciones de administración, reportes y rutas del repartidor dependerá de mantener el plan comercial activo. El impago del servicio facultará a La Plataforma a redirigir el sistema a la vista de <span className="italic font-medium">suscripción vencida</span> y suspender temporalmente el uso de las aplicaciones móviles y de escritorio.
+                            Aqua<span className="text-blue-500">RutaTech</span> opera bajo un modelo de suscripción periódica. El acceso a las funciones de administración, reportes y rutas del repartidor dependerá de mantener el plan comercial activo. El impago del servicio facultará a La Plataforma a redirigir el sistema a la vista de <span className="italic font-medium">suscripción vencida</span> y suspender temporalmente el uso de las aplicaciones móviles y de escritorio.
                         </p>
                     </section>
 
@@ -53,7 +53,7 @@ export default function Terms() {
                             4. Limitación de Responsabilidad Logística
                         </Typography>
                         <p>
-                            AquaRuta provee herramientas tecnológicas para optimizar operaciones (cálculo de viajes, gastos y turnos), pero no se hace responsable por pérdidas económicas derivadas de malas prácticas de los empleados, fallos de conectividad celular de los transportistas en ruta, o decisiones comerciales tomadas con base en los reportes generados.
+                            Aqua<span className="text-blue-500">RutaTech</span> provee herramientas tecnológicas para optimizar operaciones (cálculo de viajes, gastos y turnos), pero no se hace responsable por pérdidas económicas derivadas de malas prácticas de los empleados, fallos de conectividad celular de los transportistas en ruta, o decisiones comerciales tomadas con base en los reportes generados.
                         </p>
                     </section>
 
@@ -62,7 +62,7 @@ export default function Terms() {
                             5. Propiedad Intelectual y Modificaciones
                         </Typography>
                         <p>
-                            Todos los derechos de propiedad intelectual sobre el código fuente, diseño de interfaces, logotipos y la marca AquaRuta pertenecen exclusivamente a sus creadores. Nos reservamos el derecho de actualizar las funciones del software y modificar estos términos para adaptarlos a mejoras técnicas o nuevas normativas legales en Ecuador, notificando previamente a los administradores del sistema.
+                            Todos los derechos de propiedad intelectual sobre el código fuente, diseño de interfaces, logotipos y la marca Aqua<span className="text-blue-500">RutaTech</span> pertenecen exclusivamente a sus creadores. Nos reservamos el derecho de actualizar las funciones del software y modificar estos términos para adaptarlos a mejoras técnicas o nuevas normativas legales en Ecuador, notificando previamente a los administradores del sistema.
                         </p>
                     </section>
 

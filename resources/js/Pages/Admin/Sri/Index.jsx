@@ -52,14 +52,14 @@ const MOCK_GUIAS = [
     }
 ];
 
-export default function SriIndex({ auth }) {
+export default function SriIndex({ auth, company: companyProp, guias: guiasProp }) {
     const [activeTab, setActiveTab] = useState("company");
     const [selectedGuia, setSelectedGuia] = useState(null);
     const [openModalPreview, setOpenModalPreview] = useState(false);
     const [openDevModal, setOpenDevModal] = useState(false);
     const [devModuleName, setDevModuleName] = useState('');
 
-    const company = auth?.user?.company || {
+    const company = companyProp || auth?.user?.company || {
         name: "AquaRutaTech Cía. Ltda.",
         ruc_number: "1792384756001",
         email: "admin@aquaruta.com",
@@ -70,6 +70,8 @@ export default function SriIndex({ auth }) {
         subscription_ends_at: "2026-12-31",
         logo: null
     };
+
+    const guias = (guiasProp && guiasProp.length > 0) ? guiasProp : MOCK_GUIAS;
 
     const triggerDevModal = (moduleName) => {
         setDevModuleName(moduleName);
@@ -210,8 +212,6 @@ export default function SriIndex({ auth }) {
                                         <MapPinIcon className="h-4 w-4 text-amber-500" /> {company.address || 'Sin dirección registrada'}
                                     </Typography>
                                 </div>
-
-                                
                             </div>
                         </Card>
 
@@ -401,7 +401,7 @@ export default function SriIndex({ auth }) {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 text-xs">
-                                    {MOCK_GUIAS.map((guia) => (
+                                    {guias.map((guia) => (
                                         <tr key={guia.id} className="hover:bg-slate-50/60 transition-colors">
                                             <td className="p-4">
                                                 <Typography variant="small" className="font-bold text-slate-800 text-xs">

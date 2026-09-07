@@ -28,7 +28,7 @@ export default function ForgotPassword({ status }) {
                 {/* Cabecera del Formulario */}
                 <div className="text-center mb-8">
                     <ApplicationLogo className="mb-4" />
-                    <h2 className="text-3xl font-bold text-gray-900 mb-2">AquaRuta</h2>
+                    <h2 className="text-3xl font-bold text-gray-900 mb-2">Aqua<span className="text-blue-500">RutaTech</span></h2>
                     <p className="text-sm text-gray-600">¿Olvidaste tu contraseña?</p>
                     <p className="text-xs text-gray-500 mt-2 px-4">
                         No hay problema. Ingresa tu dirección de correo electrónico y te enviaremos un enlace para restaurarla.

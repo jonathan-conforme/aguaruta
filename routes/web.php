@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\TripController;
+use App\Http\Controllers\Admin\SriController;
 use App\Http\Controllers\Empleados\ExpenseController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Empleados\ReceivableController;
@@ -118,10 +119,7 @@ Route::get('/admin/receivables', [ReceivableController::class, 'index'])->name('
 Route::get('/admin/receivables/history', [ReceivableController::class, 'history'])->name('admin.receivables.history');
 // Ruta directa a la vista cortina del SRI para el 2 MVP
   // Ruta directa a la vista del SRI
-Route::get('/sri', function () {
-    return Inertia::render('Admin/Sri/Index'); // 👈 Se agregó "Admin/"
-})->name('sri.index');
-
+Route::get('/sri', [SriController::class, 'index'])->name('sri.index');
 });
 
 // ==========================================

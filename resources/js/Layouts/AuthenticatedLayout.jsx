@@ -16,7 +16,6 @@ import {
 } from "@material-tailwind/react";
 
 import {
-
     ShoppingBagIcon,
     UserCircleIcon,
     Cog6ToothIcon,
@@ -109,7 +108,6 @@ const MENU_CATEGORIES = [
         items: [
             { label: "Historial Ventas", routeName: "admin.sales.index", pattern: "admin.sales.*", icon: DocumentTextIcon, roles: ['admin'], colorBg: "bg-cyan-50", colorText: "text-cyan-600" },
             { label: "Historial Ventas", routeName: "repartidor.sales.index", pattern: "repartidor.sales.*", icon: ClipboardDocumentListIcon, roles: ['empleado'], colorBg: "bg-pink-50", colorText: "text-pink-600" },
-
             { label: "Historial Cierres", routeName: "admin.shifts.index", pattern: "admin.shifts.*", icon: ClockIcon, roles: ['admin'], colorBg: "bg-blue-50", colorText: "text-blue-600" },
             { label: "Cuentas por Cobrar", routeName: "admin.receivables.index", pattern: "admin.receivables.index", icon: BanknotesIcon, roles: ['admin'], colorBg: "bg-green-50", colorText: "text-green-600" },
             { label: "Auditoría Cobros", routeName: "admin.receivables.history", pattern: "admin.receivables.history", icon: BanknotesIcon, roles: ['admin'], colorBg: "bg-purple-50", colorText: "text-purple-600" },
@@ -127,23 +125,22 @@ const MENU_CATEGORIES = [
         ]
     },
     {
-    title: "Comprobantes y SRI",
-    icon: DocumentTextIcon,
-    roles: ['admin'],
-    items: [
-        {
-            label: "Facturación y SRI",
-            routeName: "sri.index",
-            pattern: "sri.*",
-            icon: BuildingLibraryIcon,
-            roles: ['admin'],
-            colorBg: "bg-amber-50",
-            colorText: "text-amber-600",
-            badge: "DEV"
-        },
-
-    ]
-}
+        title: "Comprobantes y SRI",
+        icon: DocumentTextIcon,
+        roles: ['admin'],
+        items: [
+            {
+                label: "Facturación y SRI",
+                routeName: "sri.index",
+                pattern: "sri.*",
+                icon: BuildingLibraryIcon,
+                roles: ['admin'],
+                colorBg: "bg-amber-50",
+                colorText: "text-amber-600",
+                badge: "DEV"
+            },
+        ]
+    }
 ];
 
 export default function AuthenticatedLayout({ header, children }) {
@@ -245,7 +242,7 @@ export default function AuthenticatedLayout({ header, children }) {
             <span className="text-[13px] font-semibold text-gray-700 text-center leading-tight">{label}</span>
         </Link>
     );
-    // notificaciones de iconos
+
     const NOTIFICATION_ICONS = {
         TruckIcon,
         ClipboardDocumentCheckIcon,
@@ -290,7 +287,6 @@ export default function AuthenticatedLayout({ header, children }) {
             <hr className="my-4 border-gray-200" />
 
             <div className="space-y-1">
-
                 <Link href={route('profile.edit')} className="w-full">
                     <ListItem className={`p-3 rounded-lg ${isActive('profile.*') ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-gray-700 hover:bg-gray-100'}`}>
                         <ListItemPrefix><UserCircleIcon className="h-5 w-5" /></ListItemPrefix>
@@ -326,17 +322,57 @@ export default function AuthenticatedLayout({ header, children }) {
                         {renderDesktopMenu()}
                     </List>
 
-                    <Alert open={openAlert} className="mt-4 bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-md flex-shrink-0" onClose={() => setOpenAlert(false)}>
-                        <CubeTransparentIcon className="mb-4 h-10 w-10 text-white/80" />
-                        <Typography variant="h6" className="mb-1 text-white">Plan Premium</Typography>
-                        <Typography variant="small" className="font-normal opacity-90 text-white">
-                            Sube a premium para manejar inventarios complejos y múltiples sucursales.
-                        </Typography>
-                        <div className="mt-4 flex gap-3">
-                            <Typography as="button" variant="small" className="font-medium opacity-80 text-white hover:opacity-100 transition-opacity" onClick={() => setOpenAlert(false)}>Ignorar</Typography>
-                            <Typography as="a" href="#" variant="small" className="font-medium text-white underline hover:no-underline transition-all">Mejorar Ahora</Typography>
-                        </div>
-                    </Alert>
+                    {/* ALERTA DINÁMICA DE PLAN */}
+                    {(() => {
+                        const companyPlan = user?.company?.plan || 'Básico';
+                        const isPremium = companyPlan.toLowerCase().includes('premium');
+
+                        return (
+                            <Alert
+                                open={openAlert}
+                                className={`mt-4 shadow-sm flex-shrink-0 transition-all border ${isPremium
+                                        ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 border-purple-400/30'
+                                        : 'bg-gradient-to-br from-blue-500 to-indigo-600 border-blue-400/30'
+                                    }`}
+                                onClose={() => setOpenAlert(false)}
+                            >
+                                {isPremium ? (
+                                    <SparklesIcon className="mb-3 h-8 w-8 text-amber-300" />
+                                ) : (
+                                    <CubeTransparentIcon className="mb-3 h-8 w-8 text-white/80" />
+                                )}
+
+                                <Typography variant="h6" className="mb-1 text-white text-sm font-bold capitalize">
+                                    Plan {companyPlan}
+                                </Typography>
+
+                                <Typography className="font-normal opacity-90 text-white text-xs leading-relaxed">
+                                    {isPremium
+                                        ? 'Tienes activadas todas las funciones avanzadas e inventario ilimitado.'
+                                        : 'Sube a premium para manejar inventarios complejos y múltiples sucursales.'
+                                    }
+                                </Typography>
+
+                                <div className="mt-3 flex gap-3 items-center">
+                                    <Typography
+                                        as="button"
+                                        variant="small"
+                                        className="font-medium opacity-80 text-white hover:opacity-100 transition-opacity text-xs"
+                                        onClick={() => setOpenAlert(false)}
+                                    >
+                                        Ignorar
+                                    </Typography>
+
+                                    <Link
+                                        href={route('subscription.index')}
+                                        className="font-semibold text-white underline hover:no-underline transition-all text-xs"
+                                    >
+                                        {isPremium ? 'Ver Plan' : 'Mejorar Ahora'}
+                                    </Link>
+                                </div>
+                            </Alert>
+                        );
+                    })()}
                 </Card>
             </aside>
 
@@ -425,7 +461,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                     )}
                                 </button>
 
-
                                 {/* MENÚ DESPLEGABLE */}
                                 {isNotifOpen && (
                                     <div className="fixed sm:absolute left-4 right-4 sm:left-auto sm:right-0 top-16 sm:top-auto sm:mt-2 w-auto sm:w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 z-[70] overflow-hidden">
@@ -437,7 +472,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
                                             {notifications.length > 0 ? (
                                                 notifications.map((item) => {
-                                                    // Selecciona el componente del icono o asigna uno por defecto
                                                     const IconComponent = NOTIFICATION_ICONS[item.data.icon] || BellIcon;
 
                                                     return (
@@ -468,23 +502,18 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </div>
                                 )}
                             </div>
-                            <div className="text-xs text-gray-500 capitalize">{user.role.replace('_', ' ')}</div>
+                            <div className="text-xs text-gray-500 capitalize">{user?.company?.name || 'Sin Empresa'}</div>
 
                             <div className="text-right sm:block">
-
-                                <div className="text-sm font-bold text-gray-800 mr-4">{/* Reemplaza la línea 436 de tu AuthenticatedLayout.jsx por esto */}
-
-                                    {/* Renderizado seguro del logo */}
+                                <div className="text-sm font-bold text-gray-800 mr-4">
                                     {auth?.user?.company?.logo ? (
                                         <img
                                             src={auth.user.company.logo}
-
                                             className="h-9 w-auto object-contain rounded-md"
                                         />
-                                    ) : null}</div>
-
+                                    ) : null}
+                                </div>
                             </div>
-
                         </div>
                     </div>
                 </header>
@@ -495,7 +524,6 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 {/* BOTTOM NAVIGATION BAR */}
                 <nav className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 shadow-[0_-10px_40px_rgba(0,0,0,0.06)] rounded-t-3xl pt-2 pb-6 px-4 z-40 flex justify-between items-end">
-
                     <Link href={route('dashboard')} className={`flex flex-col items-center justify-center gap-1 w-16 ${isActive('dashboard') ? 'text-pink-600' : 'text-gray-500 hover:text-gray-900'} transition-colors`}>
                         <HomeIcon className="h-6 w-6" strokeWidth={isActive('dashboard') ? 2 : 1.5} />
                         <span className="text-[10px] font-medium">Resumen</span>

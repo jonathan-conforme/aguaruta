@@ -27,40 +27,37 @@ class HandleInertiaRequests extends Middleware
      *
      * @return array<string, mixed>
      */
+    public function share(Request $request): array
+    {
+        $user = $request->user();
 
+        // Cargar relación de empresa únicamente si existe usuario
+        if ($user && ! $user->relationLoaded('company')) {
+            $user->load('company');
+        }
 
-public function share(Request $request): array
-{
-    $user = $request->user();
-
-    // Si hay usuario autenticado, cargamos la relación de la empresa si no está cargada
-    if ($user && !$user->relationLoaded('company')) {
-        $user->load('company');
-    }
-
-    return [
-        ...parent::share($request),
-        'auth' => [
-            'user' => $user ? array_merge($user->toArray(), [
-                'unread_notifications' => $user->unreadNotifications()->take(10)->get(),
-                'company' => $user->company ? [
-                    'id'                   => $user->company->id,
-                    'name'                 => $user->company->name,
-                    'ruc_number'           => $user->company->ruc_number ?? $user->company->ruc,
-                    'email'                => $user->company->email ?? $user->company->correo,
-                    'phone'                => $user->company->phone ?? $user->company->telefono ?? $user->company->whatsapp_number,
-                    'address'              => $user->company->address ?? $user->company->direccion,
-                   
-                    'logo'                 => $user->company->logo_url,
+        return [
+            ...parent::share($request),
+            'auth' => [
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role ?? 'admin',
+                    'company' => $user->company ? [
+                        'id' => $user->company->id,
+                        'plan' => $user->company->plan,
+                        'name' => $user->company->name,
+                        'logo' => $user->company->logo_url,
+                    ] : null,
                 ] : null,
-            ]) : null,
-        ],
-        'flash' => [
-            'success' => $request->session()->get('success'),
-            'error' => $request->session()->get('error'),
-            'warning' => $request->session()->get('warning'),
-            'info' => $request->session()->get('info'),
-        ],
-    ];
-}
+            ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+                'warning' => fn () => $request->session()->get('warning'),
+                'info' => fn () => $request->session()->get('info'),
+            ],
+        ];
+    }
 }

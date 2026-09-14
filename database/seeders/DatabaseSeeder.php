@@ -23,12 +23,12 @@ class DatabaseSeeder extends Seeder
 
         // 2. Empresa Maestra
         $superAdminCompany = Company::firstOrCreate(
-            ['name' => 'Mi SaaS AguaRuta'],
+            ['name' => 'Mi SaaS AquaRutaTech'],
             ['is_active' => true]
         );
 
         // 3. Credenciales de Super Admin desde .env
-        $adminEmail = env('SUPER_ADMIN_EMAIL', 'admin@tusaas.com');
+        $adminEmail = env('SUPER_ADMIN_EMAIL');
         $adminPassword = env('SUPER_ADMIN_PASSWORD');
 
         if (!$adminPassword) {

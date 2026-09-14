@@ -34,8 +34,10 @@ class DatabaseSeeder extends Seeder
 
        
 
-        if (!env('SUPER_ADMIN_PASSWORD')) {
-            $this->command->warn("SUPER_ADMIN_PASSWORD no está definida en .env, usando clave por defecto.");
+        if (!$adminPassword) {
+            $adminPassword = Str::random(16);
+            $this->command->warn("SUPER_ADMIN_PASSWORD no está definida en .env");
+            $this->command->info("Clave temporal generada para {$adminEmail}: {$adminPassword}");
         }
 
         // 4. Usuario Super Admin

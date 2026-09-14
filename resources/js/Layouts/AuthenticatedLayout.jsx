@@ -324,32 +324,48 @@ export default function AuthenticatedLayout({ header, children }) {
 
                     {/* ALERTA DINÁMICA DE PLAN */}
                     {(() => {
-                        const companyPlan = user?.company?.plan || 'Básico';
-                        const isPremium = companyPlan.toLowerCase().includes('premium');
+                        const planKey = user?.company?.plan || 'basico';
+
+                        // Mapeo visual de nombres
+                        const planNames = {
+                            basico: 'Esencial',
+                            basico_pro: 'Básico Pro',
+                            premium: 'Premium',
+                            empresarial: 'Empresarial',
+                            vip: 'VIP / Corporativo',
+                        };
+
+                        const planDisplayName = planNames[planKey] || planKey;
+                        const isAdvancedPlan = ['premium', 'empresarial', 'vip'].includes(planKey);
+                        const whatsappNumber = '593980659712';
+                        const customMessage = encodeURIComponent(
+                            `Hola, me gustaría solicitar información para mejorar el plan de mi empresa. Actualmente cuento con el Plan ${planDisplayName}.`
+                        );
+                        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${customMessage}`;
 
                         return (
                             <Alert
                                 open={openAlert}
-                                className={`mt-4 shadow-sm flex-shrink-0 transition-all border ${isPremium
+                                className={`mt-4 shadow-sm flex-shrink-0 transition-all border ${isAdvancedPlan
                                         ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 border-purple-400/30'
                                         : 'bg-gradient-to-br from-blue-500 to-indigo-600 border-blue-400/30'
                                     }`}
                                 onClose={() => setOpenAlert(false)}
                             >
-                                {isPremium ? (
+                                {isAdvancedPlan ? (
                                     <SparklesIcon className="mb-3 h-8 w-8 text-amber-300" />
                                 ) : (
                                     <CubeTransparentIcon className="mb-3 h-8 w-8 text-white/80" />
                                 )}
 
                                 <Typography variant="h6" className="mb-1 text-white text-sm font-bold capitalize">
-                                    Plan {companyPlan}
+                                    Plan {planDisplayName}
                                 </Typography>
 
                                 <Typography className="font-normal opacity-90 text-white text-xs leading-relaxed">
-                                    {isPremium
-                                        ? 'Tienes activadas todas las funciones avanzadas e inventario ilimitado.'
-                                        : 'Sube a premium para manejar inventarios complejos y múltiples sucursales.'
+                                    {isAdvancedPlan
+                                        ? 'Tienes activadas funciones avanzadas y capacidad ampliada para tu operación.'
+                                        : 'Actualiza a un plan superior para aumentar tus límites de repartidores, rutas y clientes.'
                                     }
                                 </Typography>
 
@@ -363,12 +379,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                         Ignorar
                                     </Typography>
 
-                                    <Link
-                                        href={route('subscription.index')}
+                                    <a
+                                        href={whatsappUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="font-semibold text-white underline hover:no-underline transition-all text-xs"
                                     >
-                                        {isPremium ? 'Ver Plan' : 'Mejorar Ahora'}
-                                    </Link>
+                                        {isAdvancedPlan ? 'Contactar Soporte' : 'Actualizar Plan'}
+                                    </a>
                                 </div>
                             </Alert>
                         );

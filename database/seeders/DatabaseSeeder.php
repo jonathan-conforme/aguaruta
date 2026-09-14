@@ -20,16 +20,19 @@ class DatabaseSeeder extends Seeder
             ProvincieSeeder::class,
             EmployeeCategorySeeder::class,
         ]);
+         // 3. Credenciales de Super Admin desde .env
+        $adminEmail = env('SUPER_ADMIN_EMAIL');
+        $adminPassword = env('SUPER_ADMIN_PASSWORD');
+        $adminRuc = env('SUPER_ADMIN_RUC'); 
 
         // 2. Empresa Maestra
         $superAdminCompany = Company::firstOrCreate(
+             ['ruc_number' => $adminRuc],
             ['name' => 'Mi SaaS AquaRutaTech'],
             ['is_active' => true]
         );
 
-        // 3. Credenciales de Super Admin desde .env
-        $adminEmail = env('SUPER_ADMIN_EMAIL');
-        $adminPassword = env('SUPER_ADMIN_PASSWORD');
+       
 
         if (!$adminPassword) {
             $adminPassword = Str::random(16);

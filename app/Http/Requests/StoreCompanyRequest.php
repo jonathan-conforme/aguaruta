@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\ValidarRucEcuador;
+use Illuminate\Validation\Rule;
 
 class StoreCompanyRequest extends FormRequest
 {
@@ -23,7 +24,7 @@ class StoreCompanyRequest extends FormRequest
             'address' => 'nullable|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
             'subscription_ends_at' => 'nullable|date',
-            'plan' => 'required|in:basico,premium,empresarial,vip',
+           'plan' => ['required', Rule::in(array_keys(config('plans')))],
 
 
         ];

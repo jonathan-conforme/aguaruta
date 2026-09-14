@@ -10,12 +10,13 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Notifications\Messages\MailMessage;
 use App\Notifications\ResetPasswordNotification;
+use Laravel\Sanctum\HasApiTokens;
 
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasApiTokens;
 
 
     /**
@@ -30,10 +31,12 @@ class User extends Authenticatable
         'password',
         'company_id',
         'role',
+        'is_active',
         'password_changed',
         'accepted_terms_and_privacy',
         'legal_accepted_at',
         'legal_accepted_ip',
+
 
 
     ];

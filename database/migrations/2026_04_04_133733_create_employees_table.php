@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('company_id')->constrained()->onDelete('cascade');
             $table->foreignId('employee_category_id')->constrained()->onDelete('cascade');
-            $table->string('identification')->unique();
+            $table->unique(['company_id', 'identification']);
+            $table->string('identification');
             $table->string('first_name');
             $table->string('last_name');
             $table->string('phone')->nullable();

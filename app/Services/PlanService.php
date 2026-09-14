@@ -57,11 +57,27 @@ class PlanService
 
         $name = $features[$feature] ?? $feature;
 
-        return match ($plan) {
-            'basico'      => "Has alcanzado el límite de {$limit} {$name} permitido en el Plan Básico. Para agregar más, actualiza al Plan Premium o Empresarial.",
-            'premium'     => "Has alcanzado el límite de {$limit} {$name} permitido en el Plan Premium. Para continuar, considera cambiar al Plan Empresarial.",
-            'empresarial' => "Has alcanzado el límite de {$name} permitido en tu plan actual. Si necesitas más capacidad, contacta con soporte.",
-            default       => "Has alcanzado el límite de {$name} permitido para tu plan actual.",
-        };
+        $plans = config('plans', []);
+
+        // 1. Obtener el nombre legible del plan actual desde config/plans.php
+        $currentPlanName = $plans[$plan]['name'] ?? ucfirst($plan);
+
+        // 2. Determinar dinámicamente el siguiente plan disponible en la escala
+        $planKeys = array_keys($plans);
+        $currentIndex = array_search($plan, $planKeys);
+        $nextPlanKey = ($currentIndex !== false && isset($planKeys[$currentIndex + 1])) 
+            ? $planKeys[$currentIndex + 1] 
+            : null;
+
+        $nextPlanName = $nextPlanKey ? ($plans[$nextPlanKey]['name'] ?? null) : null;
+
+        // 3. Generar mensaje según si existe un plan superior o si está en el nivel máximo
+        if ($nextPlanName) {
+            return "Has alcanzado el límite de {$limit} {$name} permitido en el Plan {$currentPlanName}. Para agregar más, actualiza al Plan {$nextPlanName}.";
+        }
+
+        return "Has alcanzado el límite de {$limit} {$name} permitido en el Plan {$currentPlanName}. Si necesitas más capacidad, contacta con soporte.";
+    
+
     }
 }

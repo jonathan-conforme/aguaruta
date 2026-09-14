@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Requests\Admin\StoreTripRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreTripRequest;
 use App\Models\DeliveryRoute;
-use App\Services\TripService;
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Product;
 use App\Models\Trip;
+use App\Models\User;
+use App\Services\TripService;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class TripController extends Controller
 {
-
-
     protected $tripService;
 
     public function __construct(TripService $tripService)
@@ -23,49 +21,48 @@ class TripController extends Controller
         $this->tripService = $tripService;
     }
 
-   /**
+    /**
      * Display a listing of the resource.
      */
     public function index()
-{
-    $trip = $this->tripService->getAllTrips();
-    $users = User::where('company_id', auth()->user()->company_id)
-            ->whereNotIn('role', ['admin', 'administrador'])
-            ->get();
-    $products = Product::where('is_active', true)->get();
-    $routes = DeliveryRoute::where('is_active', true)->get();
+    {
+        $trip = $this->tripService->getAllTrips();
 
-    return Inertia::render('Admin/Trips/Index', [
-        'trips' => $trip,
-        'users' => $users,
-        'products' => $products,
-        'routes' => $routes
-    ]);
-}
+        $users = User::where('company_id', auth()->user()->company_id)
+            ->whereNotIn('role', ['admin', 'administrador'])
+            ->where('is_active', true)
+            ->get();
+        $products = Product::where('is_active', true)->get();
+        $routes = DeliveryRoute::where('is_active', true)->get();
+
+        return Inertia::render('Admin/Trips/Index', [
+            'trips' => $trip,
+            'users' => $users,
+            'products' => $products,
+            'routes' => $routes,
+        ]);
+    }
 
     /**
      * Show the form for creating a new resource.
      */
     public function create()
     {
-      return redirect()->route('dispatches.index');
+        return redirect()->route('dispatches.index');
     }
 
     /**
      * Store a newly created resource in storage.
      */
- public function store(StoreTripRequest $request)
-{
-    try {
+    public function store(StoreTripRequest $request)
+    {
+
         $this->tripService->createTrip($request->validated());
 
         return redirect()->route('trips.index')
             ->with('success', 'Viaje creado y camión cargado exitosamente.');
 
-    } catch (\Exception $e) {
-        return back()->withErrors(['stock' => $e->getMessage()]);
     }
-}
 
     /**
      * Display the specified resource.
@@ -86,7 +83,7 @@ class TripController extends Controller
     /**
      * Update the specified resource in storage.
      */
-   /**
+    /**
      * Update the specified resource in storage.
      */
     public function update(StoreTripRequest $request, Trip $trip)
@@ -103,12 +100,13 @@ class TripController extends Controller
             return redirect()->route('trips.index') // Asegúrate de que esta sea tu ruta correcta
                 ->with('success', 'Viaje actualizado y carga recalculada exitosamente.');
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Captura errores de validación de stock
-            throw $e;
+        } catch (ValidationException $e) {
+            $errorMessage = collect($e->errors())->flatten()->first();
+
+            return back()->with('error', $errorMessage);
+
         } catch (\Exception $e) {
-            // Captura otros errores (como producto no encontrado)
-            return back()->withErrors(['error' => $e->getMessage()]);
+            return back()->with('error', $e->getMessage());
         }
     }
 
@@ -119,5 +117,4 @@ class TripController extends Controller
     {
         //
     }
-
 }

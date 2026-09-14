@@ -9,6 +9,7 @@ import WarningIcon from '@mui/icons-material/Warning';
 
 export default function Login({ status, canResetPassword, error_message }) {
     const { data, setData, post, processing, errors, reset, flash } = useForm({
+        company_ruc: '',
         email: '',
         password: '',
         remember: false,
@@ -56,6 +57,21 @@ export default function Login({ status, canResetPassword, error_message }) {
                 )}
 
                 <form onSubmit={submit} className="space-y-6">
+
+
+                    {/* Campo de RUC o Código de Empresa */}
+                    <div>
+                        <Input
+                            type="text"
+                            label="RUC o Código de Empresa"
+                            size="lg"
+                            value={data.company_ruc}
+                            onChange={(e) => setData('company_ruc', e.target.value)}
+                            error={Boolean(errors.company_ruc)}
+                        />
+                        <InputError message={errors.company_ruc} className="mt-2" />
+                    </div>
+
                     {/* Campo de Correo / Cédula */}
                     <div>
                         <Input

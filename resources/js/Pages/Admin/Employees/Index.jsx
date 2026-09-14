@@ -80,13 +80,7 @@ export default function Index({ auth, employees, categories, flash }) {
             <div className="py-6 sm:py-12 bg-gray-50/50 min-h-screen">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
-                    {/* Alerta de Error de Límites de Plan */}
-                    {flash?.error && (
-                        <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded shadow-sm flex justify-between items-center">
-                            <span className="text-sm font-medium">{flash.error}</span>
-                            <button onClick={() => router.page.props.flash.error = null} className="text-red-500 font-bold">✕</button>
-                        </div>
-                    )}
+                
 
                     <Card className="h-full w-full border border-blue-gray-50 shadow-sm overflow-hidden">
                         <CardHeader floated={false} shadow={false} className="rounded-none p-4 m-0 border-b border-gray-100">

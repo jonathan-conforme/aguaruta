@@ -20,8 +20,20 @@ const labelTranslations = {
     'purchases': 'Módulo de Compras',
     'payroll': 'Nómina / Roles de Pago'
 };
+// MAPEO DINÁMICO DE COLORES PARA CHIPS
+const planColors = {
+    basico: 'cyan',
+    basico_pro: 'blue',
+    premium: 'purple',
+    empresarial: 'indigo',
+    vip: 'amber',
+};
 
 export default function Index({ auth, currentPlanName, subscriptionEndsAt, allPlans }) {
+
+    const activePlan = allPlans[currentPlanName] || {};
+    const activePlanDisplayName = activePlan.name || currentPlanName;
+    const activePlanColor = planColors[currentPlanName] || 'indigo';
 
     // Formateador de fecha en español (Ecuador)
     const formattedExpiry = subscriptionEndsAt
@@ -58,16 +70,13 @@ export default function Index({ auth, currentPlanName, subscriptionEndsAt, allPl
                                 <Chip
                                     size="md"
                                     variant="gradient"
-                                    value={currentPlanName === 'basico' ? 'Básico' : currentPlanName}
-                                    color={
-                                        currentPlanName === "basico" ? "cyan" :
-                                        currentPlanName === "premium" ? "purple" : "indigo"
-                                    }
+                                    value={activePlanDisplayName}
+                                    color={activePlanColor}
                                     className="capitalize font-bold"
                                 />
                             </div>
                             <Typography variant="paragraph" color="gray" className="max-w-xl">
-                                Tu empresa cuenta actualmente con los límites operativos y accesos modulares configurados para el nivel <span className="font-semibold capitalize text-indigo-600">{currentPlanName === 'basico' ? 'Básico' : currentPlanName}</span>.
+                                Tu empresa cuenta actualmente con los límites operativos y accesos modulares configurados para el nivel <span className="font-semibold capitalize text-indigo-600">{activePlanDisplayName}</span>.
                             </Typography>
                         </div>
 
@@ -109,14 +118,14 @@ export default function Index({ auth, currentPlanName, subscriptionEndsAt, allPl
                                     {/* Cabecera del Plan */}
                                     <div className="flex justify-between items-center mb-2">
                                         <Typography variant="h4" color="blue-gray" className="capitalize font-extrabold">
-                                            {name === 'basico' ? 'Básico' : name}
+                                            {details.name}
                                         </Typography>
                                         {isCurrent && (
                                             <Chip size="sm" color="indigo" value="Tu Plan" className="font-bold rounded-full px-3" />
                                         )}
                                     </div>
 
-                                    {/* 🛠️ AQUÍ SE HACE EL CAMBIO: PRECIO FORMATEADO EN USD */}
+                                    {/*  PRECIO FORMATEADO EN USD */}
                                     <div className="flex items-baseline gap-1 mb-6">
                                         <Typography variant="h2" color="blue-gray" className="font-extrabold">
                                             {new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(details.price)}

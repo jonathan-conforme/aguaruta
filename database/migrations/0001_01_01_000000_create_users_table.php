@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->enum('role', ['super_admin','admin', 'empleado'])->default('admin');
-            $table->string('email')->unique();
+            $table->unique(['company_id', 'email']);
+            $table->string('email');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('is_active')->default(true);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\Company;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -28,8 +29,10 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'company_ruc' => ['required', 'string'],
             'email' => ['required', 'string'],
             'password' => ['required', 'string'],
+
         ];
     }
 
@@ -42,14 +45,25 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // 1. Construimos las credenciales manualmente y forzamos que esté activo
+        // 1. Validar primero que la empresa exista por su RUC
+        $company = Company::where('ruc_number', $this->input('company_ruc'))->first();
+
+        if (! $company) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'company_ruc' => 'El RUC ingresado no corresponde a ninguna empresa en el sistema.',
+            ]);
+        }
+
+        // 2. Construimos las credenciales manualmente y forzamos que esté activo
         $credentials = [
             'email' => $this->input('email'),
             'password' => $this->input('password'),
-            'is_active' => true, // 👈 Si la base de datos dice false, el login fallará
+            'is_active' => true, // Si la base de datos dice false, el login fallará
+            'company_id' => $company->id,
         ];
 
-        // 2. Intentamos el login con nuestro arreglo personalizado
+        // 3. Intentamos el login con nuestro arreglo personalizado
         if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 

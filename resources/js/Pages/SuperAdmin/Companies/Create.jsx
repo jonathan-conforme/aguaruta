@@ -148,7 +148,8 @@ export default function Create({ open, onClose }) {
                             onChange={(val) => setData('plan', val)}
                             color="indigo"
                         >
-                            <Option value="basico">Básico</Option>
+                            <Option value="basico">Micro</Option>
+                            <Option value="basico_pro">Básico Pro</Option>
                             <Option value="premium">Premium</Option>
                             <Option value="empresarial">Empresarial</Option>
                             <Option value="vip">Vip</Option>
@@ -170,7 +171,7 @@ export default function Create({ open, onClose }) {
                         {errors.subscription_ends_at && <Typography variant="small" color="red">{errors.subscription_ends_at}</Typography>}
                     </div>
 
-                  
+
 
                 </DialogBody>
 

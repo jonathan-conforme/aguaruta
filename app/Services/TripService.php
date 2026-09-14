@@ -8,6 +8,7 @@ use App\Models\Trip;
 use App\Models\User;
 use App\Notifications\ViajeAsignadoNotification;
 use App\Notifications\ViajeIniciadoNotification;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -58,9 +59,9 @@ class TripService
 
                     // VALIDACIÓN DE STOCK
                     if ($product->current_stock < $realUnits) {
-                        throw ValidationException::withMessages([
-                            'product' => "Stock insuficiente para {$product->name}. Disponible: {$product->current_stock} unidades",
-                        ]);
+                        throw new HttpResponseException(
+                            back()->with('error', "Stock insuficiente para {$product->name}. Disponible: {$product->current_stock} unidades")
+                        );
                     }
 
                     // datos de la tabla pivote

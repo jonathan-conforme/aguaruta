@@ -26,15 +26,17 @@ class EmployeeService
                 'is_active'            => true,
             ]);
 
-            // 2. Crear el usuario vinculado
+            // Crear cuenta de usuario SOLO si la bandera viene activa
+        if ($data['create_user_account'] ?? false) {
             User::create([
                 'company_id' => $companyId,
                 'name'       => $data['first_name'] . ' ' . $data['last_name'],
-                'email'      => $data['email'] ?? $data['identification'],
+                'email'      => $data['identification'],
                 'password'   => bcrypt($data['identification']), // Cédula como clave inicial
                 'role'       => 'empleado',
                 'is_active'  => true,
             ]);
+        }
 
             return $employee;
     });

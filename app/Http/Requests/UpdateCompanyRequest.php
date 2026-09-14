@@ -43,7 +43,7 @@ class UpdateCompanyRequest extends FormRequest
             'phone' => 'nullable|string|max:50',
             'whatsapp_number' => 'nullable|string|max:50',
             'address' => 'nullable|string|max:255',
-            'plan' => 'required|in:basico,premium,empresarial,vip',
+            'plan' => ['required', Rule::in(array_keys(config('plans')))],
             'subscription_ends_at' => 'nullable|date',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:1024',
         ];

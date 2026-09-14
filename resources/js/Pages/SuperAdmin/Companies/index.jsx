@@ -99,6 +99,7 @@ export default function Index({ auth, companies, availablePlans = [] }) {
     const getPlanColor = (plan) => {
         switch (plan) {
             case "basico": return "pink";
+            case "basico_pro": return "blue";
             case "premium": return "cyan";
             case "vip": return "purple";
             case "empresarial": return "indigo";

@@ -33,6 +33,11 @@ return new class extends Migration
             $table->index(['company_id', 'date']);
             $table->index(['company_id', 'status']);
             $table->index(['company_id', 'delivery_route_id']);
+
+            // Índices clave para alta concurrencia por usuario
+            $table->index(['driver_id', 'status']);
+            $table->index(['driver_id', 'date']);
+            $table->index(['seller_id', 'status']);
         });
     }
 

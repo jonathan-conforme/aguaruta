@@ -19,15 +19,15 @@ return new class extends Migration
             $table->timestamp('opened_at');
             $table->timestamp('closed_at')->nullable();
 
-            $table->decimal('initial_cash', 10 , 2)->default(0);
+            $table->decimal('initial_cash', 10, 2)->default(0);
             $table->decimal('final_cash', 10, 2)->nullable();
 
             $table->enum('status', ['open', 'closed'])->default('open');
 
             $table->timestamps();
 
-            $table->index(['company_id', 'user_id']);
-            $table->index(['company_id', 'status']);
+            // Índices de consulta de turnos
+            $table->index(['company_id', 'user_id', 'status']); // Verifica turno activo de un empleado
             $table->index(['user_id', 'opened_at']);
         });
     }

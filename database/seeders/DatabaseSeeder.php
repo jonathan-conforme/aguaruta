@@ -27,17 +27,15 @@ class DatabaseSeeder extends Seeder
 
         // 2. Empresa Maestra
         $superAdminCompany = Company::firstOrCreate(
-             ['ruc_number' => $adminRuc],
+            ['ruc_number' => $adminRuc],
             ['name' => 'Mi SaaS AquaRutaTech'],
             ['is_active' => true]
         );
 
        
 
-        if (!$adminPassword) {
-            $adminPassword = Str::random(16);
-            $this->command->warn("SUPER_ADMIN_PASSWORD no está definida en .env");
-            $this->command->info("Clave temporal generada para {$adminEmail}: {$adminPassword}");
+        if (!env('SUPER_ADMIN_PASSWORD')) {
+            $this->command->warn("SUPER_ADMIN_PASSWORD no está definida en .env, usando clave por defecto.");
         }
 
         // 4. Usuario Super Admin

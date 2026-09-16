@@ -32,7 +32,7 @@ class CuentaCreadaMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '¡Bienvenido a AquaRuta! Configuración de tu cuenta',
+            subject: '¡Bienvenido a AquaRutaTech! Configuración de tu cuenta',
         );
     }
 

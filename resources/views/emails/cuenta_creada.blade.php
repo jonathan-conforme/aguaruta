@@ -9,14 +9,14 @@
 
         <div style="text-align: center; margin-bottom: 20px;">
             <img src="{{ $message->embed(public_path('icons/icon-512x512.png')) }}"
-                 alt="Logo AquaRuta"
+                 alt="Logo AquaRutaTech"
                  style="width: 100px; height: 100px; border-radius: 50%; object-fit: contain; border: 3px solid #e0e7ff; background-color: #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         </div>
 
-        <h2 style="color: #4f46e5; margin-bottom: 20px; text-align: center;">¡Tu cuenta de AquaRutaTechestá lista!</h2>
+        <h2 style="color: #4f46e5; margin-bottom: 20px; text-align: center;">¡Tu cuenta de AquaRutaTech está lista!</h2>
 
         <p>Hola, <strong>{{ $user->name }}</strong>.</p>
-        <p>Te damos la bienvenida a AquaRutaech. Se ha registrado tu empresa con éxito en nuestra plataforma. A continuación, tus credenciales de acceso temporal:</p>
+        <p>Te damos la bienvenida a AquaRutaTech. Se ha registrado tu empresa con éxito en nuestra plataforma. A continuación, tus credenciales de acceso temporal:</p>
 
         <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #4f46e5;">
             <p style="margin: 5px 0;"><strong>Usuario (Correo):</strong> {{ $user->email }}</p>

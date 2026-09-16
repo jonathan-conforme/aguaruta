@@ -7,7 +7,7 @@ use App\Models\Traits\BelongsToCompany;
 
 class Product extends Model
 {
-    //
+    
     use BelongsToCompany;
    protected $fillable = [
         'company_id',

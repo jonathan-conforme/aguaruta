@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('company_id')->constrained()->cascadeOnDelete();
             $table->foreignId('sale_id')->constrained()->cascadeOnDelete();
             $table->foreignId('customer_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('shift_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('shift_id')->nullable()->constrained()->cascadeOnDelete()->nullOnDelete();
 
             $table->decimal('amount', 8, 2);
             $table->enum('payment_method', ['cash', 'transfer'])->default('cash');

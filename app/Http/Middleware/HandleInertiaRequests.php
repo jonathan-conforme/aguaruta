@@ -44,11 +44,13 @@ class HandleInertiaRequests extends Middleware
                     'name' => $user->name,
                     'email' => $user->email,
                     'role' => $user->role ?? 'admin',
+                    'unread_notifications' => $user->unreadNotifications,
                     'company' => $user->company ? [
                         'id' => $user->company->id,
                         'plan' => $user->company->plan,
                         'name' => $user->company->name,
                         'logo' => $user->company->logo_url,
+
                     ] : null,
                 ] : null,
             ],

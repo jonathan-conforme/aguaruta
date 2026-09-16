@@ -13,7 +13,7 @@ class ReportController extends Controller
 {
 
 
- 
+
 
     public function downloadSalesReport(Request $request)
     {
@@ -68,15 +68,15 @@ class ReportController extends Controller
         }
 
         // 3. Obtener los resultados
-        $sales = $query->with([
-            'shift.user:id,name',
-            'user:id,name',
-            'customer:id,name',
-            'trip:id,trip_number',
-            'details.product:id,name',
-        ])
-            ->orderBy('created_at', 'asc')
-            ->get();
+       // 3. Obtener los resultados (Relaciones corregidas)
+$sales = $query->with([
+    'shift.user',
+    'customer',
+    'trip',
+    'details.product',
+])
+    ->orderBy('created_at', 'asc')
+    ->get();
 
         // Totales generales para las tarjetas del PDF
         $totalEarned = $sales->sum('total');

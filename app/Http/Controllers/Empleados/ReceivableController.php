@@ -73,28 +73,31 @@ class ReceivableController extends Controller
      * Procesa un abono usando el PaymentService.
      */
     public function storePayment(StorePaymentRequest $request, Sale $sale): RedirectResponse
-    {
-        $activeShift = Shift::where('user_id', auth()->id())
-            ->where('status', 'open')
-            ->first();
+{
+    $user = auth()->user();
 
-        if (!$activeShift) {
-            return back()->withErrors([
-                'shift' => 'Debes tener un turno de caja abierto para registrar cobranzas.'
-            ]);
-        }
+    $activeShift = Shift::where('user_id', $user->id)
+        ->where('status', 'open')
+        ->first();
 
-        try {
-            $this->paymentService->registerPayment($sale, array_merge(
-                $request->validated(),
-                ['shift_id' => $activeShift->id]
-            ));
-
-            return back()->with('success', 'Abono registrado con éxito.');
-        } catch (\Exception $e) {
-            return back()->withErrors(['amount' => $e->getMessage()]);
-        }
+    // Exigir turno abierto ÚNICAMENTE a repartidores/empleados
+    if (!$activeShift && !in_array($user->role, ['admin', 'super_admin'])) {
+        return back()->withErrors([
+            'shift' => 'Debes tener un turno de caja abierto para registrar cobranzas.'
+        ]);
     }
-   
+
+    try {
+        $this->paymentService->registerPayment($sale, array_merge(
+            $request->validated(),
+            ['shift_id' => $activeShift?->id] // Envía el ID del turno si existe, o NULL si es admin
+        ));
+
+        return back()->with('success', 'Abono registrado con éxito.');
+    } catch (\Exception $e) {
+        return back()->withErrors(['amount' => $e->getMessage()]);
+    }
+}
+
 
 }

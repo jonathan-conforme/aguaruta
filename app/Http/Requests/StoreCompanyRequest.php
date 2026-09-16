@@ -8,6 +8,15 @@ use Illuminate\Validation\Rule;
 
 class StoreCompanyRequest extends FormRequest
 {
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+{
+    throw new \Illuminate\Http\Exceptions\HttpResponseException(
+        response()->json([
+            'message' => 'Los datos enviados no son válidos.',
+            'errors' => $validator->errors(),
+        ], 422)
+    );
+}
     public function authorize(): bool
     {
         return true;

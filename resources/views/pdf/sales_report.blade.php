@@ -26,13 +26,13 @@
 </head>
 <body>
 
-    <div class="header">
-        <h1 class="title">Reporte de Ventas</h1>
-        <p class="subtitle">
-            Rango: <strong>{{ $startDate->format('d/m/Y') }}</strong> al <strong>{{ $endDate->format('d/m/Y') }}</strong> |
-            Generado el: {{ now()->format('d/m/Y H:i') }}
-        </p>
-    </div>
+ <div class="header">
+    <h1 class="title">Reporte de Ventas</h1>
+    <p class="subtitle">
+        Rango: <strong>{{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }}</strong> al <strong>{{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</strong> |
+        Generado el: {{ now()->format('d/m/Y H:i') }}
+    </p>
+</div>
 
     <!-- TARJETAS DE MÉRTRICAS -->
     <table class="stats-table">
@@ -68,51 +68,51 @@
     </table>
 
     <!-- TABLA DE DETALLES -->
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th width="12%">Fecha / Hora</th>
-                <th width="20%">Vendedor</th>
-                <th width="22%">Cliente</th>
-                <th width="24%">Productos</th>
-                <th width="12%">Método</th>
-                <th width="10%" class="text-right">Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($sales as $sale)
-                <tr>
-                    <td>
-                        {{ $sale->created_at->format('d/m/Y') }}<br>
-                        <small style="color: #6b7280;">{{ $sale->created_at->format('H:i') }}</small>
-                    </td>
-                    <td><strong>{{ $sale->shift->user->name ?? $sale->user->name ?? 'N/A' }}</strong></td>
-                    <td>{{ $sale->customer->name ?? 'Consumidor Final' }}</td>
-                    <td>
-                        @foreach($sale->details as $detail)
-                            <div>{{ $detail->quantity }}x {{ $detail->product->name ?? 'Producto' }}</div>
-                        @endforeach
-                    </td>
-                    <td>
-                        @if($sale->payment_method === 'cash')
-                            <span class="badge badge-cash">Efectivo</span>
-                        @elseif($sale->payment_method === 'transfer')
-                            <span class="badge badge-transfer">Transf.</span>
-                        @else
-                            <span class="badge badge-credit">Crédito</span>
-                        @endif
-                    </td>
-                    <td class="text-right"><strong>${{ number_format($sale->total, 2) }}</strong></td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" style="text-center; padding: 20px; color: #6b7280;">
-                        No se encontraron ventas en las fechas seleccionadas.
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+   <table class="data-table">
+    <thead>
+        <tr>
+            <th width="12%">Fecha / Hora</th>
+            <th width="20%">Vendedor</th>
+            <th width="22%">Cliente</th>
+            <th width="24%">Productos</th>
+            <th width="12%">Método</th>
+            <th width="10%" class="text-right">Total</th>
+        </tr>
+    </thead>
+   <tbody>
+    @forelse($sales as $sale)
+        <tr>
+            <td>
+                {{ \Carbon\Carbon::parse($sale->created_at)->format('d/m/Y') }}<br>
+                <small style="color: #6b7280;">{{ \Carbon\Carbon::parse($sale->created_at)->format('H:i') }}</small>
+            </td>
+            <td><strong>{{ $sale->shift?->user?->name ?? $sale->user?->name ?? 'N/A' }}</strong></td>
+            <td>{{ $sale->customer?->name ?? 'Consumidor Final' }}</td>
+            <td>
+                @foreach($sale->details as $detail)
+                    <div>{{ $detail->quantity }}x {{ $detail->product?->name ?? 'Producto' }}</div>
+                @endforeach
+            </td>
+            <td>
+                @if($sale->payment_method === 'cash')
+                    <span class="badge badge-cash">Efectivo</span>
+                @elseif($sale->payment_method === 'transfer')
+                    <span class="badge badge-transfer">Transf.</span>
+                @else
+                    <span class="badge badge-credit">Crédito</span>
+                @endif
+            </td>
+            <td class="text-right"><strong>${{ number_format($sale->total, 2) }}</strong></td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="6" style="text-align: center; padding: 20px; color: #6b7280;">
+                No se encontraron ventas en las fechas seleccionadas.
+            </td>
+        </tr>
+    @endforelse
+</tbody>
+</table>
 
 </body>
 </html>

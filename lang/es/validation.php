@@ -207,6 +207,11 @@ return [
         'image_mobile'             => 'imagen móvil',
         'images'                   => 'imágenes',
         'is_audience_winner'       => 'es ganador de audiencia',
+        'identification'           => 'Cédula / RUC',
+        'driver_id'                => 'Chofer',
+        'seller_id'                => 'Vendedor',
+        'vehicle_plate'            => 'Placa del vehículo',
+        'delivery_route_id'        => 'Ruta',
         'is_hidden'                => 'está oculto',
         'is_subscribed'            => 'está suscrito',
         'is_visible'               => 'es visible',
@@ -284,5 +289,9 @@ return [
         'winner'                   => 'ganador',
         'work'                     => 'trabajo',
         'year'                     => 'año',
+        'products'                 => 'Productos',
+        'products.*.product_id'    => 'Producto',
+        'products.*.quantity'      => 'Cantidad',
     ],
+
 ];

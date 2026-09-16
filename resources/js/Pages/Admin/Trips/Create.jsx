@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from '@inertiajs/react';
-import { Typography, Button, Input, Select, Option, IconButton } from "@material-tailwind/react";
+import { Typography,Dialog, DialogFooter, DialogHeader, DialogBody, Button, Input, Select, Option, IconButton } from "@material-tailwind/react";
 import { TrashIcon, PlusCircleIcon, LockClosedIcon, TruckIcon, UserGroupIcon, CubeIcon } from "@heroicons/react/24/outline";
 
 export default function Create({ users, products, routes, onClose, initialData }) {
@@ -44,6 +44,8 @@ export default function Create({ users, products, routes, onClose, initialData }
         }
     }, [initialData]);
 
+    const [showErrorModal, setShowErrorModal] = React.useState(false);
+
     const submit = (e) => {
         e.preventDefault();
 
@@ -51,20 +53,16 @@ export default function Create({ users, products, routes, onClose, initialData }
         if (isReadOnly) return;
 
         if (initialData) {
-            put(route('trips.update', initialData.id), {
-                onSuccess: () => {
-                    reset();
-                    onClose();
-                }
-            });
-        } else {
-            post(route('trips.store'), {
-                onSuccess: () => {
-                    reset();
-                    onClose();
-                }
-            });
-        }
+    put(route('trips.update', initialData.id), {
+        onSuccess: () => { reset(); onClose(); },
+        onError: () => setShowErrorModal(true)
+    });
+} else {
+    post(route('trips.store'), {
+        onSuccess: () => { reset(); onClose(); },
+        onError: () => setShowErrorModal(true)
+    });
+}
     };
 
     const addProductRow = () => setData('products', [...data.products, { product_id: '', quantity: 1 }]);
@@ -287,8 +285,23 @@ export default function Create({ users, products, routes, onClose, initialData }
             {Object.keys(errors).length > 0 && (
                 <div className="bg-red-50 p-4 rounded-xl border border-red-200 text-red-800 text-xs mt-4">
                     <p className="font-bold mb-1">Errores en el formulario:</p>
-                    <pre className="overflow-x-auto">{JSON.stringify(errors, null, 2)}</pre>
-                </div>
+                  <Dialog open={showErrorModal} handler={() => setShowErrorModal(false)} size="xs" className="rounded-2xl p-2">
+    <DialogHeader className="text-red-600 font-bold text-sm border-b border-gray-100 pb-2">
+        Errores de Validación
+    </DialogHeader>
+    <DialogBody className="text-xs space-y-2 py-3">
+        <ul className="list-disc list-inside text-red-700 space-y-1">
+            {Object.values(errors).map((err, i) => (
+                <li key={i} className="font-medium">{err}</li>
+            ))}
+        </ul>
+    </DialogBody>
+    <DialogFooter className="pt-2">
+        <Button color="red" size="sm" onClick={() => setShowErrorModal(false)} className="rounded-xl w-full">
+            Entendido
+        </Button>
+    </DialogFooter>
+</Dialog>    </div>
             )}
         </form>
     );

@@ -53,7 +53,7 @@ return [
             'dump_binary_path' => 'C:/xampp/mysql/bin',
             'use_single_transaction' => true,
             'timeout' => 60 * 5,
-            ],
+           ],
            'database' => env('DB_DATABASE', 'laravel'),
             'username' => env('DB_USERNAME', 'root'),
             'password' => env('DB_PASSWORD', ''),

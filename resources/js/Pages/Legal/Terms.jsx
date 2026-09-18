@@ -1,6 +1,6 @@
 import React from 'react';
-import { Head, Link } from '@inertiajs/react';
-import { Typography, Button } from "@material-tailwind/react";
+import { Head } from '@inertiajs/react';
+import { Typography } from "@material-tailwind/react";
 
 export default function Terms() {
     return (
@@ -8,7 +8,6 @@ export default function Terms() {
             <Head title="Términos y Condiciones - AquaRutaTech" />
 
             <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                {/* Encabezado */}
                 <div className="border-b border-gray-100 pb-6 mb-6 text-center sm:text-left">
                     <Typography variant="h3" color="blue-gray" className="font-bold">
                         Términos y Condiciones de Uso
@@ -18,15 +17,13 @@ export default function Terms() {
                     </Typography>
                 </div>
 
-                {/* Cuerpo del Documento */}
                 <div className="space-y-6 text-gray-700 leading-relaxed text-sm">
-
                     <section>
                         <Typography variant="h5" color="blue-gray" className="font-semibold mb-2">
                             1. Objeto del Servicio
                         </Typography>
                         <p>
-                            El presente documento regula el acceso y uso de  Aqua<span className="text-blue-500">RutaTech</span>, una plataforma de software como servicio (SaaS) diseñada para la gestión logística, optimización de rutas de distribución y control de puntos de venta (POS) para purificadoras de agua. Al activar una cuenta, su empresa acepta estos términos en su totalidad.
+                            El presente documento regula el acceso y uso de Aqua<span className="text-blue-500">RutaTech</span>, una plataforma de software como servicio (SaaS) diseñada para la gestión logística, optimización de rutas de distribución y control de puntos de venta (POS) para purificadoras de agua. Al activar una cuenta, su empresa acepta estos términos en su totalidad.
                         </p>
                     </section>
 
@@ -65,16 +62,15 @@ export default function Terms() {
                             Todos los derechos de propiedad intelectual sobre el código fuente, diseño de interfaces, logotipos y la marca Aqua<span className="text-blue-500">RutaTech</span> pertenecen exclusivamente a sus creadores. Nos reservamos el derecho de actualizar las funciones del software y modificar estos términos para adaptarlos a mejoras técnicas o nuevas normativas legales en Ecuador, notificando previamente a los administradores del sistema.
                         </p>
                     </section>
-
                 </div>
 
-                {/* Botón de Retorno */}
                 <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">
-                    <Link href="/">
-                        <Button color="indigo" size="md" variant="gradient">
-                            Entendido, Volver
-                        </Button>
-                    </Link>
+                    <button
+                        onClick={() => window.history.back()}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2.5 px-5 rounded-xl transition duration-150 shadow-sm"
+                    >
+                        Entendido, Volver
+                    </button>
                 </div>
             </div>
         </div>

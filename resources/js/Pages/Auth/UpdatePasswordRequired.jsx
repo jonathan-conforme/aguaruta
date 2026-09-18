@@ -154,7 +154,7 @@ export default function UpdatePasswordRequired() {
                                     className="w-4 h-4 mt-0.5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer"
                                 />
                                 <Typography variant="small" color="gray" className="font-normal text-xs leading-tight">
-                                    He leído y acepto voluntariamente los <a href="/terminos" target="_blank" className="text-indigo-600 underline font-semibold hover:text-indigo-800">Términos y Condiciones de Uso</a> del ecosistema AquaRuta.
+                                    He leído y acepto voluntariamente los <a href="/terminos" target="_blank" className="text-indigo-600 underline font-semibold hover:text-indigo-800">Términos y Condiciones de Uso</a> del ecosistema AquaRutaTech.
                                 </Typography>
                             </label>
                             <InputError message={errors.accepted_terms} />

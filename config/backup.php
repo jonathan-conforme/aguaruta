@@ -60,9 +60,7 @@ return [
             'compression_method' => ZipArchive::CM_DEFAULT,
             'compression_level' => 9,
             'filename_prefix' => '',
-            'disks' => [
-                'local',
-            ],
+            'disks' => explode(',', env('BACKUP_DISKS', 'local')),
         ],
 
         'temporary_directory' => storage_path('app/backup-temp'),

@@ -95,7 +95,7 @@ const MENU_CATEGORIES = [
         items: [
             { label: "Dashboard", routeName: "dashboard", pattern: "dashboard", icon: HomeIcon, roles: ['empleado'], colorBg: "bg-blue-50", colorText: "text-blue-600" },
             { label: "Rutas", routeName: "delivery-routes.index", pattern: "delivery-routes.*", icon: MapIcon, roles: ['admin'], colorBg: "bg-teal-50", colorText: "text-teal-600" },
-            { label: "Crear Viajes", routeName: "trips.index", pattern: "trips.*", icon: MapPinIcon, roles: ['admin'], colorBg: "bg-emerald-50", colorText: "text-emerald-600" },
+            { label: "Crear Viajes", routeName: "trips.index", pattern: "trips.*", icon: MapPinIcon, roles: ['admin'], colorBg: "bg-green-50", colorText: "text-green-600" },
             { label: "Mis Rutas", routeName: "repartidor.trips.index", pattern: "repartidor.trips.*", icon: MapIcon, roles: ['empleado'], colorBg: "bg-purple-50", colorText: "text-purple-600" },
             { label: "Gastos de Viaje", routeName: "repartidor.expenses.create", param: 1, pattern: "repartidor.expenses.*", icon: BanknotesIcon, roles: ['empleado'], colorBg: "bg-teal-50", colorText: "text-teal-600" },
             { label: "Cierre de Caja", routeName: "repartidor.shifts.close", pattern: "repartidor.shifts.close", icon: LockClosedIcon, roles: ['empleado'], colorBg: "bg-orange-50", colorText: "text-orange-600" },
@@ -135,8 +135,8 @@ const MENU_CATEGORIES = [
                 pattern: "sri.*",
                 icon: BuildingLibraryIcon,
                 roles: ['admin'],
-                colorBg: "bg-amber-50",
-                colorText: "text-amber-600",
+                colorBg: "bg-blue-50",
+                colorText: "text-blue-600",
                 badge: "DEV"
             },
         ]

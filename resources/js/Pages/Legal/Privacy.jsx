@@ -1,6 +1,6 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { Typography, Button } from "@material-tailwind/react";
+import { Typography } from "@material-tailwind/react";
 
 export default function Privacy() {
     return (
@@ -8,7 +8,6 @@ export default function Privacy() {
             <Head title="Política de Privacidad - AquaRutaTech" />
 
             <div className="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                {/* Encabezado */}
                 <div className="border-b border-gray-100 pb-6 mb-6 text-center sm:text-left">
                     <Typography variant="h3" color="blue-gray" className="font-bold">
                         Política de Privacidad y Protección de Datos
@@ -18,9 +17,7 @@ export default function Privacy() {
                     </Typography>
                 </div>
 
-                {/* Cuerpo del Documento */}
                 <div className="space-y-6 text-gray-700 leading-relaxed text-sm">
-
                     <section>
                         <Typography variant="h5" color="blue-gray" className="font-semibold mb-2">
                             1. Responsable del Tratamiento
@@ -35,7 +32,7 @@ export default function Privacy() {
                             2. Recopilación Justa y Finalidad de los Datos
                         </Typography>
                         <p>
-                            Aqua<span className="text-blue-500">RutaTech</span> recopila y procesa únicamente la información estrictamente necesaria para la correcta prestación del servicio de gestión logística: nombres de empleados, datos de facturación, geolocalización de clientes para la optimización de rutas, catálogos de productos e historial de cierres de caja. La finalidad exclusiva es la ejecución del servicio de software contratado.
+                            Aqua<span className="text-blue-500">RutaTech</span> recopila y procesa únicamente la información strictly necesaria para la correcta prestación del servicio de gestión logística: nombres de empleados, datos de facturación, geolocalización de clientes para la optimización de rutas, catálogos de productos e historial de cierres de caja. La finalidad exclusiva es la ejecución del servicio de software contratado.
                         </p>
                     </section>
 
@@ -53,7 +50,7 @@ export default function Privacy() {
                             4. Evidencia Digital de Consentimiento e Integridad
                         </Typography>
                         <p>
-                            Para garantizar la transparencia y validez jurídica ante la Superintendencia de Protección de Datos,<span className="text-blue-500">RutaTech</span>  registra de forma inalterable el momento de la aceptación de estos términos. Este registro actúa como firma electrónica simplificada, asociando la confirmación con la fecha, hora exacta e IP del dispositivo del usuario.
+                            Para garantizar la transparencia y validez jurídica ante la Superintendencia de Protección de Datos, Aqua<span className="text-blue-500">RutaTech</span> registra de forma inalterable el momento de la aceptación de estos términos. Este registro actúa como firma electrónica simplificada, asociando la confirmación con la fecha, hora exacta e IP del dispositivo del usuario.
                         </p>
                     </section>
 
@@ -62,20 +59,18 @@ export default function Privacy() {
                             5. Derechos del Titular (ARCO+) y Conservación
                         </Typography>
                         <p>
-                            Como titular de los datos, usted y sus usuarios pueden ejercer en cualquier momento sus derechos de
-                            "Acceso, Rectificación, Eliminación y Oposición" enviando una solicitud formal a nuestro correo de soporte. Los datos de su negocio se conservarán mientras se mantenga vigente la relación comercial o durante los plazos exigidos por las normativas fiscales de Ecuador (SRI).
+                            Como titular de los datos, usted y sus usuarios pueden ejercer en cualquier momento sus derechos de "Acceso, Rectificación, Eliminación y Oposición" enviando una solicitud formal a nuestro correo de soporte. Los datos de su negocio se conservarán mientras se mantenga vigente la relación comercial o durante los plazos exigidos por las normativas fiscales de Ecuador (SRI).
                         </p>
                     </section>
-
                 </div>
 
-                {/* Botón de Retorno */}
                 <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">
-                    <Link href="/">
-                        <Button color="indigo" size="md" variant="gradient">
-                            Entendido, Volver
-                        </Button>
-                    </Link>
+                    <button
+                        onClick={() => window.history.back()}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2.5 px-5 rounded-xl transition duration-150 shadow-sm"
+                    >
+                        Entendido, Volver
+                    </button>
                 </div>
             </div>
         </div>

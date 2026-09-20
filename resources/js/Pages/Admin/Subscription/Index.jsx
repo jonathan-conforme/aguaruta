@@ -1,26 +1,30 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import { Card, Typography, Chip } from "@material-tailwind/react";
-import { CheckIcon, XMarkIcon, CalendarDaysIcon } from "@heroicons/react/24/solid";
+import { Card, Typography, Chip, Button } from "@material-tailwind/react";
+import {
+    CheckIcon,
+    XMarkIcon,
+    CalendarDaysIcon,
+    SparklesIcon,
+    BuildingStorefrontIcon,
+    ArrowUpRightIcon
+} from "@heroicons/react/24/solid";
 
-// 🇪🇨 DICCIONARIO DE TRADUCCIONES PARA LÍMITES Y MÓDULOS
 const labelTranslations = {
-    // Límites
-    'app_users': 'Personal con acceso a la App',
-    'employees': 'Empleados permitidos',
-    'clients': 'Clientes permitidos',
-    'routes_per_day': 'Rutas por día',
-    'products': 'Productos en catálogo',
-
-    // Módulos
+    'app_users': 'App Repartidor',
+    'employees': 'Empleados',
+    'clients': 'Clientes',
+    'routes_per_day': 'Rutas / día',
+    'products': 'Productos',
     'routes': 'Gestión de Rutas',
-    'inventory': 'Control de Inventario',
+    'inventory': 'Control Inventario',
     'cash_closing': 'Cierre de Caja',
-    'purchases': 'Módulo de Compras',
-    'payroll': 'Nómina / Roles de Pago'
+    'purchases': 'Módulo Compras',
+    'payroll': 'Nómina / Roles',
+    'offline': 'Modo Offline'
 };
-// MAPEO DINÁMICO DE COLORES PARA CHIPS
+
 const planColors = {
     basico: 'cyan',
     basico_pro: 'blue',
@@ -29,154 +33,190 @@ const planColors = {
     vip: 'amber',
 };
 
-export default function Index({ auth, currentPlanName, subscriptionEndsAt, allPlans }) {
-
+export default function Index({ auth, currentPlanName = 'basico', subscriptionEndsAt, allPlans = {} }) {
     const activePlan = allPlans[currentPlanName] || {};
     const activePlanDisplayName = activePlan.name || currentPlanName;
     const activePlanColor = planColors[currentPlanName] || 'indigo';
+    const WHATSAPP_SOPORTE = "593980659712";
 
-    // Formateador de fecha en español (Ecuador)
     const formattedExpiry = subscriptionEndsAt
-        ? new Date(subscriptionEndsAt).toLocaleDateString('es-EC', { day: 'numeric', month: 'long', year: 'numeric' })
+        ? new Date(subscriptionEndsAt.includes('T') ? subscriptionEndsAt : `${subscriptionEndsAt}T00:00:00`).toLocaleDateString('es-EC', { day: 'numeric', month: 'long', year: 'numeric' })
         : "Ilimitado / Sin vencimiento";
 
     return (
         <AuthenticatedLayout
             user={auth.user}
-            header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Mi Suscripción</h2>}
+            header={<h2 className="font-extrabold text-xl text-slate-800 tracking-tight">Mi Suscripción</h2>}
         >
             <Head title="Mi Plan y Suscripción" />
 
-            <div className="py-12 bg-gray-50/50 min-h-screen">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-8 bg-slate-50/60 min-h-screen">
+                <div className="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
-                    {/* ENCABEZADO DE LA SECCIÓN */}
-                    <div className="mb-8">
-                        <Typography variant="h4" color="blue-gray" className="font-bold">
-                            Estado del Servicio
-                        </Typography>
-                        <Typography variant="small" color="gray" className="font-normal mt-1">
-                            Consulta las características de tu plan actual y conoce las opciones para hacer crecer tu negocio.
-                        </Typography>
-                    </div>
-
-                    {/* 1. SECCIÓN SUPERIOR: SECTOR DESTACADO DEL PLAN ACTUAL */}
-                    <Card className="mb-10 p-6 border border-indigo-100 bg-gradient-to-br from-indigo-50/40 via-white to-white shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                            <div className="flex items-center gap-3 mb-2">
-                                <Typography variant="h5" color="blue-gray" className="font-bold">
-                                    Plan Activo:
-                                </Typography>
-                                <Chip
-                                    size="md"
-                                    variant="gradient"
-                                    value={activePlanDisplayName}
-                                    color={activePlanColor}
-                                    className="capitalize font-bold"
-                                />
+                    {/* ENCABEZADO Y PLAN ACTIVO EN CARD COMPACTO */}
+                    <Card className="p-6 border border-slate-200/80 bg-white shadow-xs rounded-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                                <BuildingStorefrontIcon className="h-7 w-7" />
                             </div>
-                            <Typography variant="paragraph" color="gray" className="max-w-xl">
-                                Tu empresa cuenta actualmente con los límites operativos y accesos modulares configurados para el nivel <span className="font-semibold capitalize text-indigo-600">{activePlanDisplayName}</span>.
-                            </Typography>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <Typography variant="h5" color="blue-gray" className="font-black">
+                                        Plan Activo: {activePlanDisplayName}
+                                    </Typography>
+                                    <Chip size="sm" value="En servicio" color={activePlanColor} className="rounded-md font-bold text-[10px]" />
+                                </div>
+                                <Typography variant="small" className="text-slate-500 text-xs mt-0.5">
+                                    Límites y módulos configurados según tu nivel actual de suscripción.
+                                </Typography>
+                            </div>
                         </div>
 
-                        <div className="flex items-center gap-2.5 px-4 py-3 bg-white border border-gray-100 rounded-xl shadow-2xs">
-                            <CalendarDaysIcon className="h-6 w-6 text-indigo-500" />
-                            <div>
-                                <Typography variant="small" color="gray" className="font-medium leading-none mb-1">
-                                    Vence el
-                                </Typography>
-                                <Typography variant="small" color="blue-gray" className="font-bold">
-                                    {formattedExpiry}
-                                </Typography>
+                        <div className="flex items-center gap-2.5 px-4 py-2 bg-slate-50 border border-slate-200/60 rounded-xl">
+                            <CalendarDaysIcon className="h-5 w-5 text-indigo-500" />
+                            <div className="text-xs">
+                                <span className="text-slate-400 block font-medium">Renovación:</span>
+                                <span className="font-bold text-slate-800">{formattedExpiry}</span>
                             </div>
                         </div>
                     </Card>
 
-                    <hr className="border-blue-gray-50 mb-10" />
+                    {/* SECCIÓN DE PLANES CON SCROLL HORIZONTAL Y ANCHO MÍNIMO REAL (RESPIRABLE) */}
+                    <div className="space-y-4">
+                        <div>
+                            <Typography variant="h4" color="blue-gray" className="font-extrabold tracking-tight">
+                                Catálogo de Planes Disponibles
+                            </Typography>
+                            <Typography variant="small" className="text-slate-500 text-xs">
+                                Desliza horizontalmente si deseas comparar todos los planes de un vistazo.
+                            </Typography>
+                        </div>
 
-                    {/* 2. SECCIÓN INFERIOR: PARRILLA COMPARATIVA DE PLANES */}
-                    <div className="mb-6">
-                        <Typography variant="h5" color="blue-gray" className="font-bold">
-                            Planes del Sistema
-                        </Typography>
-                    </div>
+                        {/* CONTENEDOR DESLIZABLE CON TARJETAS MÁS ANCHAS (min-w-[270px]) */}
+                        <div className="flex overflow-x-auto gap-5 pb-6 pt-2 scrollbar-thin scrollbar-thumb-slate-300">
+                            {Object.entries(allPlans).map(([name, details]) => {
+                                const isCurrent = name === currentPlanName;
+                                const isPopular = name === 'empresarial';
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-                        {Object.entries(allPlans).map(([name, details]) => {
-                            const isCurrent = name === currentPlanName;
-
-                            return (
-                                <Card
-                                    key={name}
-                                    className={`p-6 bg-white border transition-all ${
-                                        isCurrent
-                                            ? 'border-2 border-indigo-500 shadow-md ring-4 ring-indigo-500/5 scale-[1.01]'
-                                            : 'border-blue-gray-100 shadow-xs hover:border-gray-300'
-                                    }`}
-                                >
-                                    {/* Cabecera del Plan */}
-                                    <div className="flex justify-between items-center mb-2">
-                                        <Typography variant="h4" color="blue-gray" className="capitalize font-extrabold">
-                                            {details.name}
-                                        </Typography>
-                                        {isCurrent && (
-                                            <Chip size="sm" color="indigo" value="Tu Plan" className="font-bold rounded-full px-3" />
-                                        )}
-                                    </div>
-
-                                    {/*  PRECIO FORMATEADO EN USD */}
-                                    <div className="flex items-baseline gap-1 mb-6">
-                                        <Typography variant="h2" color="blue-gray" className="font-extrabold">
-                                            {new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(details.price)}
-                                        </Typography>
-                                        <Typography variant="small" color="gray" className="font-normal text-xs ml-1">
-                                            / mes
-                                        </Typography>
-                                    </div>
-
-                                    {/* Límites Operativos Traducidos */}
-                                    <div className="mb-6">
-                                        <Typography variant="small" color="blue-gray" className="font-bold uppercase tracking-wider text-xs opacity-60 mb-3">
-                                            Límites incluidos
-                                        </Typography>
-                                        <div className="space-y-2.5">
-                                            {Object.entries(details.limits).map(([limit, value]) => (
-                                                <div key={limit} className="flex justify-between items-center py-1 border-b border-blue-gray-50/50">
-                                                    <Typography variant="small" color="gray">
-                                                        {labelTranslations[limit] || limit}
-                                                    </Typography>
-                                                    <Typography variant="small" color="blue-gray" className="font-bold">
-                                                        {value >= 999 ? 'Ilimitado' : value}
-                                                    </Typography>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Módulos Disponibles Traducidos */}
-                                    <div>
-                                        <Typography variant="small" color="blue-gray" className="font-bold uppercase tracking-wider text-xs opacity-60 mb-3">
-                                            Módulos habilitados
-                                        </Typography>
-                                        <ul className="space-y-2">
-                                            {Object.entries(details.modules).map(([module, enabled]) => (
-                                                <li key={module} className="flex items-center gap-2.5 text-sm">
-                                                    {enabled ? (
-                                                        <CheckIcon className="h-4 w-4 text-green-500 stroke-[3]" />
-                                                    ) : (
-                                                        <XMarkIcon className="h-4 w-4 text-red-300" />
-                                                    )}
-                                                    <span className={` ${enabled ? 'text-gray-800 font-medium' : 'text-gray-400 line-through'}`}>
-                                                        {labelTranslations[module] || module}
+                                return (
+                                    <div key={name} className="flex-1 min-w-[275px] max-w-[320px] flex">
+                                        <Card
+                                            className={`relative p-6 bg-white flex flex-col justify-between w-full transition-all rounded-2xl ${
+                                                isPopular
+                                                    ? 'border-2 border-indigo-600 shadow-lg shadow-indigo-500/10 ring-2 ring-indigo-500/5'
+                                                    : isCurrent
+                                                    ? 'border-2 border-slate-400 shadow-sm'
+                                                    : 'border border-slate-200 shadow-2xs hover:border-slate-300'
+                                            }`}
+                                        >
+                                            {isPopular && (
+                                                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+                                                    <span className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-xs flex items-center gap-1 tracking-wider">
+                                                        <SparklesIcon className="h-3 w-3" /> Recomendado
                                                     </span>
-                                                </li>
-                                            ))}
-                                        </ul>
+                                                </div>
+                                            )}
+
+                                            <div>
+                                                {/* Header */}
+                                                <div className="flex justify-between items-start gap-2 mb-2">
+                                                    <Typography variant="h6" color="blue-gray" className="font-black">
+                                                        {details.name}
+                                                    </Typography>
+                                                    {isCurrent && (
+                                                        <Chip size="sm" color="indigo" value="Actual" className="text-[10px] px-2 py-0.5 font-bold rounded-md" />
+                                                    )}
+                                                </div>
+
+                                                {/* Precio */}
+                                                <div className="mb-6 pb-4 border-b border-slate-100">
+                                                    <div className="flex items-baseline gap-1">
+                                                        <Typography variant="h3" color="blue-gray" className="font-black text-2xl tracking-tight">
+                                                            {new Intl.NumberFormat('es-EC', { style: 'currency', currency: 'USD' }).format(details.price)}
+                                                        </Typography>
+                                                        <Typography variant="small" className="text-xs text-slate-400 font-medium">
+                                                            /mes
+                                                        </Typography>
+                                                    </div>
+                                                </div>
+
+                                                {/* Límites Operativos Limpios */}
+                                                <div className="mb-6 space-y-2.5">
+                                                    <Typography variant="small" className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
+                                                        Límites incluidos
+                                                    </Typography>
+                                                    <div className="space-y-2 text-xs">
+                                                        {Object.entries(details.limits || {}).map(([limit, value]) => {
+                                                            const displayValue = limit === 'app_users'
+                                                                ? `${value} Rep. (+1 Admin)`
+                                                                : (value >= 999 ? 'Ilimitado' : value);
+
+                                                            return (
+                                                                <div key={limit} className="flex justify-between items-center py-1 border-b border-slate-50">
+                                                                    <span className="text-slate-500 font-medium">
+                                                                        {labelTranslations[limit] || limit}:
+                                                                    </span>
+                                                                    <span className="font-bold text-slate-800">
+                                                                        {displayValue}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+
+                                                {/* Módulos */}
+                                                <div className="space-y-2.5 mb-6">
+                                                    <Typography variant="small" className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">
+                                                        Módulos
+                                                    </Typography>
+                                                    <ul className="space-y-2 text-xs">
+                                                        {Object.entries(details.modules || {}).map(([module, enabled]) => (
+                                                            <li key={module} className="flex items-center gap-2">
+                                                                {enabled ? (
+                                                                    <CheckIcon className="h-4 w-4 text-emerald-500 stroke-[3] shrink-0" />
+                                                                ) : (
+                                                                    <XMarkIcon className="h-4 w-4 text-slate-300 shrink-0" />
+                                                                )}
+                                                                <span className={enabled ? 'text-slate-700 font-medium' : 'text-slate-400 line-through'}>
+                                                                    {labelTranslations[module] || module}
+                                                                </span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            {/* CTA */}
+                                            <div className="pt-2">
+                                                <Button
+                                                    size="sm"
+                                                    variant={isCurrent ? "outlined" : isPopular ? "gradient" : "text"}
+                                                    color={isCurrent ? "blue-gray" : isPopular ? "indigo" : "indigo"}
+                                                    fullWidth
+                                                    disabled={isCurrent}
+                                                    className="capitalize font-bold text-xs py-3 rounded-xl flex items-center justify-center gap-1.5"
+                                                    onClick={() => {
+                                                        const msg = encodeURIComponent(`Hola, me interesa realizar un cambio hacia el plan: ${details.name}`);
+                                                        window.open(`https://wa.me/${WHATSAPP_SOPORTE}?text=${msg}`, '_blank');
+                                                    }}
+                                                >
+                                                    {isCurrent ? (
+                                                        'Plan Contratado'
+                                                    ) : (
+                                                        <>
+                                                            Solicitar Cambio
+                                                            <ArrowUpRightIcon className="h-3.5 w-3.5" />
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </div>
+
+                                        </Card>
                                     </div>
-                                </Card>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
 
                 </div>

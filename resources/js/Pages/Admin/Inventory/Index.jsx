@@ -53,7 +53,7 @@ const renderMovementChip = (mov) => {
 export default function Index({ movements, products }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-    
+
     // Estado para controlar el rango de fechas a descargar en el PDF
     const [selectedRange, setSelectedRange] = useState('day');
 
@@ -79,6 +79,37 @@ export default function Index({ movements, products }) {
                 setIsModalOpen(false);
             },
         });
+    };
+    const [isDownloading, setIsDownloading] = useState(false);
+    const isInvalidRange = false;
+    const handleDownloadInventory = async () => {
+        if (isInvalidRange || isDownloading) return;
+
+        setIsDownloading(true);
+        try {
+            const url = route('admin.reports.inventory.download', { range: selectedRange });
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (!response.ok) throw new Error('Error al generar el reporte');
+
+            const blob = await response.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.setAttribute('download', `reporte_inventario_${selectedRange}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+        } catch (error) {
+            console.error('Error al descargar el PDF:', error);
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
     const movementsList = movements?.data || [];
@@ -142,7 +173,7 @@ export default function Index({ movements, products }) {
                     <div className="p-4 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white">
                         <div>
                             <Typography variant="h5" color="blue-gray" className="font-bold text-lg sm:text-xl">
-                                Historial de Inventario
+                                Historial de Inventario dfgdgdhd
                             </Typography>
                             <Typography color="gray" className="mt-0.5 text-xs sm:text-sm font-normal">
                                 Monitorea las entradas por abastecimiento, salidas por mermas y envasados.
@@ -151,7 +182,7 @@ export default function Index({ movements, products }) {
 
                         {/* GRUPO DE BOTONES Y FILTRO PDF */}
                         <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
-                            
+
                             {/* SELECTOR DE RANGO Y BOTÓN PDF */}
                             <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-xl p-1 w-full sm:w-auto">
                                 <select
@@ -165,22 +196,47 @@ export default function Index({ movements, products }) {
                                     <option value="month">Este Mes</option>
                                 </select>
 
-                                <a
-                                    href={route('admin.reports.inventory.download', { range: selectedRange })}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="shrink-0"
-                                >
+                                {/* BOTÓN EXPORTAR PDF CON VALIDACIÓN Y ESTADO DINÁMICO */}
+                                {isInvalidRange ? (
+                                    <Button
+                                        variant="outlined"
+                                        color="gray"
+                                        size="sm"
+                                        disabled
+                                        title="Selecciona un rango válido para descargar el PDF"
+                                        className="flex items-center gap-1.5 rounded-lg border-gray-200 text-gray-400 bg-gray-100 cursor-not-allowed py-1.5 px-2.5 shadow-none"
+                                    >
+                                        <DocumentArrowDownIcon className="h-4 w-4 text-gray-400" />
+                                        <span>PDF</span>
+                                    </Button>
+                                ) : (
                                     <Button
                                         variant="outlined"
                                         color="red"
                                         size="sm"
-                                        className="flex items-center gap-1.5 rounded-lg border-red-200 text-red-700 bg-white hover:bg-red-50 py-1.5 px-2.5"
+                                        onClick={handleDownloadInventory}
+                                        disabled={isDownloading}
+                                        className={`flex items-center gap-1.5 rounded-lg border-red-200 py-1.5 px-2.5 transition-all ${isDownloading
+                                                ? 'bg-red-50 text-red-400 cursor-wait'
+                                                : 'bg-white text-red-700 hover:bg-red-50 cursor-pointer active:scale-95'
+                                            }`}
                                     >
-                                        <DocumentArrowDownIcon className="h-4 w-4 text-red-600" />
-                                        <span>PDF</span>
+                                        {isDownloading ? (
+                                            <>
+                                                <svg className="animate-spin h-4 w-4 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span>Generando...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <DocumentArrowDownIcon className="h-4 w-4 text-red-600" />
+                                                <span>PDF</span>
+                                            </>
+                                        )}
                                     </Button>
-                                </a>
+                                )}
                             </div>
 
                             {/* BOTÓN REGISTRAR MOVIMIENTO */}

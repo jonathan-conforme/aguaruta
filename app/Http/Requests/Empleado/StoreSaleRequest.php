@@ -16,12 +16,13 @@ class StoreSaleRequest extends FormRequest
             'payment_method' => 'required|in:cash,transfer,credit',
             'initial_payment' => 'nullable|numeric|min:0',
             'payment_type' => 'nullable|in:cash,transfer',
-            'returned_bottles' => 'required|integer|min:0',
+            'returned_bottles' => 'nullable|integer|min:0',
             'total' => 'required|numeric|min:0',
             'products' => 'required|array|min:1',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:0',
             'products.*.price' => 'required|numeric|min:0',
+            'products.*.returned_bottles' => 'nullable|integer|min:0',
 
         ];
     }

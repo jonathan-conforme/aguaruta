@@ -17,6 +17,8 @@ class InventoryMovementController extends Controller
         $this->inventoryService = $inventoryService;
     }
 public function index(Request $request) {
+    $range = $request->query('range', 'day');
+    
     return Inertia::render('Admin/Inventory/Index',
     [
     'movements' => $this->inventoryService->getAllMovements([
@@ -28,7 +30,11 @@ public function index(Request $request) {
     'products'=> Product::query()
     ->select('id', 'name', 'units_per_package', 'empty_stock', 'current_stock')
     ->where('is_active', true)
-    ->orderBy('name') ->get(), ]); }
+    ->orderBy('name') ->get(),
+    'filters' => [
+                'range' => $range, // <-- Lo retornamos a la vista React
+            ],
+             ]); }
 
     public function store(Request $request)
     {

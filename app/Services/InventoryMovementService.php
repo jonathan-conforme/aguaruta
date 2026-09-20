@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\User;
+use Carbon\Carbon;
+
 
 class InventoryMovementService
 {
@@ -20,9 +22,34 @@ class InventoryMovementService
         100
     );
 
+    $range = $filters['range'] ?? 'day';
+        $referenceDate = Carbon::today();
+
+        // Determinar rango de fechas
+        switch ($range) {
+            case 'yesterday':
+                $startDate = $referenceDate->copy()->subDay()->startOfDay();
+                $endDate = $referenceDate->copy()->subDay()->endOfDay();
+                break;
+            case 'week':
+                $startDate = $referenceDate->copy()->startOfWeek();
+                $endDate = $referenceDate->copy()->endOfWeek();
+                break;
+            case 'month':
+                $startDate = $referenceDate->copy()->startOfMonth();
+                $endDate = $referenceDate->copy()->endOfMonth();
+                break;
+            case 'day':
+            default:
+                $startDate = $referenceDate->copy()->startOfDay();
+                $endDate = $referenceDate->copy()->endOfDay();
+                break;
+        }
+
     return InventoryMovement::query()
         ->with([
-            'product:id,name'
+       'product:id,name,units_per_package', // Carga el producto
+            'user:id,name'
         ])
         ->when(
             !empty($filters['product_id']),

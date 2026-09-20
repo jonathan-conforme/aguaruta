@@ -10,6 +10,7 @@ import {
     ArrowPathIcon,
     ArrowsRightLeftIcon,
     PlusIcon,
+    DocumentArrowDownIcon
 } from "@heroicons/react/24/solid";
 
 // 1. Helper para humanizar la acción
@@ -52,6 +53,9 @@ const renderMovementChip = (mov) => {
 export default function Index({ movements, products }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
+    
+    // Estado para controlar el rango de fechas a descargar en el PDF
+    const [selectedRange, setSelectedRange] = useState('day');
 
     const handleOpenModal = () => setIsModalOpen(true);
     const handleCloseModal = () => {
@@ -134,7 +138,7 @@ export default function Index({ movements, products }) {
             <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-3 sm:py-0">
                 <Card className="h-full w-full shadow-sm border border-gray-200/80 rounded-2xl overflow-hidden bg-slate-50/50">
 
-                    {/* Header Principal estilo Productos */}
+                    {/* Header Principal */}
                     <div className="p-4 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white">
                         <div>
                             <Typography variant="h5" color="blue-gray" className="font-bold text-lg sm:text-xl">
@@ -145,15 +149,50 @@ export default function Index({ movements, products }) {
                             </Typography>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        {/* GRUPO DE BOTONES Y FILTRO PDF */}
+                        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                            
+                            {/* SELECTOR DE RANGO Y BOTÓN PDF */}
+                            <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-xl p-1 w-full sm:w-auto">
+                                <select
+                                    value={selectedRange}
+                                    onChange={(e) => setSelectedRange(e.target.value)}
+                                    className="text-xs font-semibold bg-transparent border-none text-gray-700 focus:ring-0 focus:outline-none cursor-pointer py-1 pl-2 pr-6"
+                                >
+                                    <option value="day">Hoy</option>
+                                    <option value="yesterday">Ayer</option>
+                                    <option value="week">Esta Semana</option>
+                                    <option value="month">Este Mes</option>
+                                </select>
+
+                                <a
+                                    href={route('admin.reports.inventory.download', { range: selectedRange })}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="shrink-0"
+                                >
+                                    <Button
+                                        variant="outlined"
+                                        color="red"
+                                        size="sm"
+                                        className="flex items-center gap-1.5 rounded-lg border-red-200 text-red-700 bg-white hover:bg-red-50 py-1.5 px-2.5"
+                                    >
+                                        <DocumentArrowDownIcon className="h-4 w-4 text-red-600" />
+                                        <span>PDF</span>
+                                    </Button>
+                                </a>
+                            </div>
+
+                            {/* BOTÓN REGISTRAR MOVIMIENTO */}
                             <Button
                                 onClick={handleOpenModal}
-                                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-100"
+                                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-100 py-2.5"
                                 size="sm"
                             >
                                 <PlusIcon strokeWidth={2.5} className="h-4 w-4" /> Registrar Movimiento
                             </Button>
                         </div>
+
                     </div>
 
                     {/* VISTA ESCRITORIO (Tabla) */}
@@ -284,7 +323,7 @@ export default function Index({ movements, products }) {
                         )}
                     </div>
 
-                    {/* PAGINACIÓN ESTILO PRODUCTOS */}
+                    {/* PAGINACIÓN */}
                     <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 p-4 gap-3 bg-white">
                         <Typography variant="small" color="gray" className="font-normal text-xs sm:text-sm text-center sm:text-left">
                             Página <strong className="text-blue-gray-900">{movements.current_page}</strong> de{" "}
@@ -320,7 +359,7 @@ export default function Index({ movements, products }) {
                 </Card>
             </div>
 
-            {/* MODAL MODERNO ESTILO PRODUCTOS */}
+            {/* MODAL REGISTRAR MOVIMIENTO */}
             <Dialog
                 open={isModalOpen}
                 handler={handleCloseModal}

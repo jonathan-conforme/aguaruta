@@ -19,7 +19,6 @@ export default function CreateSale({ trip, customers }) {
         trip_id: trip.id,
         customer_id: '',
         payment_method: 'cash',
-        returned_bottles: 0,
         total: 0,
         initial_payment: 0,
         payment_type: 'cash',
@@ -28,6 +27,7 @@ export default function CreateSale({ trip, customers }) {
             name: p.name,
             price: p.price,
             quantity: 0,
+            returned_bottles: 0,
             units_per_package: p.units_per_package,
             loaded_quantity: p.pivot?.quantity || 0,
         }))
@@ -324,99 +324,74 @@ export default function CreateSale({ trip, customers }) {
                         {errors.products && <span className="text-red-500 text-sm mt-2 block">{errors.products}</span>}
                     </div>
 
-                    {/* 3. ENVASES Y MÉTODO DE PAGO */}
-                    <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                        <label className="block text-sm font-bold text-gray-700 mb-4 border-b border-gray-100 pb-2">
-                            3. Detalles de facturación
-                        </label>
+                   {/* 3. ENVASES Y MÉTODO DE PAGO */}
+<div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+    <label className="block text-sm font-bold text-gray-700 mb-4 border-b border-gray-100 pb-2">
+        3. Detalles de facturación
+    </label>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-xs font-bold text-red-500 uppercase mb-2">Envases Devueltos</label>
-                                <input
-                                    type="number"
-                                    min="0"
-                                    className="block w-full rounded-lg border-gray-200 bg-gray-100 text-xl font-bold text-center shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3"
-                                    value={data.returned_bottles === 0 ? '' : data.returned_bottles}
-                                    placeholder="0"
-                                    onChange={e => setData('returned_bottles', parseInt(e.target.value) || 0)}
-                                />
-                            </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* DESGLOSE DE ENVASES DEVUELTOS POR PRODUCTO */}
+        <div className="space-y-3">
+            <label className="block text-xs font-bold text-red-500 uppercase mb-2">
+                Envases Devueltos
+            </label>
 
-                            <div>
-                                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Método de Pago</label>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {[
-                                        { id: 'cash', label: 'Efect.', color: 'bg-green-50 text-green-700 border-green-500' },
-                                        { id: 'transfer', label: 'Transf.', color: 'bg-blue-50 text-blue-700 border-blue-500' },
-                                        { id: 'credit', label: 'Crédit.', color: 'bg-yellow-50 text-yellow-700 border-yellow-500' }
-                                    ].map((method) => (
-                                        <button
-                                            key={method.id}
-                                            type="button"
-                                            onClick={() => {
-                                                setData(prev => ({
-                                                    ...prev,
-                                                    payment_method: method.id,
-                                                    initial_payment: method.id === 'credit' ? prev.initial_payment : 0
-                                                }));
-                                            }}
-                                            className={`py-3 px-1 border-2 rounded-xl text-sm font-bold transition-all ${data.payment_method === method.id
-                                                    ? method.color + ' shadow-sm'
-                                                    : 'bg-white border-gray-100 text-gray-400 hover:bg-gray-50'
-                                                }`}
-                                        >
-                                            {method.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* DESPLEGABLE SOLO CUANDO SE SELECCIONA CRÉDITO */}
-                        {data.payment_method === 'credit' && (
-                            <div className="mt-5 p-4 bg-amber-50/60 border border-amber-200 rounded-xl space-y-3">
-                                <p className="text-xs font-bold text-amber-900 uppercase tracking-wide">
-                                    Detalle del Crédito / Abono Inicial
-                                </p>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Abono Inicial ($)</label>
-                                        <input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            max={data.total}
-                                            value={data.initial_payment === 0 ? '' : data.initial_payment}
-                                            placeholder="0.00"
-                                            onChange={(e) => setData('initial_payment', parseFloat(e.target.value) || 0)}
-                                            className="w-full rounded-lg border-gray-300 font-bold text-gray-800 focus:border-amber-500 focus:ring-amber-500"
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Tipo de Abono</label>
-                                        <select
-                                            value={data.payment_type}
-                                            onChange={(e) => setData('payment_type', e.target.value)}
-                                            className="w-full rounded-lg border-gray-300 font-medium text-gray-800 focus:border-amber-500 focus:ring-amber-500"
-                                        >
-                                            <option value="cash">Efectivo</option>
-                                            <option value="transfer">Transferencia</option>
-                                        </select>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">Saldo Pendiente</label>
-                                        <div className="py-2.5 px-3 bg-white border border-amber-200 rounded-lg font-black text-red-600 text-lg">
-                                            ${Math.max(0, data.total - (data.initial_payment || 0)).toFixed(2)}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+           {data.products.map((prod, idx) => (
+                <div key={prod.product_id} className="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg border border-gray-200">
+                    <span className="text-sm font-semibold text-gray-700">{prod.name}</span>
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="number"
+                            min="0"
+                            className="w-20 rounded-lg border-gray-300 text-center font-bold text-gray-800 focus:ring-indigo-500 focus:border-indigo-500 py-1"
+                            placeholder="0"
+                            value={prod.returned_bottles === 0 ? '' : prod.returned_bottles}
+                            onChange={(e) => {
+                                const val = parseInt(e.target.value) || 0;
+                                const updatedProducts = [...data.products];
+                                updatedProducts[idx].returned_bottles = val;
+                                setData('products', updatedProducts);
+                            }}
+                        />
+                        <span className="text-xs text-gray-500">vacío(s)</span>
                     </div>
+                </div>
+            ))}
+        </div>
+
+        {/* MÉTODO DE PAGO */}
+        <div>
+            <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Método de Pago</label>
+            <div className="grid grid-cols-3 gap-2">
+                {[
+                    { id: 'cash', label: 'Efect.', color: 'bg-green-50 text-green-700 border-green-500' },
+                    { id: 'transfer', label: 'Transf.', color: 'bg-blue-50 text-blue-700 border-blue-500' },
+                    { id: 'credit', label: 'Crédit.', color: 'bg-yellow-50 text-yellow-700 border-yellow-500' }
+                ].map((method) => (
+                    <button
+                        key={method.id}
+                        type="button"
+                        onClick={() => {
+                            setData(prev => ({
+                                ...prev,
+                                payment_method: method.id,
+                                initial_payment: method.id === 'credit' ? prev.initial_payment : 0
+                            }));
+                        }}
+                        className={`py-3 px-1 border-2 rounded-xl text-sm font-bold transition-all ${
+                            data.payment_method === method.id
+                                ? method.color + ' shadow-sm'
+                                : 'bg-white border-gray-100 text-gray-400 hover:bg-gray-50'
+                        }`}
+                    >
+                        {method.label}
+                    </button>
+                ))}
+            </div>
+        </div>
+    </div>
+</div>
 
                     {/* 4. TOTAL Y BOTÓN DE ENVÍO */}
                     <div className="sticky bottom-4 z-10 bg-gray-900 p-5 rounded-2xl shadow-2xl mt-8">

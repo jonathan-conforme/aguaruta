@@ -21,7 +21,8 @@ import {
     Cog6ToothIcon,
     InboxIcon,
     PowerIcon,
-    CreditCardIcon
+    CreditCardIcon,
+
 } from "@heroicons/react/24/solid";
 
 import {
@@ -53,6 +54,7 @@ import {
     HomeIcon,
     BuildingLibraryIcon,
     DocumentCheckIcon,
+    QuestionMarkCircleIcon
 } from "@heroicons/react/24/outline";
 
 // ESTRUCTURA DE MENÚ CENTRALIZADA CON PATRONES DE RUTA PRECISOS
@@ -138,6 +140,23 @@ const MENU_CATEGORIES = [
                 colorBg: "bg-blue-50",
                 colorText: "text-blue-600",
                 badge: "DEV"
+            },
+        ]
+    },
+    // Agregas esta sección al menú
+{
+        title: "Soporte y Ayuda",
+        icon: QuestionMarkCircleIcon, // Importar de @heroicons/react/24/outline
+        roles: ['admin'],
+        items: [
+            {
+                label: "Manual de Uso",
+                routeName: "help.index",
+                pattern: "help.*",
+                icon: DocumentTextIcon,
+                roles: ['admin'],
+                colorBg: "bg-blue-50",
+                colorText: "text-blue-600"
             },
         ]
     }
@@ -347,8 +366,8 @@ export default function AuthenticatedLayout({ header, children }) {
                             <Alert
                                 open={openAlert}
                                 className={`mt-4 shadow-sm flex-shrink-0 transition-all border ${isAdvancedPlan
-                                        ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 border-purple-400/30'
-                                        : 'bg-gradient-to-br from-blue-500 to-indigo-600 border-blue-400/30'
+                                    ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 border-purple-400/30'
+                                    : 'bg-gradient-to-br from-blue-500 to-indigo-600 border-blue-400/30'
                                     }`}
                                 onClose={() => setOpenAlert(false)}
                             >

@@ -109,18 +109,30 @@ Route::middleware(['auth', 'verified', 'role:admin', 'check.company'])->group(fu
             ->name('admin.shifts.index');
     Route::get('/mi-plan', [\App\Http\Controllers\Admin\SubscriptionController::class, 'index'])
         ->name('subscription.index');
-    Route::get('/admin/reports/sales/download', [ReportController::class, 'downloadSalesReport'])
+
+  Route::get('/admin/reports/sales/download', [ReportController::class, 'downloadSalesReport'])
         ->name('admin.reports.sales.download');
+
+    // 2. Reporte de Cajas / Turnos (NUEVO)
+    Route::get('/admin/reports/shifts/download', [ReportController::class, 'downloadShiftsReport'])
+        ->name('admin.reports.shifts.download');
+
+    // 3. Reporte de Inventario y Movimientos (NUEVO)
+    Route::get('/admin/reports/inventory/download', [ReportController::class, 'downloadInventoryReport'])
+        ->name('admin.reports.inventory.download');
+
     Route::post('/employees/{employee}/reset-password', [EmployeeController::class, 'resetPassword'])
     ->name('employees.reset-password');
-    Route::get('/shifts/export/pdf', [AdminShiftsController::class, 'exportPdf'])
-    ->name('admin.shifts.export.pdf');
+
 Route::get('/admin/receivables', [ReceivableController::class, 'index'])->name('admin.receivables.index');
 Route::get('/admin/receivables/history', [ReceivableController::class, 'history'])->name('admin.receivables.history');
 Route::post('/admin/receivables/{sale}/payments', [ReceivableController::class, 'storePayment'])->name('admin.receivables.payment');
 // Ruta directa a la vista cortina del SRI para el 2 MVP
   // Ruta directa a la vista del SRI
 Route::get('/sri', [SriController::class, 'index'])->name('sri.index');
+Route::get('/help', function () {
+        return Inertia::render('Admin/Help/Index');
+    })->name('help.index');
 });
 
 // ==========================================

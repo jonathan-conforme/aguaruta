@@ -144,79 +144,104 @@ class SaleService
                 ]);
             }
 
-            $totalSoldBottles = 0;
 
-            /*
-             |--------------------------------------------------------------------------
-             | DETALLE DE VENTA
-             |--------------------------------------------------------------------------
-             */
-            foreach ($data['products'] as $item) {
 
-                if ($item['quantity'] <= 0) {
-                    continue;
-                }
+           /*
+ |--------------------------------------------------------------------------
+ | DETALLE DE VENTA Y REGISTRO DE MOVIMIENTOS
+ |--------------------------------------------------------------------------
+ */
+$totalSoldBottles = 0;
+$totalReturnedBottles = 0;
 
-                $tripProduct = $tripProducts[$item['product_id']];
-                $price = $item['price'];
+foreach ($data['products'] as $item) {
 
-                if (
-                    $customer &&
-                    $customer->customer_category_id &&
-                    $tripProduct->customerCategories->isNotEmpty()
-                ) {
-                    $categoryPrice = $tripProduct->customerCategories
-                        ->firstWhere('id', $customer->customer_category_id);
+    $quantity = (int) ($item['quantity'] ?? 0);
+    $returnedForThisProduct = (int) ($item['returned_bottles'] ?? 0);
 
-                    if ($categoryPrice) {
-                        $price = $categoryPrice->pivot->price;
-                    }
-                }
+    // Omitir si no hay venta ni devueltos para este producto
+    if ($quantity <= 0 && $returnedForThisProduct <= 0) {
+        continue;
+    }
 
-                SaleDetail::create([
-                    'sale_id'           => $sale->id,
-                    'product_id'        => $item['product_id'],
-                    'quantity'          => $item['quantity'],
-                    'recovered_bottles' => $data['returned_bottles'] ?? 0,
-                    'unit_price'        => $price,
-                    'subtotal'          => $item['quantity'] * $price,
-                ]);
+    $tripProduct = $tripProducts[$item['product_id']] ?? null;
+    if (!$tripProduct) {
+        continue;
+    }
 
-                // Descontar stock del viaje
-                $trip->products()->updateExistingPivot(
-                    $item['product_id'],
-                    [
-                        'quantity' => $tripProduct->pivot->quantity - $item['quantity']
-                    ]
-                );
+    $price = $item['price'];
 
-                if ($tripProduct->requires_return) {
-                    $totalSoldBottles += $item['quantity'];
-                }
-            }
+    if (
+        $customer &&
+        $customer->customer_category_id &&
+        $tripProduct->customerCategories->isNotEmpty()
+    ) {
+        $categoryPrice = $tripProduct->customerCategories
+            ->firstWhere('id', $customer->customer_category_id);
 
-            /*
-             |--------------------------------------------------------------------------
-             | ACTUALIZAR DEUDA DE ENVASES
-             |--------------------------------------------------------------------------
-             */
-            if ($customer) {
-                $returnedBottles = $data['returned_bottles'] ?? 0;
-                $difference = $totalSoldBottles - $returnedBottles;
+        if ($categoryPrice) {
+            $price = $categoryPrice->pivot->price;
+        }
+    }
 
-                if ($difference > 0) {
-                    $customer->increment('bottle_debt', $difference);
-                } elseif ($difference < 0) {
-                    $newDebt = max(0, $customer->bottle_debt - abs($difference));
-                    $customer->update(['bottle_debt' => $newDebt]);
-                }
-            }
+    // 1. Guardar el detalle de la venta asignando los envases devueltos del producto específico
+    SaleDetail::create([
+        'sale_id'           => $sale->id,
+        'product_id'        => $item['product_id'],
+        'quantity'          => $quantity,
+        'recovered_bottles' => $returnedForThisProduct, // <-- Específico del producto
+        'unit_price'        => $price,
+        'subtotal'          => $quantity * $price,
+    ]);
 
-            return $sale->fresh([
-                'details',
-                'customer',
-                'payments'
-            ]);
+    // 2. Descontar stock del viaje si hubo venta
+    if ($quantity > 0) {
+        $trip->products()->updateExistingPivot(
+            $item['product_id'],
+            [
+                'quantity' => $tripProduct->pivot->quantity - $quantity
+            ]
+        );
+    }
+
+    // 3. REGISTRO ÚNICO DE INVENTARIO (Evita duplicados)
+    if ($returnedForThisProduct > 0) {
+        $tripProduct->increment('empty_stock', $returnedForThisProduct);
+
+        \App\Models\InventoryMovement::create([
+            'company_id'   => $companyId,
+            'product_id'   => $item['product_id'], // ID del producto exacto (Botellón o Tanque)
+            'trip_id'      => $trip->id,
+            'sale_id'      => $sale->id,
+            'user_id'      => auth()->id(),
+            'quantity'     => $returnedForThisProduct,
+            'type'         => 'in',
+            'description'  => "Cliente: " . ($customer?->name ?? 'Cliente Ocasional') . " | Vendedor: " . auth()->user()->name,
+        ]);
+    }
+
+    // Acumuladores para el cálculo de deuda del cliente
+    if ($tripProduct->requires_return) {
+        $totalSoldBottles += $quantity;
+        $totalReturnedBottles += $returnedForThisProduct;
+    }
+}
+
+/*
+ |--------------------------------------------------------------------------
+ | ACTUALIZAR DEUDA DE ENVASES EN EL CLIENTE
+ |--------------------------------------------------------------------------
+ */
+if ($customer) {
+    $difference = $totalSoldBottles - $totalReturnedBottles;
+
+    if ($difference > 0) {
+        $customer->increment('bottle_debt', $difference);
+    } elseif ($difference < 0) {
+        $newDebt = max(0, $customer->bottle_debt - abs($difference));
+        $customer->update(['bottle_debt' => $newDebt]);
+    }
+}
         });
     }
 }

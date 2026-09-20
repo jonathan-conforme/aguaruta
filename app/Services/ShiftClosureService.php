@@ -115,33 +115,21 @@ class ShiftClosureService
             ]);
         }
 
-        // --- 3. LÓGICA DE ENVASES: GUARDAR EN TRIP_DETAILS Y ACTUALIZAR BODEGA ---
+        // --- 3. LÓGICA DE ENVASES: CONSOLIDAR EN TRIP_DETAILS POR PRODUCTO ---
 
-        $recoveredBottles = $closureData['inventory_summary']['recovered_bottles'];
+        // Obtener la suma acumulada de envases recuperados por cada producto en este turno
+        $recoveredByProduct = \App\Models\SaleDetail::whereHas('sale', function ($query) use ($shift) {
+            $query->where('shift_id', $shift->id);
+        })
+        ->select('product_id', DB::raw('SUM(recovered_bottles) as total_recovered'))
+        ->groupBy('product_id')
+        ->pluck('total_recovered', 'product_id');
 
-        if ($recoveredBottles > 0) {
-            // 1. Buscamos dinámicamente cuál producto de este viaje requiere retorno
-            $detalleEnvase = $detallesViaje->first(function ($detalle) {
-                return $detalle->product && $detalle->product->requires_return;
-            });
-
-            if ($detalleEnvase) {
-                // Guardamos la cantidad de envases recuperados en la tabla trip_details
-                $detalleEnvase->update([
-                    'recovered_bottles' => $recoveredBottles,
-                ]);
-
-                // 2. Sumamos los envases vacíos a la tabla Product usando el producto dinámico
-                $envaseProducto = $detalleEnvase->product;
-
-                $envaseProducto->increment('empty_stock', $recoveredBottles);
-
-                InventoryMovement::create([
-                    'company_id' => $envaseProducto->company_id,
-                    'product_id' => $envaseProducto->id,
-                    'type' => 'in',
-                    'quantity' => $recoveredBottles,
-                    'description' => "Ingreso de envases vacios recuperados en ruta. Turno ID: {$shift->id}",
+        // Actualizar los registros de trip_details con su total correspondiente
+        foreach ($detallesViaje as $detalle) {
+            if (isset($recoveredByProduct[$detalle->product_id])) {
+                $detalle->update([
+                    'recovered_bottles' => $recoveredByProduct[$detalle->product_id],
                 ]);
             }
         }

@@ -117,7 +117,7 @@ Route::middleware(['auth', 'verified', 'role:admin', 'check.company'])->group(fu
         ->name('admin.reports.shifts.download');
     Route::get('/admin/reports/inventory/download', [ReportController::class, 'downloadInventoryReport'])
         ->name('admin.reports.inventory.download');
-        
+
         // Exportar Turnos a PDF (Admin)
     Route::get('/admin/shifts/export/pdf', [AdminShiftsController::class, 'exportPdf'])
         ->name('admin.shifts.export.pdf');
@@ -125,9 +125,9 @@ Route::middleware(['auth', 'verified', 'role:admin', 'check.company'])->group(fu
 
     Route::post('/employees/{employee}/reset-password', [EmployeeController::class, 'resetPassword'])
     ->name('employees.reset-password');
-    Route::get('/shifts/export/pdf', [AdminShiftsController::class, 'exportPdf'])
-    ->name('admin.shifts.export.pdf');
-    
+    //Route::get('/shifts/export/pdf', [AdminShiftsController::class, 'exportPdf'])
+    //->name('admin.shifts.export.pdf');
+
 Route::get('/admin/receivables', [ReceivableController::class, 'index'])->name('admin.receivables.index');
 Route::get('/admin/receivables/history', [ReceivableController::class, 'history'])->name('admin.receivables.history');
 Route::post('/admin/receivables/{sale}/payments', [ReceivableController::class, 'storePayment'])->name('admin.receivables.payment');

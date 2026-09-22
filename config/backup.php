@@ -71,15 +71,22 @@ return [
     ],
 
    'notifications' => [
+
     'notifications' => [
         \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification::class => [],
         \Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification::class => [],
 
-        // Tus clases de notificación para Telegram:
-        \App\Notifications\BackupSuccessfulTelegramNotification::class => ['telegram'],
-        \App\Notifications\CleanupSuccessfulTelegramNotification::class => ['telegram'],
+        // CLAVE: La clase de Spatie es la KEY, tu clase es el VALUE
+        \Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification::class => [
+            \App\Notifications\BackupSuccessfulTelegramNotification::class,
+        ],
 
         \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification::class => [],
+
+        \Spatie\Backup\Notifications\Notifications\CleanupWasSuccessfulNotification::class => [
+            \App\Notifications\CleanupSuccessfulTelegramNotification::class,
+        ],
+
         \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class => [],
     ],
 

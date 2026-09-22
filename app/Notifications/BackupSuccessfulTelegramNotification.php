@@ -17,7 +17,7 @@ class BackupSuccessfulTelegramNotification extends Notification
 
     public function toTelegram($notifiable)
     {
-        $appName = config('app.name', 'AquaRuta');
+        $appName = config('app.name', 'AquaRutaTech');
 
         return TelegramMessage::create()
             ->to(env('TELEGRAM_CHAT_ID'))

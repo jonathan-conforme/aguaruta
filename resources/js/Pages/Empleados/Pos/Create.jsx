@@ -27,7 +27,7 @@ export default function CreateSale({ trip, customers }) {
             name: p.name,
             price: p.price,
             quantity: 0,
-            returned_bottles: 0,
+            requires_return: p.requires_return,
             units_per_package: p.units_per_package,
             loaded_quantity: p.pivot?.quantity || 0,
         }))
@@ -324,7 +324,7 @@ export default function CreateSale({ trip, customers }) {
                         {errors.products && <span className="text-red-500 text-sm mt-2 block">{errors.products}</span>}
                     </div>
 
-                   {/* 3. ENVASES Y MÉTODO DE PAGO */}
+           {/* 3. ENVASES Y MÉTODO DE PAGO */}
 <div className="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
     <label className="block text-sm font-bold text-gray-700 mb-4 border-b border-gray-100 pb-2">
         3. Detalles de facturación
@@ -337,27 +337,40 @@ export default function CreateSale({ trip, customers }) {
                 Envases Devueltos
             </label>
 
-           {data.products.map((prod, idx) => (
-                <div key={prod.product_id} className="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg border border-gray-200">
-                    <span className="text-sm font-semibold text-gray-700">{prod.name}</span>
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="number"
-                            min="0"
-                            className="w-20 rounded-lg border-gray-300 text-center font-bold text-gray-800 focus:ring-indigo-500 focus:border-indigo-500 py-1"
-                            placeholder="0"
-                            value={prod.returned_bottles === 0 ? '' : prod.returned_bottles}
-                            onChange={(e) => {
-                                const val = parseInt(e.target.value) || 0;
-                                const updatedProducts = [...data.products];
-                                updatedProducts[idx].returned_bottles = val;
-                                setData('products', updatedProducts);
-                            }}
-                        />
-                        <span className="text-xs text-gray-500">vacío(s)</span>
-                    </div>
-                </div>
-            ))}
+            {/* SE AGREGA EL FILTRO: Solo mapea los productos retornables */}
+            {data.products
+                .filter(prod => prod.requires_return || prod.requires_return) // Ajusta la propiedad según venga del Backend (is_returnable o retornable)
+                .map((prod) => {
+                    // Encontramos el índice original en data.products para actualizar el estado correctamente
+                    const originalIndex = data.products.findIndex(p => p.product_id === prod.product_id);
+
+                    return (
+                        <div key={prod.product_id} className="flex items-center justify-between bg-gray-50 p-2.5 rounded-lg border border-gray-200">
+                            <span className="text-sm font-semibold text-gray-700">{prod.name}</span>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    className="w-20 rounded-lg border-gray-300 text-center font-bold text-gray-800 focus:ring-indigo-500 focus:border-indigo-500 py-1"
+                                    placeholder="0"
+                                    value={prod.returned_bottles === 0 ? '' : prod.returned_bottles}
+                                    onChange={(e) => {
+                                        const val = parseInt(e.target.value) || 0;
+                                        const updatedProducts = [...data.products];
+                                        updatedProducts[originalIndex].returned_bottles = val;
+                                        setData('products', updatedProducts);
+                                    }}
+                                />
+                                <span className="text-xs text-gray-500">vacío(s)</span>
+                            </div>
+                        </div>
+                    );
+                })}
+
+            {/* OPCIONAL: Mensaje si no hay productos retornables en el viaje */}
+            {data.products.filter(prod => prod.is_returnable || prod.retornable).length === 0 && (
+                <p className="text-xs text-gray-400 italic">No hay productos retornables en este viaje.</p>
+            )}
         </div>
 
         {/* MÉTODO DE PAGO */}

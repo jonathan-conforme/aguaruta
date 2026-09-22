@@ -92,7 +92,16 @@ class SaleController extends Controller
             ->with('error', 'Debes iniciar el viaje antes de vender.');
     }
 
-    $trip->load('products.customerCategories');
+
+    $trip->load(['products' => function($query) {
+        $query->select(
+            'products.id',
+            'products.name',
+            'products.price',
+            'products.requires_return',
+            'products.units_per_package'
+        )->with('customerCategories');
+    }]);
 
     $customers = Customer::with('category')->orderBy('name', 'asc')->get();
 

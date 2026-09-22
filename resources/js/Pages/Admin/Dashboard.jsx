@@ -26,6 +26,7 @@ export default function AdminDashboard({
     utilidades = 0,
     productsSoldToday = 0,
     recoveredBottles = 0,
+    recoveredByProduct = {},
     activeTrips = 0,
     pendingTrips = 0,
     completedTrips = 0,
@@ -34,6 +35,7 @@ export default function AdminDashboard({
     weeklySalesFlow = [0, 0, 0, 0, 0, 0, 0],
     monthlySalesFlow = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 }) {
+    const totalRecovered = Object.values(recoveredByProduct).reduce((acc, curr) => acc + curr, 0);
     const [viewMode, setViewMode] = useState('weekly');
     const [hoveredPoint, setHoveredPoint] = useState(null);
 
@@ -93,8 +95,8 @@ export default function AdminDashboard({
                                 </h2>
                             </div>
                             <span className={`text-xs px-3 py-1.5 rounded-full font-medium border backdrop-blur-md flex items-center gap-1.5 w-fit ${utilidades >= 0
-                                    ? "bg-emerald-500/20 text-emerald-200 border-emerald-400/30"
-                                    : "bg-rose-500/20 text-rose-200 border-rose-400/30"
+                                ? "bg-emerald-500/20 text-green-200 border-green-400/30"
+                                : "bg-pink-500/20 text-pink-200 border-pink-400/30"
                                 }`}>
                                 {utilidades >= 0 ? (
                                     <>
@@ -127,10 +129,10 @@ export default function AdminDashboard({
                         <div>
                             <div className="flex justify-between items-center mb-4">
                                 <div>
-                                    <h3 className="text-base font-bold text-slate-800">¡Hola, {auth.user.name.split(' ')[0]}! 👋</h3>
+                                    <h3 className="text-base font-bold text-slate-800">¡Hola, {auth.user.name.split(' ')[0]}! </h3>
                                     <p className="text-xs text-slate-400">¿Qué deseas realizar hoy?</p>
                                 </div>
-                                <span className="text-xs bg-emerald-50 text-emerald-600 font-bold px-2.5 py-1 rounded-full border border-emerald-100">
+                                <span className="text-xs bg-green-50 text-emerald-600 font-bold px-2.5 py-1 rounded-full border border-green-100">
                                     Hoy: {formatCurrency(todaySales)}
                                 </span>
                             </div>
@@ -160,12 +162,12 @@ export default function AdminDashboard({
                         </div>
 
                         {lowStockProducts > 0 && (
-                            <div className="bg-rose-50 border border-rose-100 rounded-2xl p-3 flex items-center justify-between text-xs mt-4">
-                                <div className="flex items-center gap-2 text-rose-700 font-medium">
-                                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                            <div className="bg-pink-50 border border-pink-100 rounded-2xl p-3 flex items-center justify-between text-xs mt-4">
+                                <div className="flex items-center gap-2 text-pink-700 font-medium">
+                                    <span className="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
                                     <span>{lowStockProducts} productos con stock crítico</span>
                                 </div>
-                                <Link href={route('products.index')} className="text-[11px] font-bold text-rose-600 hover:underline">
+                                <Link href={route('products.index')} className="text-[11px] font-bold text-pink-600 hover:underline">
                                     Revisar
                                 </Link>
                             </div>
@@ -201,19 +203,33 @@ export default function AdminDashboard({
                             </div>
                             <div>
                                 <span className="text-xs text-slate-400 font-medium block">Productos Vendidos</span>
-                                <span className="text-lg font-bold text-slate-800">{productsSoldToday} u.</span>
+                                <span className="text-lg font-bold text-slate-800">{productsSoldToday} </span>
                             </div>
                         </div>
 
+
                         <div className="flex items-center gap-4 pt-3 sm:pt-0 sm:px-6">
-                            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
                                 <ArrowPathIcon className="w-5 h-5" />
                             </div>
                             <div>
                                 <span className="text-xs text-slate-400 font-medium block">Envases Retornados</span>
-                                <span className="text-lg font-bold text-slate-800">{recoveredBottles} botellones</span>
+                                <span className="text-lg font-bold text-slate-800">{recoveredBottles} envases</span>
+
+                                {/* Desglose dinámico opcional si hay datos registrados */}
+                                {Object.keys(recoveredByProduct).length > 0 && (
+                                    <div className="text-[11px] text-slate-500 mt-1 space-y-0.5">
+                                        {Object.entries(recoveredByProduct).map(([name, qty]) => (
+                                            <div key={name} className="flex items-center gap-1">
+                                                <span className="font-semibold text-slate-700">{qty}</span>
+                                                <span>{name}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
+
                     </div>
                 </div>
 
@@ -373,10 +389,10 @@ export default function AdminDashboard({
                         {/* Card 1: Ingresos de Hoy */}
                         <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-sm border border-slate-100 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-200 transition-all">
                             <div className="flex justify-between items-start">
-                                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                <div className="w-10 h-10 bg-green-50 text-green-600 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                                     <ArrowDownLeftIcon className="w-5 h-5 stroke-[2.5]" />
                                 </div>
-                                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full flex items-center gap-0.5">
+                                <span className="text-[11px] font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full flex items-center gap-0.5">
                                     <ChevronUpIcon className="w-3 h-3 stroke-[3]" /> Ingreso
                                 </span>
                             </div>
@@ -430,9 +446,8 @@ export default function AdminDashboard({
                                 <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
                                     <WalletIcon className="w-5 h-5 stroke-[2]" />
                                 </div>
-                                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
-                                    utilidades >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                                }`}>
+                                <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${utilidades >= 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-pink-50 text-pink-600'
+                                    }`}>
                                     Utilidad
                                 </span>
                             </div>

@@ -561,7 +561,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
                 {/* BOTTOM NAVIGATION BAR */}
                 <nav className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 shadow-[0_-10px_40px_rgba(0,0,0,0.06)] rounded-t-3xl pt-2 pb-6 px-4 z-40 flex justify-between items-end">
-                    <Link href={route('dashboard')} className={`flex flex-col items-center justify-center gap-1 w-16 ${isActive('dashboard') ? 'text-pink-600' : 'text-gray-500 hover:text-gray-900'} transition-colors`}>
+                    <Link href={getRouteUrl('dashboard')} className={`flex flex-col items-center justify-center gap-1 w-16 ${isActive('dashboard') ? 'text-pink-600' : 'text-gray-500 hover:text-gray-900'} transition-colors`}>
                         <HomeIcon className="h-6 w-6" strokeWidth={isActive('dashboard') ? 2 : 1.5} />
                         <span className="text-[10px] font-medium">Resumen</span>
                     </Link>

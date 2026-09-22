@@ -43,11 +43,27 @@ class AdminDashboardService
                   ->whereDate('created_at', $hoy);
         })->sum('quantity');
 
-        // Envases recuperados hoy
-        $recoveredBottles = SaleDetail::whereHas('sale', function ($query) use ($companyId, $hoy) {
-            $query->where('company_id', $companyId)
-                  ->whereDate('created_at', $hoy);
-        })->sum('recovered_bottles');
+        // Envases recuperados hoy (Solo productos que tienen activados envases retornables)
+$recoveredBottles = SaleDetail::whereHas('product', function ($query) {
+        $query->where('requires_return', true); // O 'es_retornable', según el nombre de tu columna
+    })
+    ->whereHas('sale', function ($query) use ($companyId, $hoy) {
+        $query->where('company_id', $companyId)
+              ->whereDate('created_at', $hoy);
+    })->sum('recovered_bottles');
+    $recoveredByProduct = SaleDetail::whereHas('product', function ($query) {
+        $query->where('requires_return', true);
+    })
+    ->whereHas('sale', function ($query) use ($companyId, $hoy) {
+        $query->where('company_id', $companyId)
+              ->whereDate('created_at', $hoy);
+    })
+    ->with('product:id,name')
+    ->get()
+    ->groupBy('product.name')
+    ->map(function ($items) {
+        return (int) $items->sum('recovered_bottles');
+    });
 
         $activeTrips = Trip::where('company_id', $companyId)
             ->where('status', 'active')
@@ -101,7 +117,9 @@ class AdminDashboardService
             'monthPurchases'    => (float) $monthPurchases,
             'utilidades'        => (float) $utilidades,
             'productsSoldToday' => (int) $productsSoldToday,
-            'recoveredBottles'  => (int) $recoveredBottles,
+            'recoveredBottles'  => (int) $recoveredBottles, // <-- Mantiene la prop original
+            'recoveredByProduct' => $recoveredByProduct,
+           // 'recoveredBottles'  => (int) $recoveredBottles,
             'activeTrips'       => $activeTrips,
             'pendingTrips'      => $pendingTrips,
             'completedTrips'    => $completedTrips,

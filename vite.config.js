@@ -2,14 +2,16 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+
 import path from 'path';
 
 export default defineConfig({
 
     base: './',
     plugins: [
+
         laravel({
-            input: 'resources/js/app.jsx',
+            input: ['resources/css/app.css', 'resources/js/app.jsx'],
             refresh: true,
         }),
         react(),
@@ -17,6 +19,7 @@ export default defineConfig({
             registerType: 'autoUpdate',
             injectRegister: 'auto',
             strategies: 'generateSW',
+           
             manifest: {
                 id: '/',
                 name: 'AquaRuta Logística',

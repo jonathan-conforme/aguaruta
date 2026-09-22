@@ -72,15 +72,20 @@ return [
 
     'notifications' => [
         'notifications' => [
-            \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification::class => ['mail'],
-            \Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification::class => ['mail'],
-            \Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification::class => [],
-            \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification::class => ['mail'],
-            \Spatie\Backup\Notifications\Notifications\CleanupWasSuccessfulNotification::class => ['mail'],
-            \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class => ['mail'],
+            \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification::class => [],
+            \Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification::class => ['telegram'],
+            \Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification::class => ['telegram'],
+            \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification::class => [],
+            \Spatie\Backup\Notifications\Notifications\CleanupWasSuccessfulNotification::class => ['telegram'],
+            \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class => ['telegram'],
         ],
 
         'notifiable' => \Spatie\Backup\Notifications\Notifiable::class,
+        'telegram' => [
+            'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+            'chat_id'   => env('TELEGRAM_CHAT_ID'),
+            'disable_notification' => false,
+        ],
 
         'mail' => [
             'to' => 'your@example.com',

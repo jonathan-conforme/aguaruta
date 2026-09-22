@@ -70,22 +70,27 @@ return [
         'retry_delay' => 0,
     ],
 
+   'notifications' => [
     'notifications' => [
-        'notifications' => [
-            \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification::class => [],
-            \Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification::class => ['telegram'],
-            \Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification::class => ['telegram'],
-            \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification::class => [],
-            \Spatie\Backup\Notifications\Notifications\CleanupWasSuccessfulNotification::class => ['telegram'],
-            \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class => ['telegram'],
-        ],
+        \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification::class => [],
+        \Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification::class => [],
 
-        'notifiable' => \Spatie\Backup\Notifications\Notifiable::class,
-        'telegram' => [
-            'bot_token' => env('TELEGRAM_BOT_TOKEN'),
-            'chat_id'   => env('TELEGRAM_CHAT_ID'),
-            'disable_notification' => false,
-        ],
+        // Tus clases de notificación para Telegram:
+        \App\Notifications\BackupSuccessfulTelegramNotification::class => ['telegram'],
+        \App\Notifications\CleanupSuccessfulTelegramNotification::class => ['telegram'],
+
+        \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification::class => [],
+        \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class => [],
+    ],
+
+    'notifiable' => \Spatie\Backup\Notifications\Notifiable::class,
+
+    'telegram' => [
+        'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'chat_id'   => env('TELEGRAM_CHAT_ID'),
+    ],
+
+
 
         'mail' => [
             'to' => 'your@example.com',

@@ -16,6 +16,10 @@ class ValidarRucEcuador implements ValidationRule
 
     private function esIdentificacionValida(string $valor): bool
     {
+        if ($valor === '9999999999999') {
+            return true;
+        }
+        
         $longitud = strlen($valor);
 
         // Debe ser numérico y tener 10 (Cédula) o 13 (RUC) dígitos
@@ -48,14 +52,14 @@ class ValidarRucEcuador implements ValidationRule
                     return false;
                 }
                 return $this->validarModulo10(substr($valor, 0, 10));
-            } 
+            }
             // 2. Sociedad Privada (Tercer dígito == 9)
             elseif ($tercerDigito === 9) {
                 if (substr($valor, 10, 3) !== '001') {
                     return false;
                 }
                 return $this->validarModulo11($valor, [4, 3, 2, 7, 6, 5, 4, 3, 2], 9);
-            } 
+            }
             // 3. Sociedad Pública (Tercer dígito == 6)
             elseif ($tercerDigito === 6) {
                 if (substr($valor, 9, 4) !== '0001') {
@@ -79,7 +83,7 @@ class ValidarRucEcuador implements ValidationRule
         $digitoVerificador = (int) $cedula[9];
         $decenaSuperior = (int) ceil($suma / 10) * 10;
         $resultado = $decenaSuperior - $suma;
-        
+
         if ($resultado === 10) {
             $resultado = 0;
         }

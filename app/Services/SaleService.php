@@ -154,6 +154,7 @@ class SaleService
 $totalSoldBottles = 0;
 $totalReturnedBottles = 0;
 
+
 foreach ($data['products'] as $item) {
 
     $quantity = (int) ($item['quantity'] ?? 0);

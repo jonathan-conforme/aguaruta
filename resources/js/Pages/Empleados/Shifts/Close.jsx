@@ -86,18 +86,31 @@ export default function Close({ closureData }) {
                         <div>
     <p className="text-xs font-bold text-gray-500 uppercase mb-2">Productos Vendidos</p>
     <ul className="space-y-1.5">
-        {/* 🔥 CAMBIO AQUÍ: Añadimos ?. y || [] para evitar que explote si viene vacío */}
-        {(closureData?.inventory_summary?.products_sold || []).map((product) => (
-            <li key={product.product_id} className="flex justify-between text-sm bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                <span className="font-medium text-gray-700">{product.name}</span>
-                <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">x{product.quantity}</span>
-            </li>
-        ))}
+        {(() => {
+            // Obtenemos la lista usando cualquiera de los dos nombres
+            const soldList = closureData?.inventory_summary?.products_sold
+                || closureData?.inventory_summary?.product_sold
+                || [];
 
-        {/* 🔥 CAMBIO AQUÍ: También protegemos la validación del .length */}
-        {(!closureData?.inventory_summary?.products_sold || closureData.inventory_summary.products_sold.length === 0) && (
-            <li className="text-sm text-gray-400 bg-gray-50 p-3 rounded-lg text-center">No hay ventas registradas.</li>
-        )}
+            // Si no hay elementos en la lista, mostramos el mensaje
+            if (soldList.length === 0) {
+                return (
+                    <li className="text-sm text-gray-400 bg-gray-50 p-3 rounded-lg text-center">
+                        No hay ventas registradas.
+                    </li>
+                );
+            }
+
+            // Si hay elementos, renderizamos únicamente los productos
+            return soldList.map((product) => (
+                <li key={product.product_id} className="flex justify-between text-sm bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                    <span className="font-medium text-gray-700">{product.name}</span>
+                    <span className="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                        x{product.quantity}
+                    </span>
+                </li>
+            ));
+        })()}
     </ul>
 </div>
                         <div className="flex flex-col justify-center items-center bg-indigo-50 rounded-xl p-4 border border-indigo-100">

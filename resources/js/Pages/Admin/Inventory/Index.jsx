@@ -173,7 +173,7 @@ export default function Index({ movements, products }) {
                     <div className="p-4 sm:p-6 border-b border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white">
                         <div>
                             <Typography variant="h5" color="blue-gray" className="font-bold text-lg sm:text-xl">
-                                Historial de Inventario dfgdgdhd
+                                Historial de Inventario
                             </Typography>
                             <Typography color="gray" className="mt-0.5 text-xs sm:text-sm font-normal">
                                 Monitorea las entradas por abastecimiento, salidas por mermas y envasados.

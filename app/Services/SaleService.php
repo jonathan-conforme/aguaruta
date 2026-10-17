@@ -52,6 +52,7 @@ class SaleService
 
             $customer = Customer::select([
                 'id',
+                'name',
                 'customer_category_id',
                 'bottle_debt'
             ])->find($data['customer_id']);
